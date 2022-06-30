@@ -526,7 +526,7 @@ available_protocols = [
 
 if __name__ == '__main__':
     print(banner)
-    parser = argparse.ArgumentParser(add_help=True, description="Proof of concept for coercing authentication with MS-CSVP::CprepDiskDeleteFile()")
+    parser = argparse.ArgumentParser(add_help=True, description="A python script to automatically coerce a Windows server to authenticate on an arbitrary machine through 8 methods.")
 
     parser.add_argument("-u", "--username", default="", help="Username to authenticate to the endpoint.")
     parser.add_argument("-p", "--password", default="", help="Password to authenticate to the endpoint. (if omitted, it will be asked unless -no-pass is specified)")

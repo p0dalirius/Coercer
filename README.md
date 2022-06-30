@@ -26,7 +26,7 @@
 
 usage: coerce_poc.py [-h] [-u USERNAME] [-p PASSWORD] [-d DOMAIN] [--hashes [LMHASH]:NTHASH] [--no-pass] [-v] [-a] [-k] [--dc-ip ip address] [--target-ip ip address] listener target
 
-Proof of concept for coercing authentication with MS-CSVP::CprepDiskDeleteFile()
+A python script to automatically coerce a Windows server to authenticate on an arbitrary machine through 8 methods.
 
 positional arguments:
   listener              IP address or hostname of listener

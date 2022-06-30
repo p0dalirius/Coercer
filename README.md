@@ -1,7 +1,7 @@
 ![](./.github/banner.png)
 
 <p align="center">
-  This Python script can be used to bypass IP source restrictions using HTTP headers.
+  A python script to automatically coerce a Windows server to authenticate on an arbitrary machine through 8 methods.
   <br>
   <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/p0dalirius/ipsourcebypass">
   <a href="https://twitter.com/intent/follow?screen_name=podalirius_" title="Follow"><img src="https://img.shields.io/twitter/follow/podalirius_?label=Podalirius&style=social"></a>

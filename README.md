@@ -18,19 +18,16 @@
 ## Usage
 
 ```
-   ______                              
-  / ____/___  ___  _____________  _____
- / /   / __ \/ _ \/ ___/ ___/ _ \/ ___/
-/ /___/ /_/ /  __/ /  / /__/  __/ /      v1.1
-\____/\____/\___/_/   \___/\___/_/       by @podalirius_
+       ______                              
+      / ____/___  ___  _____________  _____
+     / /   / __ \/ _ \/ ___/ ___/ _ \/ ___/
+    / /___/ /_/ /  __/ /  / /__/  __/ /      v1.2
+    \____/\____/\___/_/   \___/\___/_/       by @podalirius_
 
-usage: coerce_poc.py [-h] [-u USERNAME] [-p PASSWORD] [-d DOMAIN] [--hashes [LMHASH]:NTHASH] [--no-pass] [-v] [-a] [-k] [--dc-ip ip address] [--target-ip ip address] listener target
+usage: coercer.py [-h] [-u USERNAME] [-p PASSWORD] [-d DOMAIN] [--hashes [LMHASH]:NTHASH] [--no-pass] [-v] [-a] [-k] [--dc-ip ip address] [-l LISTENER]
+                  (-t TARGET | -f TARGETS_FILE) [--target-ip ip address]
 
-A python script to automatically coerce a Windows server to authenticate on an arbitrary machine through 8 methods.
-
-positional arguments:
-  listener              IP address or hostname of listener
-  target                IP address or hostname of target
+Automatic windows authentication coercer over various RPC calls.
 
 options:
   -h, --help            show this help message and exit
@@ -45,13 +42,18 @@ options:
   --no-pass             Don't ask for password (useful for -k)
   -v, --verbose
   -a, --analyze
-  -k, --kerberos        Use Kerberos authentication. Grabs credentials from ccache file (KRB5CCNAME) based on target parameters. If valid credentials cannot be found, it will use the ones
-                        specified in the command line
+  -k, --kerberos        Use Kerberos authentication. Grabs credentials from ccache file (KRB5CCNAME) based on target parameters. If valid credentials cannot be found, it
+                        will use the ones specified in the command line
   --dc-ip ip address    IP Address of the domain controller. If omitted it will use the domain part (FQDN) specified in the target parameter
+  -l LISTENER, --listener LISTENER
+                        IP address or hostname of the listener machine
+  -t TARGET, --target TARGET
+                        IP address or hostname of the target machine
+  -f TARGETS_FILE, --targets-file TARGETS_FILE
+                        IP address or hostname of the target machine
   --target-ip ip address
-                        IP Address of the target machine. If omitted it will use whatever was specified as target. This is useful when target is the NetBIOS name or Kerberos name and you
-                        cannot resolve it
-
+                        IP Address of the target machine. If omitted it will use whatever was specified as target. This is useful when target is the NetBIOS name or
+                        Kerberos name and you cannot resolve it
 ```
 
 ## Demonstration

@@ -14,6 +14,7 @@
  - [x] Automatically detects open SMB pipes on the remote machine.
  - [x] Calls one by one all the vulnerable RPC functions to coerce the server to authenticate on an arbitrary machine.
  - [x] Analyze mode with `--analyze`, which only lists the vulnerable protocols and functions listening, without performing a coerced authentication.
+ - [x] Perform coerce attack on a list of targets from a file with `--targets-file`
 
 ## Usage
 
@@ -42,8 +43,7 @@ options:
   --no-pass             Don't ask for password (useful for -k)
   -v, --verbose
   -a, --analyze
-  -k, --kerberos        Use Kerberos authentication. Grabs credentials from ccache file (KRB5CCNAME) based on target parameters. If valid credentials cannot be found, it
-                        will use the ones specified in the command line
+  -k, --kerberos        Use Kerberos authentication. Grabs credentials from ccache file (KRB5CCNAME) based on target parameters. If valid credentials cannot be found, it will use the ones specified in the command line
   --dc-ip ip address    IP Address of the domain controller. If omitted it will use the domain part (FQDN) specified in the target parameter
   -l LISTENER, --listener LISTENER
                         IP address or hostname of the listener machine
@@ -52,17 +52,22 @@ options:
   -f TARGETS_FILE, --targets-file TARGETS_FILE
                         IP address or hostname of the target machine
   --target-ip ip address
-                        IP Address of the target machine. If omitted it will use whatever was specified as target. This is useful when target is the NetBIOS name or
-                        Kerberos name and you cannot resolve it
+                        IP Address of the target machine. If omitted it will use whatever was specified as target. This is useful when target is the NetBIOS name or Kerberos name and you cannot resolve it
 ```
 
 ## Demonstration
+
+Here is a video demonstration of the attack mode against a target:
+
+https://user-images.githubusercontent.com/79218792/177647814-bb04f728-96bb-4048-a3ad-f83b250c05bf.mp4
+
+## Example output
 
 In attack mode (without `--analyze` option) you get the following output:
 
 ![](./.github/example.png)
 
-And you get plenty of authentications in Responder:
+After all the RPC calls, you get plenty of authentications in Responder:
 
 ![](./.github/hashes.png)
 

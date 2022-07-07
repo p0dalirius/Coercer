@@ -117,7 +117,7 @@ if __name__ == '__main__':
         else:
             print("[%s] Analyzing available protocols on the remote machine and perform RPC calls to coerce authentication to %s ..." % (target, options.listener))
             # Call interesting RPC functions to coerce remote machine to authenticate
-            coerce_auth_target(options, lmhash, nthash, all_pipes, available_protocols)
+            coerce_auth_target(options, target, lmhash, nthash, all_pipes, available_protocols)
         print()
 
     print("[+] All done!")

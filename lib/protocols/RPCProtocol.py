@@ -40,10 +40,12 @@ class RPCProtocol(object):
 
     available_pipes = []
 
+    webdav_target = None
+    webdav_port = None
+
     ncan_target = None
     __rpctransport = None
     dce = None
-
     verbose = False
     debug = False
 

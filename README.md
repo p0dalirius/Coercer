@@ -15,6 +15,7 @@
  - [x] Calls one by one all the vulnerable RPC functions to coerce the server to authenticate on an arbitrary machine.
  - [x] Analyze mode with `--analyze`, which only lists the vulnerable protocols and functions listening, without performing a coerced authentication.
  - [x] Perform coerce attack on a list of targets from a file with `--targets-file`
+ - [x] Coerce to a WebDAV target with `--webdav-host` and `--webdav-port`
 
 ## Usage
 
@@ -74,3 +75,9 @@ After all the RPC calls, you get plenty of authentications in Responder:
 ## Contributing
 
 Pull requests are welcome. Feel free to open an issue if you want to add other features.
+
+## Credits
+
+ - [@topotam77](https://twitter.com/topotam77) for **PetitPotam** on [MS-EFSR](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
+ - [@topotam77](https://twitter.com/topotam77) and [@_nwodtuhs](https://twitter.com/_nwodtuhs) for **ShadowCoerce** on [MS-FSRVP](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fsrvp/dae107ec-8198-4778-a950-faa7edad125b)
+ - [@filip_dragovic](https://twitter.com/filip_dragovic) for **DFSCoerce** on [MS-DFSNM](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dfsnm/95a506a8-cae6-4c42-b19d-9c1ed1223979)

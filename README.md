@@ -75,7 +75,7 @@ https://user-images.githubusercontent.com/79218792/177647814-bb04f728-96bb-4048-
 
 If you want to trigger an HTTP authentication, you can use WebDAV with `--webdav-host` and the netdbios name of your attacking machine! Here is an example:
 
-
+https://user-images.githubusercontent.com/79218792/178027554-a0b084d8-10af-401a-b54c-f33bec011fe2.mp4
 
 ## Example output
 

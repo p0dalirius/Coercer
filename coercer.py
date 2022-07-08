@@ -39,9 +39,9 @@ def parseArgs():
     parser.add_argument("--dc-ip", action="store", metavar="ip address", help="IP Address of the domain controller. If omitted it will use the domain part (FQDN) specified in the target parameter")
 
     listener_group = parser.add_argument_group()
-    listener_group.add_argument("-l", "--listener", help="IP address or hostname of the listener machine")
-    listener_group.add_argument("-wh", "--webdav-host", default=None, help="WebDAV IP of the server to authenticate to.")
-    listener_group.add_argument("-wp", "--webdav-port", default=None, help="WebDAV port of the server to authenticate to.")
+    listener_group.add_argument("-l", "--listener", type=str, help="IP address or hostname of the listener machine")
+    listener_group.add_argument("-wh", "--webdav-host", default=None, type=str, help="WebDAV IP of the server to authenticate to.")
+    listener_group.add_argument("-wp", "--webdav-port", default=80, type=int, help="WebDAV port of the server to authenticate to.")
 
     target_group = parser.add_mutually_exclusive_group(required=True)
     target_group.add_argument("-t", "--target", default=None, help="IP address or hostname of the target machine")
@@ -100,7 +100,8 @@ def coerce_auth_target(options, target, lmhash, nthash, all_pipes, available_pro
 
 
 available_protocols = [
-    MS_DFSNM, MS_EFSR, MS_FSRVP
+    #MS_DFSNM,
+    MS_EFSR, MS_FSRVP
 ]
 
 

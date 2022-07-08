@@ -92,5 +92,6 @@ class MS_FSRVP(RPCProtocol):
         ]
 
     def perform_coerce_calls(self, listener):
-        self.IsPathSupported(listener)
-        self.IsPathShadowCopied(listener)
+        if listener is not None:
+            self.IsPathSupported(listener)
+            self.IsPathShadowCopied(listener)

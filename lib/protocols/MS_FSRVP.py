@@ -45,6 +45,8 @@ class MS_FSRVP(RPCProtocol):
     auth_level = RPC_C_AUTHN_LEVEL_PKT_PRIVACY
 
     def IsPathSupported(self, listener, share="NETLOGON", max_retries=3):
+        # Microsoft docs: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/6813bfa8-1538-4c5f-982a-ad58caff3c1c
+        # Finding credits: @topotam77 and @_nwodtuhs
         call_name, call_opnum = "IsPathSupported", 8
         if self.dce is not None:
             tries = 0
@@ -66,6 +68,8 @@ class MS_FSRVP(RPCProtocol):
                 print("[!] Error: dce is None, you must call connect() first.")
 
     def IsPathShadowCopied(self, listener, share="NETLOGON", max_retries=3):
+        # Microsoft docs: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/6813bfa8-1538-4c5f-982a-ad58caff3c1c
+        # Finding credits: @topotam77 and @_nwodtuhs
         call_name, call_opnum = "IsPathShadowCopied", 9
         if self.dce is not None:
             tries = 0

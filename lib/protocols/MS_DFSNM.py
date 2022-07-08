@@ -57,6 +57,8 @@ class MS_DFSNM(RPCProtocol):
     available_pipes = [r"\PIPE\netdfs"]
 
     def NetrDfsRemoveStdRoot(self, listener, max_retries=3):
+        # Microsoft docs: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dfsnm/e9da023d-554a-49bc-837a-69f22d59fd18
+        # Finding credits: @filip_dragovic
         call_name, call_opnum = "NetrDfsRemoveStdRoot", 13
         if self.dce is not None:
             tries = 0
@@ -92,6 +94,8 @@ class MS_DFSNM(RPCProtocol):
                 print("   [!] Error: dce is None, you must call connect() first.")
 
     def NetrDfsAddStdRoot(self, listener, max_retries=3):
+        # Microsoft docs: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dfsnm/b18ef17a-7a9c-4e22-b1bf-6a4d07e87b2d
+        # Finding credits: @filip_dragovic
         call_name, call_opnum = "NetrDfsAddStdRoot", 12
         if self.dce is not None:
             tries = 0

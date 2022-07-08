@@ -51,8 +51,9 @@ def parseArgs():
     options = parser.parse_args()
 
     if options.listener is not None:
-        if options.webdav_host is not None or options.webdav_port is not None:
-            print("[!] Option --listener cannot be used with --webdav-host or --webdav-port")
+        if options.webdav_host is not None:
+            print("[!] Option --listener cannot be used with --webdav-host")
+            sys.exit(0)
         else:
             # Only listener option
             pass
@@ -61,7 +62,8 @@ def parseArgs():
             # All WebDAV options are not set
             pass
         else:
-            print("[!] Both --webdav-host and --webdav-port options are needed in WebDAV mode.")
+            print("[!] Option --webdav-host is needed in WebDAV mode. (--webdav-port defaults to port 80)")
+            sys.exit(0)
 
     if options.hashes is not None:
         lmhash, nthash = options.hashes.split(':')

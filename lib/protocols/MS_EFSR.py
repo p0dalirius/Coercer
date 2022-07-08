@@ -98,7 +98,7 @@ class MS_EFSR(RPCProtocol):
     version = "1.0"
     available_pipes = [r"\PIPE\lsarpc", r"\PIPE\efsrpc"]
 
-    debug = True
+    # debug = True
 
     auth_type = RPC_C_AUTHN_WINNT
     auth_level = RPC_C_AUTHN_LEVEL_PKT_PRIVACY
@@ -136,8 +136,14 @@ class MS_EFSR(RPCProtocol):
                         # DCERPC Runtime Error: code: 0x5 - rpc_s_access_denied
                         print("\x1b[1;91mrpc_s_access_denied\x1b[0m")
                         return False
-                    elif self.debug:
-                        print("            [!]", e)
+                    elif "nca_s_unk_if" in str(e):
+                        # nca_s_unk_if
+                        print("\x1b[1;91mnca_s_unk_if\x1b[0m")
+                        return False
+                    else:
+                        print("\x1b[1;91m%s\x1b[0m" % str(e))
+                        if self.debug:
+                            pass
         else:
             print("[!] Error: dce is None, you must call connect() first.")
 
@@ -173,8 +179,14 @@ class MS_EFSR(RPCProtocol):
                         # DCERPC Runtime Error: code: 0x5 - rpc_s_access_denied
                         print("\x1b[1;91mrpc_s_access_denied\x1b[0m")
                         return False
-                    elif self.debug:
-                        print("            [!]", e)
+                    elif "nca_s_unk_if" in str(e):
+                        # nca_s_unk_if
+                        print("\x1b[1;91mnca_s_unk_if\x1b[0m")
+                        return False
+                    else:
+                        print("\x1b[1;91m%s\x1b[0m" % str(e))
+                        if self.debug:
+                            pass
         else:
             if self.verbose:
                 print("   [!] Error: dce is None, you must call connect() first.")
@@ -212,8 +224,14 @@ class MS_EFSR(RPCProtocol):
                         # DCERPC Runtime Error: code: 0x5 - rpc_s_access_denied
                         print("\x1b[1;91mrpc_s_access_denied\x1b[0m")
                         return False
-                    elif self.debug:
-                        print("            [!]", e)
+                    elif "nca_s_unk_if" in str(e):
+                        # nca_s_unk_if
+                        print("\x1b[1;91mnca_s_unk_if\x1b[0m")
+                        return False
+                    else:
+                        print("\x1b[1;91m%s\x1b[0m" % str(e))
+                        if self.debug:
+                            pass
         else:
             print("[!] Error: dce is None, you must call connect() first.")
 
@@ -249,8 +267,14 @@ class MS_EFSR(RPCProtocol):
                         # DCERPC Runtime Error: code: 0x5 - rpc_s_access_denied
                         print("\x1b[1;91mrpc_s_access_denied\x1b[0m")
                         return False
-                    elif self.debug:
-                        print("            [!]", e)
+                    elif "nca_s_unk_if" in str(e):
+                        # nca_s_unk_if
+                        print("\x1b[1;91mnca_s_unk_if\x1b[0m")
+                        return False
+                    else:
+                        print("\x1b[1;91m%s\x1b[0m" % str(e))
+                        if self.debug:
+                            pass
         else:
             print("[!] Error: dce is None, you must call connect() first.")
         return False
@@ -287,8 +311,14 @@ class MS_EFSR(RPCProtocol):
                         # DCERPC Runtime Error: code: 0x5 - rpc_s_access_denied
                         print("\x1b[1;91mrpc_s_access_denied\x1b[0m")
                         return False
-                    elif self.debug:
-                        print("            [!]", e)
+                    elif "nca_s_unk_if" in str(e):
+                        # nca_s_unk_if
+                        print("\x1b[1;91mnca_s_unk_if\x1b[0m")
+                        return False
+                    else:
+                        print("\x1b[1;91m%s\x1b[0m" % str(e))
+                        if self.debug:
+                            pass
         else:
             print("[!] Error: dce is None, you must call connect() first.")
 
@@ -325,8 +355,14 @@ class MS_EFSR(RPCProtocol):
                         # DCERPC Runtime Error: code: 0x5 - rpc_s_access_denied
                         print("\x1b[1;91mrpc_s_access_denied\x1b[0m")
                         return False
-                    elif self.debug:
-                        print("            [!]", e)
+                    elif "nca_s_unk_if" in str(e):
+                        # nca_s_unk_if
+                        print("\x1b[1;91mnca_s_unk_if\x1b[0m")
+                        return False
+                    else:
+                        print("\x1b[1;91m%s\x1b[0m" % str(e))
+                        if self.debug:
+                            pass
         else:
             print("[!] Error: dce is None, you must call connect() first.")
 
@@ -342,7 +378,6 @@ class MS_EFSR(RPCProtocol):
         ]
 
     def perform_coerce_calls(self, listener):
-        print(self.webdav_host, self.webdav_port)
         self.EfsRpcOpenFileRaw(listener)
         self.EfsRpcEncryptFileSrv(listener)
         self.EfsRpcDecryptFileSrv(listener)

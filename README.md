@@ -20,13 +20,15 @@
 ## Usage
 
 ```
+$ ./coercer.py -h                                                                                                  
+
        ______                              
       / ____/___  ___  _____________  _____
      / /   / __ \/ _ \/ ___/ ___/ _ \/ ___/
-    / /___/ /_/ /  __/ /  / /__/  __/ /      v1.2
+    / /___/ /_/ /  __/ /  / /__/  __/ /      v1.3
     \____/\____/\___/_/   \___/\___/_/       by @podalirius_
 
-usage: coercer.py [-h] [-u USERNAME] [-p PASSWORD] [-d DOMAIN] [--hashes [LMHASH]:NTHASH] [--no-pass] [-v] [-a] [-k] [--dc-ip ip address] [-l LISTENER]
+usage: coercer.py [-h] [-u USERNAME] [-p PASSWORD] [-d DOMAIN] [--hashes [LMHASH]:NTHASH] [--no-pass] [-v] [-a] [-k] [--dc-ip ip address] [-l LISTENER] [-wh WEBDAV_HOST] [-wp WEBDAV_PORT]
                   (-t TARGET | -f TARGETS_FILE) [--target-ip ip address]
 
 Automatic windows authentication coercer over various RPC calls.
@@ -42,25 +44,38 @@ options:
   --hashes [LMHASH]:NTHASH
                         NT/LM hashes (LM hash can be empty)
   --no-pass             Don't ask for password (useful for -k)
-  -v, --verbose
-  -a, --analyze
-  -k, --kerberos        Use Kerberos authentication. Grabs credentials from ccache file (KRB5CCNAME) based on target parameters. If valid credentials cannot be found, it will use the ones specified in the command line
+  -v, --verbose         Verbose mode (default: False)
+  -a, --analyze         Analyze mode (default: Attack mode)
+  -k, --kerberos        Use Kerberos authentication. Grabs credentials from ccache file (KRB5CCNAME) based on target parameters. If valid credentials cannot be found, it will use the ones specified in the
+                        command line
   --dc-ip ip address    IP Address of the domain controller. If omitted it will use the domain part (FQDN) specified in the target parameter
-  -l LISTENER, --listener LISTENER
-                        IP address or hostname of the listener machine
   -t TARGET, --target TARGET
                         IP address or hostname of the target machine
   -f TARGETS_FILE, --targets-file TARGETS_FILE
                         IP address or hostname of the target machine
   --target-ip ip address
                         IP Address of the target machine. If omitted it will use whatever was specified as target. This is useful when target is the NetBIOS name or Kerberos name and you cannot resolve it
+
+  -l LISTENER, --listener LISTENER
+                        IP address or hostname of the listener machine
+  -wh WEBDAV_HOST, --webdav-host WEBDAV_HOST
+                        WebDAV IP of the server to authenticate to.
+  -wp WEBDAV_PORT, --webdav-port WEBDAV_PORT
+                        WebDAV port of the server to authenticate to.
+
 ```
 
-## Demonstration
+## Coerced SMB authentication demonstration
 
 Here is a video demonstration of the attack mode against a target:
 
 https://user-images.githubusercontent.com/79218792/177647814-bb04f728-96bb-4048-a3ad-f83b250c05bf.mp4
+
+## Coerced WebDAV authentication demonstration
+
+If you want to trigger an HTTP authentication, you can use WebDAV with `--webdav-host` and the netdbios name of your attacking machine! Here is an example:
+
+
 
 ## Example output
 

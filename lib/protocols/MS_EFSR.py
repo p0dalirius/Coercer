@@ -98,8 +98,6 @@ class MS_EFSR(RPCProtocol):
     version = "1.0"
     available_pipes = [r"\PIPE\lsarpc", r"\PIPE\efsrpc"]
 
-    # debug = True
-
     auth_type = RPC_C_AUTHN_WINNT
     auth_level = RPC_C_AUTHN_LEVEL_PKT_PRIVACY
 

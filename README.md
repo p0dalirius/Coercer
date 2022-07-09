@@ -93,6 +93,7 @@ Pull requests are welcome. Feel free to open an issue if you want to add other f
 
 ## Credits
 
+ - [@tifkin_](https://twitter.com/tifkin_) for **PrinterBug** on [MS-RPRN](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/d42db7d5-f141-4466-8f47-0a4be14e2fc1)
  - [@topotam77](https://twitter.com/topotam77) for **PetitPotam** on [MS-EFSR](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
  - [@topotam77](https://twitter.com/topotam77) and [@_nwodtuhs](https://twitter.com/_nwodtuhs) for **ShadowCoerce** on [MS-FSRVP](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fsrvp/dae107ec-8198-4778-a950-faa7edad125b)
  - [@filip_dragovic](https://twitter.com/filip_dragovic) for **DFSCoerce** on [MS-DFSNM](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dfsnm/95a506a8-cae6-4c42-b19d-9c1ed1223979)

@@ -7,3 +7,4 @@
 from .MS_DFSNM import MS_DFSNM
 from .MS_EFSR import MS_EFSR
 from .MS_FSRVP import MS_FSRVP
+from .MS_RPRN import MS_RPRN

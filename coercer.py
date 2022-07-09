@@ -9,7 +9,7 @@ import argparse
 import os
 import sys
 
-from lib.protocols import MS_EFSR, MS_FSRVP, MS_DFSNM
+from lib.protocols import MS_EFSR, MS_FSRVP, MS_DFSNM, MS_RPRN
 from lib.utils.smb import connect_to_pipe, can_bind_to_protocol, get_available_pipes_and_protocols
 
 
@@ -102,8 +102,7 @@ def coerce_auth_target(options, target, lmhash, nthash, all_pipes, available_pro
 
 
 available_protocols = [
-    #MS_DFSNM,
-    MS_EFSR, MS_FSRVP
+    MS_DFSNM, MS_EFSR, MS_FSRVP, MS_RPRN
 ]
 
 

@@ -9,8 +9,8 @@ import argparse
 import os
 import sys
 
-from lib.protocols import MS_EFSR, MS_FSRVP, MS_DFSNM, MS_RPRN
-from lib.utils.smb import connect_to_pipe, can_bind_to_protocol, get_available_pipes_and_protocols
+from coercer.protocols import MS_EFSR, MS_FSRVP, MS_DFSNM, MS_RPRN
+from coercer.utils.smb import connect_to_pipe, can_bind_to_protocol, get_available_pipes_and_protocols
 
 
 VERSION = "1.4"
@@ -101,12 +101,11 @@ def coerce_auth_target(options, target, lmhash, nthash, all_pipes, available_pro
                 print("   [>] Pipe '%s' is \x1b[1;91mnot accessible\x1b[0m!" % pipe)
 
 
-available_protocols = [
-    MS_DFSNM, MS_EFSR, MS_FSRVP, MS_RPRN
-]
+def main():
+    available_protocols = [
+        MS_DFSNM, MS_EFSR, MS_FSRVP, MS_RPRN
+    ]
 
-
-if __name__ == '__main__':
     lmhash, nthash, options = parseArgs()
 
     # Getting all pipes of implemented protocols
@@ -144,3 +143,7 @@ if __name__ == '__main__':
         print()
 
     print("[+] All done!")
+
+
+if __name__ == '__main__':
+    main()

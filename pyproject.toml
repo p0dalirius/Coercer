@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "coercer"
+version = "1.5.1"
+description = "A python script to automatically coerce a Windows server to authenticate on an arbitrary machine through 9 methods."
+authors = ["p0dalirius"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+impacket = "^0.10.0"
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+coercer="coercer.__main__:main"
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

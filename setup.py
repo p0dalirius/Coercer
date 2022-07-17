@@ -1,9 +1,15 @@
-![](./.github/banner.png)
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File name          : setup.py
+# Author             : Podalirius (@podalirius_)
+# Date created       : 17 Jul 2022
 
+import setuptools
+
+long_description = """
 <p align="center">
   A python script to automatically coerce a Windows server to authenticate on an arbitrary machine through 9 methods.
   <br>
-  <img alt="PyPI" src="https://img.shields.io/pypi/v/coercer">
   <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/p0dalirius/Coercer">
   <a href="https://twitter.com/intent/follow?screen_name=podalirius_" title="Follow"><img src="https://img.shields.io/twitter/follow/podalirius_?label=Podalirius&style=social"></a>
   <a href="https://www.youtube.com/c/Podalirius_?sub_confirmation=1" title="Subscribe"><img alt="YouTube Channel Subscribers" src="https://img.shields.io/youtube/channel/subscribers/UCF_x5O7CSfr82AfNVTKOv_A?style=social"></a>
@@ -94,7 +100,37 @@ Pull requests are welcome. Feel free to open an issue if you want to add other f
 
 ## Credits
 
- - [@tifkin_](https://twitter.com/tifkin_) and [@elad_shamir](https://twitter.com/elad_shamir) for finding and implementing **PrinterBug** on [MS-RPRN](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/d42db7d5-f141-4466-8f47-0a4be14e2fc1)
- - [@topotam77](https://twitter.com/topotam77) for finding and implementing **PetitPotam** on [MS-EFSR](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
- - [@topotam77](https://twitter.com/topotam77) for finding and [@_nwodtuhs](https://twitter.com/_nwodtuhs) for implementing **ShadowCoerce** on [MS-FSRVP](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fsrvp/dae107ec-8198-4778-a950-faa7edad125b)
- - [@filip_dragovic](https://twitter.com/filip_dragovic) for finding and implementing **DFSCoerce** on [MS-DFSNM](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dfsnm/95a506a8-cae6-4c42-b19d-9c1ed1223979)
+ - [@topotam77](https://twitter.com/topotam77) for **PetitPotam** on [MS-EFSR](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
+ - [@topotam77](https://twitter.com/topotam77) and [@_nwodtuhs](https://twitter.com/_nwodtuhs) for **ShadowCoerce** on [MS-FSRVP](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fsrvp/dae107ec-8198-4778-a950-faa7edad125b)
+ - [@filip_dragovic](https://twitter.com/filip_dragovic) for **DFSCoerce** on [MS-DFSNM](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dfsnm/95a506a8-cae6-4c42-b19d-9c1ed1223979)
+
+
+"""
+
+with open('requirements.txt', 'r', encoding='utf-8') as f:
+    requirements = [x.strip() for x in f.readlines()]
+
+setuptools.setup(
+    name="coercer",
+    version="1.5.1",
+    description="",
+    url="https://github.com/p0dalirius/Coercer",
+    author="Podalirius",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    author_email="podalirius@protonmail.com",
+    packages=["coercer", "coercer.protocols", "coercer.utils"],
+    package_data={'coercer': ['coercer/protocols/']},
+    include_package_data=True,
+    license="GPL2",
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+        "Operating System :: OS Independent",
+    ],
+    python_requires='>=3.6',
+    install_requires=requirements,
+    entry_points={
+        'console_scripts': ['Coercer=coercer.__main__:main']
+    }
+)

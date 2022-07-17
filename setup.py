@@ -21,7 +21,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     author_email="podalirius@protonmail.com",
     packages=["coercer", "coercer.protocols", "coercer.utils"],
-    package_data={'coercer': ['coercer/checks/']},
+    package_data={'coercer': ['coercer/protocols/']},
     include_package_data=True,
     license="GPL2",
     classifiers=[
@@ -32,6 +32,6 @@ setuptools.setup(
     python_requires='>=3.6',
     install_requires=requirements,
     entry_points={
-        'console_scripts': ['Coercer=coercer:main']
+        'console_scripts': ['Coercer=coercer.__main__:main']
     }
 )

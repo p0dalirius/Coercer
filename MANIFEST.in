@@ -1,2 +1,2 @@
 include requirements.txt
-recursive-include checkmate *
+recursive-include coercer *

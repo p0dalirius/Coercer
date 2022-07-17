@@ -13,7 +13,7 @@ from coercer.protocols import MS_EFSR, MS_FSRVP, MS_DFSNM, MS_RPRN
 from coercer.utils.smb import connect_to_pipe, can_bind_to_protocol, get_available_pipes_and_protocols
 
 
-VERSION = "1.5"
+VERSION = "1.5.1"
 
 banner = """
        ______                              

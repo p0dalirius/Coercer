@@ -16,7 +16,7 @@ from coercer.utils.smb import connect_to_pipe, can_bind_to_protocol, get_availab
 VERSION = "1.5.1"
 
 banner = """
-       ______                              
+       ______
       / ____/___  ___  _____________  _____
      / /   / __ \/ _ \/ ___/ ___/ _ \/ ___/
     / /___/ /_/ /  __/ /  / /__/  __/ /      v%s

@@ -9,7 +9,10 @@ import argparse
 import os
 import sys
 
-from coercer.protocols import MS_EFSR, MS_FSRVP, MS_DFSNM, MS_RPRN
+from coercer.protocols.MS_EFSR import MS_EFSR
+from coercer.protocols.MS_FSRVP import MS_FSRVP
+from coercer.protocols.MS_DFSNM import MS_DFSNM
+from coercer.protocols.MS_RPRN import MS_RPRN
 from coercer.utils.smb import connect_to_pipe, can_bind_to_protocol, get_available_pipes_and_protocols
 
 

@@ -59,7 +59,7 @@ class MS_FSRVP(RPCProtocol):
                     request['ShareName'] = '\\\\%s\\%s\\\x00' % (listener, share)
                     if self.debug:
                         request.dump()
-                    resp = self.dce.request(request)
+                    self.dce.request(request)
                 except Exception as e:
                     if self.verbose:
                         print(e)
@@ -82,7 +82,7 @@ class MS_FSRVP(RPCProtocol):
                     request['ShareName'] = '\\\\%s\\%s\x00' % (listener, share)
                     if self.debug:
                         request.dump()
-                    resp = self.dce.request(request)
+                    self.dce.request(request)
                 except Exception as e:
                     print(e)
         else:

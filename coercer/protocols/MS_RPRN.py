@@ -50,7 +50,7 @@ class MS_RPRN(RPCProtocol):
                     request['pOptions'] = NULL
                     if self.debug:
                         request.dump()
-                    resp = self.dce.request(request)
+                    self.dce.request(request)
                 except Exception as e:
                     if "rpc_s_access_denied" in str(e):
                         # DCERPC Runtime Error: code: 0x5 - rpc_s_access_denied

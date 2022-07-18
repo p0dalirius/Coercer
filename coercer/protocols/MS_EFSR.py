@@ -120,7 +120,7 @@ class MS_EFSR(RPCProtocol):
                     request['Flags'] = 0
                     if self.debug:
                         request.dump()
-                    resp = self.dce.request(request)
+                    self.dce.request(request)
                 except Exception as e:
                     if "ERROR_INVALID_NAME" in str(e):
                         # SessionError: code: 0x7b - ERROR_INVALID_NAME - The filename, directory name, or volume label syntax is incorrect.
@@ -163,7 +163,7 @@ class MS_EFSR(RPCProtocol):
                         request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     if self.debug:
                         request.dump()
-                    resp = self.dce.request(request)
+                    self.dce.request(request)
                 except Exception as e:
                     if "ERROR_INVALID_NAME" in str(e):
                         # SessionError: code: 0x7b - ERROR_INVALID_NAME - The filename, directory name, or volume label syntax is incorrect.
@@ -208,7 +208,7 @@ class MS_EFSR(RPCProtocol):
                     request['long'] = 0
                     if self.debug:
                         request.dump()
-                    resp = self.dce.request(request)
+                    self.dce.request(request)
                 except Exception as e:
                     if "ERROR_INVALID_NAME" in str(e):
                         # SessionError: code: 0x7b - ERROR_INVALID_NAME - The filename, directory name, or volume label syntax is incorrect.
@@ -251,7 +251,7 @@ class MS_EFSR(RPCProtocol):
                         request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     if self.debug:
                         request.dump()
-                    resp = self.dce.request(request)
+                    self.dce.request(request)
                 except Exception as e:
                     if "ERROR_INVALID_NAME" in str(e):
                         # SessionError: code: 0x7b - ERROR_INVALID_NAME - The filename, directory name, or volume label syntax is incorrect.
@@ -295,7 +295,7 @@ class MS_EFSR(RPCProtocol):
                         request['FileName'] = '\\\\%s\\%s\\file.txt\x00' % (listener, gen_random_name())
                     if self.debug:
                         request.dump()
-                    resp = self.dce.request(request)
+                    self.dce.request(request)
                 except Exception as e:
                     if "ERROR_INVALID_NAME" in str(e):
                         # SessionError: code: 0x7b - ERROR_INVALID_NAME - The filename, directory name, or volume label syntax is incorrect.
@@ -339,7 +339,7 @@ class MS_EFSR(RPCProtocol):
                     request['InfoClass'] = 0
                     if self.debug:
                         request.dump()
-                    resp = self.dce.request(request)
+                    self.dce.request(request)
                 except Exception as e:
                     if "ERROR_INVALID_NAME" in str(e):
                         # SessionError: code: 0x7b - ERROR_INVALID_NAME - The filename, directory name, or volume label syntax is incorrect.
@@ -382,4 +382,3 @@ class MS_EFSR(RPCProtocol):
         self.EfsRpcQueryUsersOnFile(listener)
         self.EfsRpcQueryRecoveryAgents(listener)
         self.EfsRpcFileKeyInfo(listener)
-

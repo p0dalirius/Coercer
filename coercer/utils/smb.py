@@ -23,7 +23,7 @@ def connect_to_pipe(pipe, username, password, domain, lmhash, nthash, target, dc
             nthash=nthash
         )
 
-    if doKerberos == True:
+    if doKerberos:
         __rpctransport.set_kerberos(doKerberos, kdcHost=dcHost)
     if targetIp is not None:
         __rpctransport.setRemoteHost(targetIp)

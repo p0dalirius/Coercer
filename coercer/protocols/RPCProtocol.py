@@ -73,7 +73,7 @@ class RPCProtocol(object):
                 nthash=nthash
             )
 
-        if doKerberos == True:
+        if doKerberos:
             self.__rpctransport.set_kerberos(doKerberos, kdcHost=dcHost)
         if targetIp is not None:
             self.__rpctransport.setRemoteHost(targetIp)

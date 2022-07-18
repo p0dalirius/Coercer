@@ -123,7 +123,7 @@ def main():
     elif options.targets_file is not None:
         if os.path.exists(options.targets_file):
             f = open(options.targets_file, 'r')
-            targets = sorted(list(set([l.strip() for l in f.readlines()])))
+            targets = sorted(list(set([line.strip() for line in f.readlines()])))
             f.close()
             if options.verbose:
                 print("[debug] Loaded %d targets." % len(targets))

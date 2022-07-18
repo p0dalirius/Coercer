@@ -26,7 +26,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest
+        pip install flake8 wheel
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
@@ -36,8 +36,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=25 --max-line-length=512 --statistics
     - name: Pip build
       run: |
-        python3 setup.py sdist
-        python3 setup.py bdist_wheel
+        python3 setup.py sdist bdist_wheel
     - name: Pip install
       run: |
         python3 setup.py install

@@ -5,7 +5,7 @@ description = "A python script to automatically coerce a Windows server to authe
 authors = ["p0dalirius"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.7"
 impacket = "^0.10.0"
 
 [tool.poetry.dev-dependencies]

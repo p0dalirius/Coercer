@@ -20,7 +20,6 @@ def gen_random_name(length=8):
     return name
 
 
-
 class MS_RPRN(RPCProtocol):
     name = "[MS-RPRN]: Print System Remote Protocol"
     shortname = "MS-RPRN"

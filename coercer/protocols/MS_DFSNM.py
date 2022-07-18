@@ -130,7 +130,6 @@ class MS_DFSNM(RPCProtocol):
             if self.verbose:
                 print("   [!] Error: dce is None, you must call connect() first.")
 
-
     @classmethod
     def list_coerce_methods(cls):
         return [

@@ -8,7 +8,7 @@
 import sys
 import time
 import random
-from .RPCProtocol import RPCProtocol
+from coercer.utils.RPCProtocol import RPCProtocol, DCERPCSessionError
 from impacket.dcerpc.v5.ndr import NDRCALL
 from impacket.dcerpc.v5.dtypes import WSTR, DWORD
 

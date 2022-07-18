@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "coercer"
-version = "1.5.1"
+version = "1.6"
 description = "A python script to automatically coerce a Windows server to authenticate on an arbitrary machine through 9 methods."
 authors = ["p0dalirius"]
 

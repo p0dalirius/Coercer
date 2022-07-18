@@ -26,7 +26,7 @@ $ ./Coercer.py -h
        ______                              
       / ____/___  ___  _____________  _____
      / /   / __ \/ _ \/ ___/ ___/ _ \/ ___/
-    / /___/ /_/ /  __/ /  / /__/  __/ /      v1.5.1
+    / /___/ /_/ /  __/ /  / /__/  __/ /      v1.6
     \____/\____/\___/_/   \___/\___/_/       by @podalirius_
 
 usage: Coercer.py [-h] [-u USERNAME] [-p PASSWORD] [-d DOMAIN] [--hashes [LMHASH]:NTHASH] [--no-pass] [-v] [-a] [-k] [--dc-ip ip address] [-l LISTENER] [-wh WEBDAV_HOST] [-wp WEBDAV_PORT]

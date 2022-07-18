@@ -21,7 +21,7 @@
 ## Usage
 
 ```
-$ ./coercer.py -h                                                                                                  
+$ ./Coercer.py -h                                                                                                  
 
        ______                              
       / ____/___  ___  _____________  _____
@@ -29,7 +29,7 @@ $ ./coercer.py -h
     / /___/ /_/ /  __/ /  / /__/  __/ /      v1.5.1
     \____/\____/\___/_/   \___/\___/_/       by @podalirius_
 
-usage: coercer.py [-h] [-u USERNAME] [-p PASSWORD] [-d DOMAIN] [--hashes [LMHASH]:NTHASH] [--no-pass] [-v] [-a] [-k] [--dc-ip ip address] [-l LISTENER] [-wh WEBDAV_HOST] [-wp WEBDAV_PORT]
+usage: Coercer.py [-h] [-u USERNAME] [-p PASSWORD] [-d DOMAIN] [--hashes [LMHASH]:NTHASH] [--no-pass] [-v] [-a] [-k] [--dc-ip ip address] [-l LISTENER] [-wh WEBDAV_HOST] [-wp WEBDAV_PORT]
                   (-t TARGET | -f TARGETS_FILE) [--target-ip ip address]
 
 Automatic windows authentication coercer over various RPC calls.

@@ -11,5 +11,3 @@ class Reporter(object):
 
     def __init__(self):
         super(Reporter, self).__init__()
-        
-    

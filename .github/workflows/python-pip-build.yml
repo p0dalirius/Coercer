@@ -36,7 +36,8 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=25 --max-line-length=512 --statistics
     - name: Pip build
       run: |
-        python3 setup.py sdist bdist_wheel
+        python3 setup.py sdist
+        python3 setup.py bdist_wheel
     - name: Pip install
       run: |
         python3 setup.py install

@@ -7,11 +7,9 @@
 
 import sys
 import random
-from .RPCProtocol import RPCProtocol, DCERPCSessionError
-from impacket.dcerpc.v5 import transport, rprn
-from impacket.dcerpc.v5.ndr import NDRCALL, NDRSTRUCT
-from impacket.dcerpc.v5.dtypes import UUID, ULONG, WSTR, DWORD, LONG, NULL, BOOL, UCHAR, PCHAR, RPC_SID, LPWSTR, GUID
-from impacket.dcerpc.v5.rpcrt import DCERPCException, RPC_C_AUTHN_WINNT, RPC_C_AUTHN_LEVEL_PKT_PRIVACY
+from .RPCProtocol import RPCProtocol
+from impacket.dcerpc.v5 import rprn
+from impacket.dcerpc.v5.dtypes import NULL
 
 
 def gen_random_name(length=8):

@@ -8,7 +8,7 @@
 import sys
 from impacket import system_errors
 from impacket.dcerpc.v5 import transport
-from impacket.dcerpc.v5.rpcrt import DCERPCException, RPC_C_AUTHN_WINNT, RPC_C_AUTHN_LEVEL_PKT_PRIVACY
+from impacket.dcerpc.v5.rpcrt import DCERPCException
 from impacket.uuid import uuidtup_to_bin
 
 

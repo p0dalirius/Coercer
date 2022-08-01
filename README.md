@@ -18,6 +18,10 @@
  - [x] Perform coerce attack on a list of targets from a file with `--targets-file`
  - [x] Coerce to a WebDAV target with `--webdav-host` and `--webdav-port`
 
+## Installation
+
+`sudo python3 setup.py install` 
+
 ## Usage
 
 ```

@@ -20,7 +20,11 @@
 
 ## Installation
 
-`sudo python3 setup.py install` 
+You can now install it from pypi (latest version is <img alt="PyPI" src="https://img.shields.io/pypi/v/coercer">) with this command:
+
+```
+sudo python3 setup.py install
+```
 
 ## Usage
 

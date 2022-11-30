@@ -26,75 +26,24 @@ You can now install it from pypi (latest version is <img alt="PyPI" src="https:/
 sudo python3 -m pip install coercer
 ```
 
-## Usage
+## Quick start
 
-```
-$ ./Coercer.py -h                                                                                                  
+ - You want to **assess** the Remote Procedure Calls listening on a machine to see if they can be leveraged to coerce an authentication?
+   + Use [**scan** mode](./#scan-mode), example:
 
-       ______                              
-      / ____/___  ___  _____________  _____
-     / /   / __ \/ _ \/ ___/ ___/ _ \/ ___/
-    / /___/ /_/ /  __/ /  / /__/  __/ /      v1.6
-    \____/\____/\___/_/   \___/\___/_/       by @podalirius_
+    e
 
-usage: Coercer.py [-h] [-u USERNAME] [-p PASSWORD] [-d DOMAIN] [--hashes [LMHASH]:NTHASH] [--no-pass] [-v] [-a] [-k] [--dc-ip ip address] [-l LISTENER] [-wh WEBDAV_HOST] [-wp WEBDAV_PORT]
-                  (-t TARGET | -f TARGETS_FILE) [--target-ip ip address]
+ - You want to **exploit** the Remote Procedure Calls on a remote machine to coerce an authentication to ntlmrelay or responder?
+   + Use [**coerce** mode](./#coerce-mode), example:
 
-Automatic windows authentication coercer over various RPC calls.
+    e
+   
+ - You are doing **research** and want to fuzz Remote Procedure Calls listening on a machine with various paths?
+   + Use [**fuzz** mode](./#fuzz-mode), example:
 
-options:
-  -h, --help            show this help message and exit
-  -u USERNAME, --username USERNAME
-                        Username to authenticate to the endpoint.
-  -p PASSWORD, --password PASSWORD
-                        Password to authenticate to the endpoint. (if omitted, it will be asked unless -no-pass is specified)
-  -d DOMAIN, --domain DOMAIN
-                        Windows domain name to authenticate to the endpoint.
-  --hashes [LMHASH]:NTHASH
-                        NT/LM hashes (LM hash can be empty)
-  --no-pass             Don't ask for password (useful for -k)
-  -v, --verbose         Verbose mode (default: False)
-  -a, --analyze         Analyze mode (default: Attack mode)
-  -k, --kerberos        Use Kerberos authentication. Grabs credentials from ccache file (KRB5CCNAME) based on target parameters. If valid credentials cannot be found, it will use the ones specified in the
-                        command line
-  --dc-ip ip address    IP Address of the domain controller. If omitted it will use the domain part (FQDN) specified in the target parameter
-  -t TARGET, --target TARGET
-                        IP address or hostname of the target machine
-  -f TARGETS_FILE, --targets-file TARGETS_FILE
-                        IP address or hostname of the target machine
-  --target-ip ip address
-                        IP Address of the target machine. If omitted it will use whatever was specified as target. This is useful when target is the NetBIOS name or Kerberos name and you cannot resolve it
+    e
 
-  -l LISTENER, --listener LISTENER
-                        IP address or hostname of the listener machine
-  -wh WEBDAV_HOST, --webdav-host WEBDAV_HOST
-                        WebDAV IP of the server to authenticate to.
-  -wp WEBDAV_PORT, --webdav-port WEBDAV_PORT
-                        WebDAV port of the server to authenticate to.
-
-```
-
-## Coerced SMB authentication demonstration
-
-Here is a video demonstration of the attack mode against a target:
-
-https://user-images.githubusercontent.com/79218792/177647814-bb04f728-96bb-4048-a3ad-f83b250c05bf.mp4
-
-## Coerced WebDAV authentication demonstration
-
-If you want to trigger an HTTP authentication, you can use WebDAV with `--webdav-host` and the netdbios name of your attacking machine! Here is an example:
-
-https://user-images.githubusercontent.com/79218792/178027554-a0b084d8-10af-401a-b54c-f33bec011fe2.mp4
-
-## Example output
-
-In attack mode (without `--analyze` option) you get the following output:
-
-![](./.github/example.png)
-
-After all the RPC calls, you get plenty of authentications in Responder:
-
-![](./.github/hashes.png)
+---
 
 ## Contributing
 

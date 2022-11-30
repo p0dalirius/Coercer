@@ -12,15 +12,20 @@
 
 ## Features
 
- - [x] Lists open SMB pipes on the remote machine (in modes [scan](./documentation/Scan-mode.md) authenticated and [fuzz](./documentation/Fuzz-mode.md) authenticated)
-  - [x] Tries to connect on a list of known SMB pipes on the remote machine (in modes [scan](./documentation/Scan-mode.md) unauthenticated and [fuzz](./documentation/Fuzz-mode.md) unauthenticated)
- - [x] Calls one by one all the vulnerable RPC functions to coerce the server to authenticate on an arbitrary machine.
- - [x] Target a single machine `--target` or a list of targets from a file with `--targets-file`
- - [x] Specify IP address OR interface to listen on for incoming authentications. (modes [scan](./documentation/Scan-mode.md) and [fuzz](./documentation/Fuzz-mode.md))
- - [x] Random UNC paths generation to avoid caching failed attempts (all modes)
- - [x] Export results in SQLite format (modes [scan](./documentation/Scan-mode.md) and [fuzz](./documentation/Fuzz-mode.md))
- - [x] Export results in JSON format (modes [scan](./documentation/Scan-mode.md) and [fuzz](./documentation/Fuzz-mode.md))
- - [x] Export results in XSLX format (modes [scan](./documentation/Scan-mode.md) and [fuzz](./documentation/Fuzz-mode.md))
+ - Core:
+    + [x] Lists open SMB pipes on the remote machine (in modes [scan](./documentation/Scan-mode.md) authenticated and [fuzz](./documentation/Fuzz-mode.md) authenticated)
+    + [x] Tries to connect on a list of known SMB pipes on the remote machine (in modes [scan](./documentation/Scan-mode.md) unauthenticated and [fuzz](./documentation/Fuzz-mode.md) unauthenticated)
+    + [x] Calls one by one all the vulnerable RPC functions to coerce the server to authenticate on an arbitrary machine.
+    + [x] Random UNC paths generation to avoid caching failed attempts (all modes)
+    + [x] Configurable delay between attempts with `--delay`
+ - Options:
+    + [x] Filter by method name with `--filter-method-name` or by protocol name with `--filter-protocol-name` (all modes) 
+    + [x] Target a single machine `--target` or a list of targets from a file with `--targets-file`
+    + [x] Specify IP address OR interface to listen on for incoming authentications. (modes [scan](./documentation/Scan-mode.md) and [fuzz](./documentation/Fuzz-mode.md))
+ - Exporting results
+    + [x] Export results in SQLite format (modes [scan](./documentation/Scan-mode.md) and [fuzz](./documentation/Fuzz-mode.md))
+    + [x] Export results in JSON format (modes [scan](./documentation/Scan-mode.md) and [fuzz](./documentation/Fuzz-mode.md))
+    + [x] Export results in XSLX format (modes [scan](./documentation/Scan-mode.md) and [fuzz](./documentation/Fuzz-mode.md))
 
 ## Installation
 

@@ -15,7 +15,7 @@
  - [x] Automatically detects open SMB pipes on the remote machine.
  - [x] Calls one by one all the vulnerable RPC functions to coerce the server to authenticate on an arbitrary machine.
  - [x] Perform coerce attack on a list of targets from a file with `--targets-file`
- - [x] Random UNC paths to avoid caching
+ - [x] Random UNC paths generation to avoid caching failed attempts
  - [x] Export results in SQLite format (modes [scan](./documentation/Scan-mode.md), [coerce](./documentation/Scan-mode.md) and [fuzz](./documentation/Fuzz-mode.md))
  - [x] Export results in JSON format (modes [scan](./documentation/Scan-mode.md), [coerce](./documentation/Scan-mode.md) and [fuzz](./documentation/Fuzz-mode.md))
  - [x] Export results in XSLX format (modes [scan](./documentation/Scan-mode.md), [coerce](./documentation/Scan-mode.md) and [fuzz](./documentation/Fuzz-mode.md))

@@ -14,9 +14,11 @@
 
  - [x] Automatically detects open SMB pipes on the remote machine.
  - [x] Calls one by one all the vulnerable RPC functions to coerce the server to authenticate on an arbitrary machine.
- - [x] Analyze mode with `--analyze`, which only lists the vulnerable protocols and functions listening, without performing a coerced authentication.
  - [x] Perform coerce attack on a list of targets from a file with `--targets-file`
- - [x] Coerce to a WebDAV target with `--webdav-host` and `--webdav-port`
+ - [x] Random UNC paths to avoid caching
+ - [x] Export results in SQLite format (modes [scan](./documentation/Scan-mode.md), [coerce](./documentation/Scan-mode.md) and [fuzz](./documentation/Fuzz-mode.md))
+ - [x] Export results in JSON format (modes [scan](./documentation/Scan-mode.md), [coerce](./documentation/Scan-mode.md) and [fuzz](./documentation/Fuzz-mode.md))
+ - [x] Export results in XSLX format (modes [scan](./documentation/Scan-mode.md), [coerce](./documentation/Scan-mode.md) and [fuzz](./documentation/Fuzz-mode.md))
 
 ## Installation
 
@@ -29,19 +31,19 @@ sudo python3 -m pip install coercer
 ## Quick start
 
  - You want to **assess** the Remote Procedure Calls listening on a machine to see if they can be leveraged to coerce an authentication?
-   + Use [**scan** mode](./#scan-mode), example:
+   + Use [**scan** mode](./documentation/Scan-mode.md), example:
 
-    e
+    https://user-images.githubusercontent.com/79218792/204374471-bc5094a3-8539-4df7-842e-faadcaf9c945.mp4
 
  - You want to **exploit** the Remote Procedure Calls on a remote machine to coerce an authentication to ntlmrelay or responder?
-   + Use [**coerce** mode](./#coerce-mode), example:
+   + Use [**coerce** mode](./documentation/Coerce-mode.md), example:
 
-    e
+    https://user-images.githubusercontent.com/79218792/204372851-4ba461ed-6812-4057-829d-0af6a06b0ecc.mp4
    
  - You are doing **research** and want to fuzz Remote Procedure Calls listening on a machine with various paths?
-   + Use [**fuzz** mode](./#fuzz-mode), example:
+   + Use [**fuzz** mode](./documentation/Fuzz-mode.md), example:
 
-    e
+    https://user-images.githubusercontent.com/79218792/204373310-64f90835-b544-4760-b0a3-3071429b3940.mp4
 
 ---
 

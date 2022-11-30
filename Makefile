@@ -6,8 +6,11 @@ clean:
 	@rm -rf `find ./ -type d -name "*__pycache__"`
 	@rm -rf ./build/ ./dist/ ./coercer.egg-info/
 
-documentation:
-	@cd ./documentation/; pdoc --html ../coercer/ --force
+docs:
+	@python3 -m pip install pdoc
+	@echo "[$(shell date)] Generating docs ..."
+	@python3 -m pdoc -d markdown -o ./documentation/ ./coercer/
+	@echo "[$(shell date)] Done!"
 
 install: build
 	python3 setup.py install

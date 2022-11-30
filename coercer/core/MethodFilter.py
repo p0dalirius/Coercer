@@ -15,6 +15,15 @@ class MethodFilter(object):
         self.filter_protocol_name = filter_protocol_name
 
     def matches_filter(self, instance):
+        """
+        Function matches_filter
+
+        Parameters:
+            ?:instance
+
+        Return:
+            bool:outcome
+        """
         outcome = True
         #
         if self.filter_method_name is not None:

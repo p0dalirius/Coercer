@@ -1,2 +1,3 @@
 impacket
 xlsxwriter
+jinja2

@@ -12,6 +12,15 @@ from coercer.structures.MethodType import MethodType
 
 
 def find_and_load_coerce_methods(debug=False):
+    """
+    Function find_and_load_coerce_methods()
+
+    Parameters:
+        bool:debug Enable or disable debug output
+
+    Returns:
+        list:coerce_methods
+    """
     coerce_methods = {}
     search_dir = os.path.dirname(__file__) + os.path.sep + ".." + os.path.sep + "methods"
     if debug:

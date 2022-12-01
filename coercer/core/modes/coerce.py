@@ -112,17 +112,18 @@ def action_coerce(target, available_methods, options, credentials, reporter):
                                     # Sleep between attempts
                                     time.sleep(options.delay)
 
-                                next_action_answer = None
-                                while next_action_answer not in ["C","S","X"]:
-                                    next_action_answer = input("Continue (C) | Skip this function (S) | Stop exploitation (X) ? ")
-                                    next_action_answer = next_action_answer.strip()[0].upper()
-                                if next_action_answer == "C":
-                                    pass
-                                elif next_action_answer == "S":
-                                    stop_exploiting_this_function = True
-                                elif next_action_answer == "X":
-                                    print("[+] Bye bye!")
-                                    return None
+                                if options.always_continue == False:
+                                    next_action_answer = None
+                                    while next_action_answer not in ["C","S","X"]:
+                                        next_action_answer = input("Continue (C) | Skip this function (S) | Stop exploitation (X) ? ")
+                                        next_action_answer = next_action_answer.strip()[0].upper()
+                                    if next_action_answer == "C":
+                                        pass
+                                    elif next_action_answer == "S":
+                                        stop_exploiting_this_function = True
+                                    elif next_action_answer == "X":
+                                        print("[+] Bye bye!")
+                                        return None
                     else:
                         if options.verbose:
                             print("   [!] Cannot bind to interface (%s, %s)!" % (uuid, version))

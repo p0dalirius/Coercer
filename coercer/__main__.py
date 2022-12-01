@@ -108,6 +108,7 @@ def parseArgs():
     mode_coerce_advanced_config.add_argument("--delay", default=None, type=int, help="Delay between attempts (in seconds)")
     mode_coerce_advanced_config.add_argument("--http-port", default=80, type=int, help="HTTP port (default: 80)")
     mode_coerce_advanced_config.add_argument("--smb-port", default=445, type=int, help="SMB port (default: 445)")
+    mode_coerce_advanced_config.add_argument("--always-continue", default=False, action="store_true", help="Always continue to coerce")
     # Filters
     mode_coerce_filters = mode_coerce.add_argument_group("Filtering methods")
     mode_coerce_filters.add_argument("--filter-method-name", default=None, type=str, help="")

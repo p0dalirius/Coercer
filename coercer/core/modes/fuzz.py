@@ -81,7 +81,7 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
 
     listening_ip = get_ip_addr_to_listen_on(target, options)
     if options.verbose:
-        print("[+] Listening for authentications on '%s'" % listening_ip)
+        print("[+] Listening for authentications on '%s', SMB port %d" % (listening_ip, options.smb_port))
     if options.only_known_exploit_paths == False:
         exploit_paths = generate_exploit_templates()
     # Processing ncan_np tasks
@@ -97,7 +97,7 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
                         for msprotocol_class in sorted(ncan_np_tasks[uuid][version], key=lambda x: x.function["name"]):
 
                             if options.only_known_exploit_paths == True:
-                                exploit_paths = msprotocol_class.generate_exploit_templates()
+                                exploit_paths = msprotocol_class.generate_exploit_templates(desired_auth_type=options.auth_type)
 
                             stop_exploiting_this_function = False
                             for listener_type, exploitpath in exploit_paths:

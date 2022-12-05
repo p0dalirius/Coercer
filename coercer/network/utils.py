@@ -10,6 +10,9 @@ import struct
 
 
 def get_ip_address_of_interface(ifname):
+    """
+    Function get_ip_address_of_interface(ifname)
+    """
     if type(ifname) == str:
         ifname = bytes(ifname, "utf-8")
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -23,15 +26,21 @@ def get_ip_address_of_interface(ifname):
 
 
 def get_ip_address_to_target_remote_host(host, port):
-     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-     try:
-         s.connect((host, port))
-         return s.getsockname()[0]
-     except Exception as e:
-         return None
+    """
+    Function get_ip_address_to_target_remote_host(host, port)
+    """
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect((host, port))
+        return s.getsockname()[0]
+    except Exception as e:
+        return None
 
 
 def can_listen_on_port(listen_ip, port):
+    """
+    Function can_listen_on_port(listen_ip, port)
+    """
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(0.05)
@@ -44,6 +53,9 @@ def can_listen_on_port(listen_ip, port):
 
 
 def get_ip_addr_to_listen_on(target, options):
+    """
+    Function get_ip_addr_to_listen_on(target, options)
+    """
     # Getting IP address to listen on
     listening_ip = None
     if options.ip_address is not None:
@@ -64,6 +76,9 @@ def get_ip_addr_to_listen_on(target, options):
 
 
 def get_next_http_listener_port(current_value, listen_ip, options):
+    """
+    Function get_next_http_listener_port(current_value, listen_ip, options)
+    """
     port_window = (options.max_http_port - options.min_http_port)
 
     if current_value > options.max_http_port:

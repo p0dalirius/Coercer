@@ -9,7 +9,7 @@ from enum import Enum
 
 class MethodType(Enum):
     """
-    Documentation for class MethodType
+    Enum class MethodType
     """
 
     MICROSOFT_PROTOCOL = 0x01

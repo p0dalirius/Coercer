@@ -44,7 +44,9 @@ def parseArgs():
     mode_scan_advanced_config.add_argument("--delay", default=None, type=int, help="Delay between attempts (in seconds)")
     mode_scan_advanced_config.add_argument("--min-http-port", default=64000, type=int, help="Verbose mode (default: False)")
     mode_scan_advanced_config.add_argument("--max-http-port", default=65000, type=int, help="Verbose mode (default: False)")
+    mode_scan_advanced_config.add_argument("--http-port", default=80, type=int, help="HTTP port (default: 80)")
     mode_scan_advanced_config.add_argument("--smb-port", default=445, type=int, help="SMB port (default: 445)")
+    mode_scan_advanced_config.add_argument("--auth-type", default=None, type=str, help="Desired authentication type ('smb' or 'http').")
     # Filters
     mode_scan_filters = mode_scan.add_argument_group("Filtering methods")
     mode_scan_filters.add_argument("--filter-method-name", default=None, type=str, help="")
@@ -78,6 +80,7 @@ def parseArgs():
     mode_fuzz_advanced_config.add_argument("--min-http-port", default=64000, type=int, help="Verbose mode (default: False)")
     mode_fuzz_advanced_config.add_argument("--max-http-port", default=65000, type=int, help="Verbose mode (default: False)")
     mode_fuzz_advanced_config.add_argument("--smb-port", default=445, type=int, help="SMB port (default: 445)")
+    mode_fuzz_advanced_config.add_argument("--auth-type", default=None, type=str, help="Desired authentication type ('smb' or 'http').")
     # Filters
     mode_fuzz_filters = mode_fuzz.add_argument_group("Filtering methods")
     mode_fuzz_filters.add_argument("--filter-method-name", default=None, type=str, help="")
@@ -109,6 +112,7 @@ def parseArgs():
     mode_coerce_advanced_config.add_argument("--http-port", default=80, type=int, help="HTTP port (default: 80)")
     mode_coerce_advanced_config.add_argument("--smb-port", default=445, type=int, help="SMB port (default: 445)")
     mode_coerce_advanced_config.add_argument("--always-continue", default=False, action="store_true", help="Always continue to coerce")
+    mode_coerce_advanced_config.add_argument("--auth-type", default=None, type=str, help="Desired authentication type ('smb' or 'http').")
     # Filters
     mode_coerce_filters = mode_coerce.add_argument_group("Filtering methods")
     mode_coerce_filters.add_argument("--filter-method-name", default=None, type=str, help="")
@@ -203,6 +207,7 @@ def main():
                 reporter.exportXLSX(options.export_xlsx)
             if options.export_sqlite is not None:
                 reporter.exportSQLITE(target, options.export_sqlite)
+
 
 if __name__ == '__main__':
     main()

@@ -12,6 +12,9 @@ from impacket.smbconnection import SMBConnection, SMB2_DIALECT_002, SMB2_DIALECT
 
 
 def list_remote_pipes(target, credentials, share='IPC$', maxdepth=-1, debug=False):
+    """
+    Function list_remote_pipes(target, credentials, share='IPC$', maxdepth=-1, debug=False)
+    """
     pipes = []
     try:
         smbClient = SMBConnection(target, target, sess_port=int(445))
@@ -64,6 +67,9 @@ def list_remote_pipes(target, credentials, share='IPC$', maxdepth=-1, debug=Fals
 
 
 def can_connect_to_pipe(target, pipe, credentials, targetIp=None, verbose=False):
+    """
+    Function can_connect_to_pipe(target, pipe, credentials, targetIp=None, verbose=False)
+    """
     ncan_target = r'ncacn_np:%s[%s]' % (target, pipe)
     __rpctransport = transport.DCERPCTransportFactory(ncan_target)
 
@@ -102,6 +108,9 @@ def can_connect_to_pipe(target, pipe, credentials, targetIp=None, verbose=False)
 
 
 def can_bind_to_interface(target, pipe, credentials, uuid, version, targetIp=None, verbose=False):
+    """
+    Function can_bind_to_interface(target, pipe, credentials, uuid, version, targetIp=None, verbose=False)
+    """
     ncan_target = r'ncacn_np:%s[%s]' % (target, pipe)
     __rpctransport = transport.DCERPCTransportFactory(ncan_target)
 

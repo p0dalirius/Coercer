@@ -8,6 +8,9 @@ from enum import Enum
 
 
 class TestResult(Enum):
+    """
+    Enum class TestResult
+    """
     NO_AUTH_RECEIVED   = 0x0
     SMB_AUTH_RECEIVED  = 0x1
     HTTP_AUTH_RECEIVED = 0x2

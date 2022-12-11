@@ -107,7 +107,12 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
                                     continue
                                 if listener_type == "http":
                                     http_listen_port = get_next_http_listener_port(current_value=http_listen_port, listen_ip=listening_ip, options=options)
-                                exploitpath = generate_exploit_path_from_template(template=exploitpath, listener=listening_ip, port=http_listen_port)
+                                exploitpath = generate_exploit_path_from_template(
+                                    template=exploitpath,
+                                    listener=listening_ip,
+                                    http_listen_port=http_listen_port,
+                                    smb_listen_port=options.smb_port
+                                )
 
                                 msprotocol_rpc_instance = msprotocol_class(path=exploitpath)
                                 dcerpc = DCERPCSession(credentials=credentials, verbose=True)

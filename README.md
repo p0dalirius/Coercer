@@ -1,7 +1,7 @@
 ![](./.github/banner.png)
 
 <p align="center">
-  A python script to automatically coerce a Windows server to authenticate on an arbitrary machine through 9 methods.
+  A python script to automatically coerce a Windows server to authenticate on an arbitrary machine through many methods.
   <br>
   <img alt="PyPI" src="https://img.shields.io/pypi/v/coercer">
   <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/p0dalirius/Coercer">

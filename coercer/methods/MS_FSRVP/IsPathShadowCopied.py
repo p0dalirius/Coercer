@@ -11,6 +11,9 @@ from impacket.dcerpc.v5.dtypes import UUID, ULONG, WSTR, DWORD, LONG, NULL, BOOL
 
 
 class _IsPathShadowCopied(NDRCALL):
+    """
+    Structure to make the RPC call to IsPathShadowCopied() in MS-FSRVP Protocol
+    """
     opnum = 9
     structure = (
         ('ShareName', WSTR),  # Type: LPWSTR
@@ -18,12 +21,18 @@ class _IsPathShadowCopied(NDRCALL):
 
 
 class _IsPathShadowCopiedResponse(NDRCALL):
+    """
+    Structure to parse the response of the RPC call to IsPathShadowCopied() in [MS-FSRVP Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fsrvp/dae107ec-8198-4778-a950-faa7edad125b)
+    """
     structure = ()
 
 
 class IsPathShadowCopied(MSPROTOCOLRPCCALL):
     """
+    Coercing a machine to authenticate using function IsPathShadowCopied (opnum 9) of [MS-FSRVP Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fsrvp/dae107ec-8198-4778-a950-faa7edad125b)
 
+    Method found by:
+     -
     """
 
     access = {

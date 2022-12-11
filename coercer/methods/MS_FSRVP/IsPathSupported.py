@@ -11,6 +11,9 @@ from impacket.dcerpc.v5.dtypes import UUID, ULONG, WSTR, DWORD, LONG, NULL, BOOL
 
 
 class _IsPathSupported(NDRCALL):
+    """
+    Structure to make the RPC call to IsPathSupported() in [MS-FSRVP Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fsrvp/dae107ec-8198-4778-a950-faa7edad125b)
+    """
     opnum = 8
     structure = (
         ('ShareName', WSTR),  # Type: LPWSTR
@@ -18,12 +21,18 @@ class _IsPathSupported(NDRCALL):
 
 
 class _IsPathSupportedResponse(NDRCALL):
+    """
+    Structure to parse the response of the RPC call to IsPathSupported() in [MS-FSRVP Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fsrvp/dae107ec-8198-4778-a950-faa7edad125b)
+    """
     structure = ()
 
 
 class IsPathSupported(MSPROTOCOLRPCCALL):
     """
+    Coercing a machine to authenticate using function IsPathSupported (opnum 8) of [MS-FSRVP Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fsrvp/dae107ec-8198-4778-a950-faa7edad125b)
 
+    Method found by:
+     -
     """
 
     access = {

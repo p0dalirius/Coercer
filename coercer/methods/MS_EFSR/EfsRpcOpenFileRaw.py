@@ -12,6 +12,9 @@ from impacket.dcerpc.v5.dtypes import UUID, ULONG, WSTR, DWORD, LONG, NULL, BOOL
 
 
 class _EfsRpcOpenFileRaw(NDRCALL):
+    """
+    Structure to make the RPC call to EfsRpcOpenFileRaw() in [MS-EFSR Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
+    """
     opnum = 0
     structure = (
         ('FileName', WSTR),  # Type: wchar_t *
@@ -20,12 +23,18 @@ class _EfsRpcOpenFileRaw(NDRCALL):
 
 
 class _EfsRpcOpenFileRawResponse(NDRCALL):
+    """
+    Structure to parse the response of the RPC call to EfsRpcOpenFileRaw() in [MS-EFSR Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
+    """
     structure = ()
 
 
 class EfsRpcOpenFileRaw(MSPROTOCOLRPCCALL):
     """
+    Coercing a machine to authenticate using function EfsRpcOpenFileRaw (opnum 0) of [MS-EFSR Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
 
+    Method found by:
+     - [@topotam77](https://twitter.com/topotam77)
     """
 
     exploit_paths = [

@@ -12,6 +12,9 @@ from impacket.dcerpc.v5.dtypes import UUID, ULONG, WSTR, DWORD, LONG, NULL, BOOL
 
 
 class _NetrDfsRemoveStdRoot(NDRCALL):
+    """
+    Structure to make the RPC call to NetrDfsRemoveStdRoot() in MS-DFSNM Protocol
+    """
     opnum = 13
     structure = (
         ('ServerName', WSTR),  # Type: WCHAR *
@@ -21,6 +24,9 @@ class _NetrDfsRemoveStdRoot(NDRCALL):
 
 
 class _NetrDfsRemoveStdRootResponse(NDRCALL):
+    """
+    Structure to parse the response of the RPC call to NetrDfsRemoveStdRoot() in MS-DFSNM Protocol
+    """
     structure = ()
 
 

@@ -12,6 +12,9 @@ from impacket.dcerpc.v5.dtypes import UUID, ULONG, WSTR, DWORD, LONG, NULL, BOOL
 
 
 class _EfsRpcQueryUsersOnFile(NDRCALL):
+    """
+    Structure to make the RPC call to EfsRpcQueryUsersOnFile() in [MS-EFSR Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
+    """
     opnum = 6
     structure = (
         ('FileName', WSTR),  # Type: wchar_t *
@@ -19,12 +22,18 @@ class _EfsRpcQueryUsersOnFile(NDRCALL):
 
 
 class _EfsRpcQueryUsersOnFileResponse(NDRCALL):
+    """
+    Structure to parse the response of the RPC call to EfsRpcQueryUsersOnFile() in [MS-EFSR Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
+    """
     structure = ()
 
 
 class EfsRpcQueryUsersOnFile(MSPROTOCOLRPCCALL):
     """
+    Coercing a machine to authenticate using function EfsRpcQueryUsersOnFile (opnum 6) of [MS-EFSR Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
 
+    Method found by:
+     -
     """
 
     exploit_paths = [

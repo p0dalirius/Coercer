@@ -12,6 +12,9 @@ from impacket.dcerpc.v5.dtypes import UUID, ULONG, WSTR, DWORD, LONG, NULL, BOOL
 
 
 class _EfsRpcQueryRecoveryAgents(NDRCALL):
+    """
+    Structure to make the RPC call to EfsRpcQueryRecoveryAgents() in [MS-EFSR Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
+    """
     opnum = 7
     structure = (
         ('FileName', WSTR),  # Type: wchar_t *
@@ -19,12 +22,18 @@ class _EfsRpcQueryRecoveryAgents(NDRCALL):
 
 
 class _EfsRpcQueryRecoveryAgentsResponse(NDRCALL):
+    """
+    Structure to parse the response of the RPC call to EfsRpcQueryRecoveryAgents() in [MS-EFSR Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
+    """
     structure = ()
 
 
 class EfsRpcQueryRecoveryAgents(MSPROTOCOLRPCCALL):
     """
+    Coercing a machine to authenticate using function EfsRpcQueryRecoveryAgents (opnum 7) of [MS-FSRVP Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fsrvp/dae107ec-8198-4778-a950-faa7edad125b)
 
+    Method found by:
+     -
     """
 
     exploit_paths = [

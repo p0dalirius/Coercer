@@ -12,6 +12,9 @@ import time
 
 
 def trigger_and_catch_authentication(options, dcerpc_session, target, method_trigger_function, listenertype, listen_ip=None, http_port=80):
+    """
+
+    """
     listenertype = listenertype.lower()
     if listenertype not in ["smb", "http"]:
         print("[!] Unknown listener type '%s'" % listenertype)
@@ -63,6 +66,9 @@ def trigger_and_catch_authentication(options, dcerpc_session, target, method_tri
 
 
 def trigger_authentication(dcerpc_session, target, method_trigger_function):
+    """
+
+    """
     control_structure = {"result": TestResult.NO_AUTH_RECEIVED}
 
     result_trigger = method_trigger_function(dcerpc_session, target)

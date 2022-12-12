@@ -11,6 +11,61 @@ from impacket.uuid import uuidtup_to_bin
 from impacket.smbconnection import SMBConnection, SMB2_DIALECT_002, SMB2_DIALECT_21, SMB_DIALECT, SessionError
 
 
+def init_smb_session(args, domain, username, password, address, lmhash, nthash, verbose=False):
+    smbClient = SMBConnection(address, args.target_ip, sess_port=int(args.port))
+    dialect = smbClient.getDialect()
+    if dialect == SMB_DIALECT:
+        if verbose:
+            print("[debug] SMBv1 dialect used")
+    elif dialect == SMB2_DIALECT_002:
+        if verbose:
+            print("[debug] SMBv2.0 dialect used")
+    elif dialect == SMB2_DIALECT_21:
+        if verbose:
+            print("[debug] SMBv2.1 dialect used")
+    else:
+        if verbose:
+            print("[debug] SMBv3.0 dialect used")
+    if args.k is True:
+        smbClient.kerberosLogin(username, password, domain, lmhash, nthash, args.aesKey, args.dc_ip)
+    else:
+        smbClient.login(username, password, domain, lmhash, nthash)
+    if smbClient.isGuestSession() > 0:
+        if verbose:
+            print("[debug] GUEST Session Granted")
+    else:
+        if verbose:
+            print("[debug] USER Session Granted")
+    return smbClient
+
+
+def try_login(credentials, target, port=445, verbose=False):
+    """Documentation for try_login"""
+    # Checking credentials if any
+    if not credentials.is_anonymous():
+        try:
+            smbClient = SMBConnection(
+                remoteName=target,
+                remoteHost=target,
+                sess_port=int(port)
+            )
+            smbClient.login(
+                user=credentials.username,
+                password=credentials.password,
+                domain=credentials.domain,
+                lmhash=credentials.lmhash,
+                nthash=credentials.nthash
+            )
+        except Exception as e:
+            print("[!] Could not login as '%s' with these credentials on '%s'." % (credentials.username, target))
+            print("  | Error: %s" % str(e))
+            return False
+        else:
+            return True
+    else:
+        return True
+
+
 def list_remote_pipes(target, credentials, share='IPC$', maxdepth=-1, debug=False):
     """
     Function list_remote_pipes(target, credentials, share='IPC$', maxdepth=-1, debug=False)

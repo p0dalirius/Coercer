@@ -35,7 +35,7 @@ class NetrDfsRemoveStdRoot(MSPROTOCOLRPCCALL):
     Coercing a machine to authenticate using function NetrDfsRemoveStdRoot (opnum 13) of [MS-DFSNM]: Distributed File System (DFS): Namespace Management Protocol (https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dfsnm/95a506a8-cae6-4c42-b19d-9c1ed1223979)
 
     Method found by:
-     - https://twitter.com/filip_dragovic
+     - [@filip_dragovic](https://twitter.com/filip_dragovic)
     """
 
     access = {

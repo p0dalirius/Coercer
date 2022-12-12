@@ -25,6 +25,9 @@ class DCERPCSession(object):
         self.credentials = credentials
 
     def connect_ncacn_np(self, target, pipe, targetIp=None, debug=False):
+        """
+
+        """
         self.target = target
         ncan_target = r'ncacn_np:%s[%s]' % (target, pipe)
         self.__rpctransport = transport.DCERPCTransportFactory(ncan_target)
@@ -66,6 +69,9 @@ class DCERPCSession(object):
         return self.session
 
     def bind(self, interface_uuid, interface_version, debug=False):
+        """
+
+        """
         # Binding to interface
         if debug:
             print("   [>] Binding to interface <uuid='%s', version='%s'> ... " % (interface_uuid, interface_version), end="")
@@ -83,7 +89,17 @@ class DCERPCSession(object):
         return True
 
     def set_verbose(self, value):
+        """
+        set_verbose(value)
+
+        Sets the current verbosity level
+        """
         self.__verbose = value
 
     def get_verbose(self):
+        """
+        get_verbose()
+
+        Gets the current verbosity level
+        """
         return self.__verbose

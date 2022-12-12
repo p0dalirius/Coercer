@@ -5,27 +5,27 @@
 # Date created       : 18 Sep 2022
 
 
-import sys
 import time
 from coercer.core.MethodFilter import MethodFilter
-from coercer.core.utils import generate_exploit_templates, generate_exploit_path_from_template
+from coercer.core.utils import generate_exploit_path_from_template
 from coercer.network.DCERPCSession import DCERPCSession
 from coercer.structures.TestResult import TestResult
 from coercer.network.authentications import trigger_and_catch_authentication
-from coercer.network.smb import can_connect_to_pipe, can_bind_to_interface, list_remote_pipes
+from coercer.network.smb import can_connect_to_pipe, can_bind_to_interface
 from coercer.network.utils import get_ip_addr_to_listen_on, get_next_http_listener_port
 
 
 def action_scan(target, available_methods, options, credentials, reporter):
+    http_listen_port = 0
+
     method_filter = MethodFilter(
         filter_method_name=options.filter_method_name,
         filter_protocol_name=options.filter_protocol_name
     )
 
-    http_listen_port = 0
+    # Preparing tasks ==============================================================================================================
 
     tasks = {}
-    # Prepare tasks
     for method_type in available_methods.keys():
         for category in sorted(available_methods[method_type].keys()):
             for method in sorted(available_methods[method_type][category].keys()):
@@ -53,9 +53,11 @@ def action_scan(target, available_methods, options, credentials, reporter):
                                     tasks[access_type][namedpipe][uuid][version].append(instance)
 
     # Executing tasks =======================================================================================================================
+
     listening_ip = get_ip_addr_to_listen_on(target, options)
     if options.verbose:
         print("[+] Listening for authentications on '%s', SMB port %d" % (listening_ip, options.smb_port))
+
     # Processing ncan_np tasks
     ncan_np_tasks = tasks["ncan_np"]
     for namedpipe in sorted(ncan_np_tasks.keys()):

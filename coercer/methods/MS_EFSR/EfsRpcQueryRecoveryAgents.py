@@ -33,7 +33,7 @@ class EfsRpcQueryRecoveryAgents(MSPROTOCOLRPCCALL):
     Coercing a machine to authenticate using function EfsRpcQueryRecoveryAgents (opnum 7) of [MS-FSRVP Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fsrvp/dae107ec-8198-4778-a950-faa7edad125b)
 
     Method found by:
-     -
+     - [@topotam77](https://twitter.com/topotam77)
     """
 
     exploit_paths = [

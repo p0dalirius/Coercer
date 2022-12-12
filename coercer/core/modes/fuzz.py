@@ -5,7 +5,6 @@
 # Date created       : 18 Sep 2022
 
 
-import sys
 import time
 from coercer.core.MethodFilter import MethodFilter
 from coercer.core.utils import generate_exploit_templates, generate_exploit_path_from_template
@@ -23,6 +22,8 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
     )
 
     http_listen_port = 0
+
+    # Preparing pipes ==============================================================================================================
 
     named_pipe_of_remote_machine = []
     if credentials.is_anonymous():
@@ -47,13 +48,13 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
             r'\PIPE\W32TIME_ALT',
             r'\PIPE\wkssvc'
         ]
-
         # \PIPE\Winsock2\CatalogChangeListener-71c-0
     else:
         named_pipe_of_remote_machine = list_remote_pipes(target, credentials)
 
+    # Preparing tasks ==============================================================================================================
+
     tasks = {}
-    # Prepare tasks
     for method_type in available_methods.keys():
         for category in sorted(available_methods[method_type].keys()):
             for method in sorted(available_methods[method_type][category].keys()):
@@ -82,8 +83,8 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
     listening_ip = get_ip_addr_to_listen_on(target, options)
     if options.verbose:
         print("[+] Listening for authentications on '%s', SMB port %d" % (listening_ip, options.smb_port))
-    if options.only_known_exploit_paths == False:
-        exploit_paths = generate_exploit_templates()
+    exploit_paths = generate_exploit_templates()
+
     # Processing ncan_np tasks
     ncan_np_tasks = tasks["ncan_np"]
     for namedpipe in sorted(named_pipe_of_remote_machine):
@@ -96,13 +97,13 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
 
                         for msprotocol_class in sorted(ncan_np_tasks[uuid][version], key=lambda x: x.function["name"]):
 
-                            if options.only_known_exploit_paths == True:
+                            if options.only_known_exploit_paths:
                                 exploit_paths = msprotocol_class.generate_exploit_templates(desired_auth_type=options.auth_type)
 
                             stop_exploiting_this_function = False
                             for listener_type, exploitpath in exploit_paths:
 
-                                if stop_exploiting_this_function == True:
+                                if stop_exploiting_this_function:
                                     # Got a nca_s_unk_if response, this function does not listen on the given interface
                                     continue
                                 if listener_type == "http":

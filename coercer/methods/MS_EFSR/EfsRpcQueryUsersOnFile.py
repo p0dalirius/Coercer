@@ -33,7 +33,7 @@ class EfsRpcQueryUsersOnFile(MSPROTOCOLRPCCALL):
     Coercing a machine to authenticate using function EfsRpcQueryUsersOnFile (opnum 6) of [MS-EFSR Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
 
     Method found by:
-     -
+     - [@topotam77](https://twitter.com/topotam77)
     """
 
     exploit_paths = [

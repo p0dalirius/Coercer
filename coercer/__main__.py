@@ -9,16 +9,16 @@ import argparse
 import os
 import sys
 
-from coercer.core.Reporter import Reporter, ReportingLevel
+from coercer.core.Reporter import Reporter
 from coercer.structures.Credentials import Credentials
 from coercer.core.modes.scan import action_scan
 from coercer.core.modes.coerce import action_coerce
 from coercer.core.modes.fuzz import action_fuzz
 from coercer.core.loader import find_and_load_coerce_methods
-from coercer.network.utils import get_ip_address_of_interface
+from coercer.network.smb import try_login
 
 
-VERSION = "2.1-blackhat-edition"
+VERSION = "2.2-blackhat-edition"
 
 banner = """       ______
       / ____/___  ___  _____________  _____
@@ -180,34 +180,44 @@ def main():
         reporter.print_info("Starting coerce mode")
         for target in targets:
             reporter.print_info("Scanning target %s" % target)
-            action_coerce(target, available_methods, options, credentials, reporter)
+            # Checking credentials if any
+            if try_login(credentials, target, verbose=options.verbose):
+                # Starting action
+                action_coerce(target, available_methods, options, credentials, reporter)
 
     elif options.mode == "scan":
         reporter.print_info("Starting scan mode")
         for target in targets:
             reporter.print_info("Scanning target %s" % target)
-            action_scan(target, available_methods, options, credentials, reporter)
-            # Reporting results
-            if options.export_json is not None:
-                reporter.exportJSON(options.export_json)
-            if options.export_xlsx is not None:
-                reporter.exportXLSX(options.export_xlsx)
-            if options.export_sqlite is not None:
-                reporter.exportSQLITE(target, options.export_sqlite)
+            # Checking credentials if any
+            if try_login(credentials, target, verbose=options.verbose):
+                # Starting action
+                action_scan(target, available_methods, options, credentials, reporter)
+                # Reporting results
+                if options.export_json is not None:
+                    reporter.exportJSON(options.export_json)
+                if options.export_xlsx is not None:
+                    reporter.exportXLSX(options.export_xlsx)
+                if options.export_sqlite is not None:
+                    reporter.exportSQLITE(target, options.export_sqlite)
 
     elif options.mode == "fuzz":
         reporter.print_info("Starting fuzz mode")
         for target in targets:
             reporter.print_info("Fuzzing target %s" % target)
-            action_fuzz(target, available_methods, options, credentials, reporter)
-            # Reporting results
-            if options.export_json is not None:
-                reporter.exportJSON(options.export_json)
-            if options.export_xlsx is not None:
-                reporter.exportXLSX(options.export_xlsx)
-            if options.export_sqlite is not None:
-                reporter.exportSQLITE(target, options.export_sqlite)
+            # Checking credentials if any
+            if try_login(credentials, target, options):
+                # Starting action
+                action_fuzz(target, available_methods, options, credentials, reporter)
+                # Reporting results
+                if options.export_json is not None:
+                    reporter.exportJSON(options.export_json)
+                if options.export_xlsx is not None:
+                    reporter.exportXLSX(options.export_xlsx)
+                if options.export_sqlite is not None:
+                    reporter.exportSQLITE(target, options.export_sqlite)
 
+    print("[+] All done! Bye Bye!")
 
 if __name__ == '__main__':
     main()

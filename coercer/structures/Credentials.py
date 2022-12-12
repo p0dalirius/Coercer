@@ -22,7 +22,7 @@ class Credentials(object):
     def is_anonymous(self):
         """
         Function is_anonymous()
-        Returns True if anonymous authentication False otherwise
+        Returns True if anonymous authentication is used False otherwise
 
         Returns:
         bool:anonymous

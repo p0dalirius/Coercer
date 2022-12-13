@@ -7,7 +7,7 @@ authors = ["p0dalirius"]
 [tool.poetry.dependencies]
 python = "^3.7"
 impacket = "^0.10.0"
-XlsxWriter = ">=3.0.0"
+xlsxWriter = ">=3.0.0"
 
 [tool.poetry.dev-dependencies]
 

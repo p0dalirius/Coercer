@@ -61,10 +61,10 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
         if filter.pipe_matches_filter(pipe):
             kept_pipes_after_filters.append(pipe)
     if len(kept_pipes_after_filters) == 0 and not credentials.is_anonymous():
-        print("[!] No SMB named pipes matching filter --filter-pipe-name '%s' were found on the remote machine." % options.filter_pipe_name)
+        print("[!] No SMB named pipes matching filter --filter-pipe-name %s were found on the remote machine." % options.filter_pipe_name)
         return None
     elif len(kept_pipes_after_filters) == 0 and credentials.is_anonymous():
-        print("[!] No SMB named pipes matching filter --filter-pipe-name '%s' were found in the list of known named pipes." % options.filter_pipe_name)
+        print("[!] No SMB named pipes matching filter --filter-pipe-name %s were found in the list of known named pipes." % options.filter_pipe_name)
         return None
     else:
         named_pipe_of_remote_machine = kept_pipes_after_filters
@@ -86,7 +86,6 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
                         if access_type == "ncan_np":
                             for access_method in access_methods:
                                 namedpipe, uuid, version = access_method["namedpipe"], access_method["uuid"], access_method["version"]
-                                # if filter.pipe_matches_filter(namedpipe):
                                 if uuid not in tasks[access_type].keys():
                                     tasks[access_type][uuid] = {}
 
@@ -104,6 +103,8 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
     exploit_paths = generate_exploit_templates()
 
     # Processing ncan_np tasks
+    if len(tasks.keys()) == 0:
+        return None
     ncan_np_tasks = tasks["ncan_np"]
     for namedpipe in sorted(named_pipe_of_remote_machine):
         if can_connect_to_pipe(target, namedpipe, credentials):

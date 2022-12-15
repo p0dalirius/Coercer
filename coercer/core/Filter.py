@@ -25,19 +25,18 @@ class Filter(object):
         Return:
             bool:outcome
         """
-        outcome = True
+        if len(self.filter_method_name) != 0 or len(self.filter_protocol_name) != 0:
+            outcome = False
+        else:
+            outcome = True
         #
-        if self.filter_method_name is not None:
-            if self.filter_method_name in instance.function["name"]:
-                outcome = outcome and True
-            else:
-                outcome = outcome and False
+        for method in self.filter_method_name:
+            if method in instance.function["name"]:
+                outcome = True
         #
-        if self.filter_protocol_name is not None:
-            if (self.filter_protocol_name in instance.protocol["shortname"]) or (self.filter_protocol_name in instance.protocol["longname"]):
-                outcome = outcome and True
-            else:
-                outcome = outcome and False
+        for protocol in self.filter_protocol_name:
+            if (protocol in instance.protocol["shortname"]) or (protocol in instance.protocol["longname"]):
+                outcome = True
         return outcome
 
     def pipe_matches_filter(self, pipe_name):
@@ -50,11 +49,12 @@ class Filter(object):
         Return:
             bool:outcome
         """
-        outcome = True
+        if len(self.filter_pipe_name) != 0:
+            outcome = False
+        else:
+            outcome = True
         #
-        if self.filter_pipe_name is not None:
-            if self.filter_pipe_name in pipe_name:
-                outcome = outcome and True
-            else:
-                outcome = outcome and False
+        for pipe in self.filter_pipe_name:
+            if pipe in pipe_name:
+                outcome = True
         return outcome

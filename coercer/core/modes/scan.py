@@ -41,18 +41,17 @@ def action_scan(target, available_methods, options, credentials, reporter):
                         if access_type == "ncan_np":
                             for access_method in access_methods:
                                 namedpipe, uuid, version = access_method["namedpipe"], access_method["uuid"], access_method["version"]
-                                if filter.pipe_matches_filter(namedpipe):
-                                    if namedpipe not in tasks[access_type].keys():
-                                        tasks[access_type][namedpipe] = {}
+                                if namedpipe not in tasks[access_type].keys():
+                                    tasks[access_type][namedpipe] = {}
 
-                                    if uuid not in tasks[access_type][namedpipe].keys():
-                                        tasks[access_type][namedpipe][uuid] = {}
+                                if uuid not in tasks[access_type][namedpipe].keys():
+                                    tasks[access_type][namedpipe][uuid] = {}
 
-                                    if version not in tasks[access_type][namedpipe][uuid].keys():
-                                        tasks[access_type][namedpipe][uuid][version] = []
+                                if version not in tasks[access_type][namedpipe][uuid].keys():
+                                    tasks[access_type][namedpipe][uuid][version] = []
 
-                                    if instance not in tasks[access_type][namedpipe][uuid][version]:
-                                        tasks[access_type][namedpipe][uuid][version].append(instance)
+                                if instance not in tasks[access_type][namedpipe][uuid][version]:
+                                    tasks[access_type][namedpipe][uuid][version].append(instance)
 
     # Executing tasks =======================================================================================================================
 
@@ -61,6 +60,8 @@ def action_scan(target, available_methods, options, credentials, reporter):
         print("[+] Listening for authentications on '%s', SMB port %d" % (listening_ip, options.smb_port))
 
     # Processing ncan_np tasks
+    if len(tasks.keys()) == 0:
+        return None
     ncan_np_tasks = tasks["ncan_np"]
     for namedpipe in sorted(ncan_np_tasks.keys()):
         if can_connect_to_pipe(target, namedpipe, credentials):

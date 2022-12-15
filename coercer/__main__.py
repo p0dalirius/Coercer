@@ -18,7 +18,7 @@ from coercer.core.loader import find_and_load_coerce_methods
 from coercer.network.smb import try_login
 
 
-VERSION = "2.2-blackhat-edition"
+VERSION = "2.3-blackhat-edition"
 
 banner = """       ______
       / ____/___  ___  _____________  _____

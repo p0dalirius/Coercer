@@ -18,7 +18,7 @@ from coercer.core.loader import find_and_load_coerce_methods
 from coercer.network.smb import try_login
 
 
-VERSION = "2.3-blackhat-edition"
+VERSION = "2.4-blackhat-edition"
 
 banner = """       ______
       / ____/___  ___  _____________  _____
@@ -48,9 +48,10 @@ def parseArgs():
     mode_scan_advanced_config.add_argument("--smb-port", default=445, type=int, help="SMB port (default: 445)")
     mode_scan_advanced_config.add_argument("--auth-type", default=None, type=str, help="Desired authentication type ('smb' or 'http').")
     # Filters
-    mode_scan_filters = mode_scan.add_argument_group("Filtering methods")
+    mode_scan_filters = mode_scan.add_argument_group("Filtering")
     mode_scan_filters.add_argument("--filter-method-name", default=None, type=str, help="")
     mode_scan_filters.add_argument("--filter-protocol-name", default=None, type=str, help="")
+    mode_scan_filters.add_argument("--filter-pipe-name", default=None, type=str, help="")
     # Credentials
     mode_scan_credentials = mode_scan.add_argument_group("Credentials")
     mode_scan_credentials.add_argument("-u", "--username", default="", help="Username to authenticate to the remote machine.")
@@ -82,9 +83,10 @@ def parseArgs():
     mode_fuzz_advanced_config.add_argument("--smb-port", default=445, type=int, help="SMB port (default: 445)")
     mode_fuzz_advanced_config.add_argument("--auth-type", default=None, type=str, help="Desired authentication type ('smb' or 'http').")
     # Filters
-    mode_fuzz_filters = mode_fuzz.add_argument_group("Filtering methods")
+    mode_fuzz_filters = mode_fuzz.add_argument_group("Filtering")
     mode_fuzz_filters.add_argument("--filter-method-name", default=None, type=str, help="")
     mode_fuzz_filters.add_argument("--filter-protocol-name", default=None, type=str, help="")
+    mode_fuzz_filters.add_argument("--filter-pipe-name", default=None, type=str, help="")
     # Credentials
     mode_fuzz_credentials = mode_fuzz.add_argument_group("Credentials")
     mode_fuzz_credentials.add_argument("--only-known-exploit-paths", action="store_true", default=False, help="Only test known exploit paths for each functions")
@@ -114,9 +116,10 @@ def parseArgs():
     mode_coerce_advanced_config.add_argument("--always-continue", default=False, action="store_true", help="Always continue to coerce")
     mode_coerce_advanced_config.add_argument("--auth-type", default=None, type=str, help="Desired authentication type ('smb' or 'http').")
     # Filters
-    mode_coerce_filters = mode_coerce.add_argument_group("Filtering methods")
+    mode_coerce_filters = mode_coerce.add_argument_group("Filtering")
     mode_coerce_filters.add_argument("--filter-method-name", default=None, type=str, help="")
     mode_coerce_filters.add_argument("--filter-protocol-name", default=None, type=str, help="")
+    mode_coerce_filters.add_argument("--filter-pipe-name", default=None, type=str, help="")
     # Credentials
     mode_coerce_credentials = mode_coerce.add_argument_group("Credentials")
     mode_coerce_credentials.add_argument("-u", "--username", default="", help="Username to authenticate to the machine.")

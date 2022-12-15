@@ -75,7 +75,7 @@ class Listener(object):
                 s.listen(5)
                 conn, address = s.accept()
                 data = conn.recv(2048)
-                print("\n",data,"\n")
+                # print("\n",data,"\n")
                 if b'HTTP' in data:
                     control_structure["result"] = TestResult.HTTP_AUTH_RECEIVED
             except Exception as e:

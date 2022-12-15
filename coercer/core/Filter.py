@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# File name          : MethodFilter.py
+# File name          : Filter.py
 # Author             : Podalirius (@podalirius_)
 # Date created       : 15 Sep 2022
 
-class MethodFilter(object):
+class Filter(object):
     """
-    Documentation for class MethodFilter
+    Documentation for class Filter
     """
 
-    def __init__(self, filter_method_name=None, filter_protocol_name=None):
-        super(MethodFilter, self).__init__()
+    def __init__(self, filter_method_name=None, filter_protocol_name=None, filter_pipe_name=None):
+        super(Filter, self).__init__()
         self.filter_method_name = filter_method_name
         self.filter_protocol_name = filter_protocol_name
+        self.filter_pipe_name = filter_pipe_name
 
-    def matches_filter(self, instance):
+    def method_matches_filter(self, instance):
         """
-        Function matches_filter
+        Function method_matches_filter
 
         Parameters:
             ?:instance
@@ -38,4 +39,22 @@ class MethodFilter(object):
             else:
                 outcome = outcome and False
         return outcome
-    
+
+    def pipe_matches_filter(self, pipe_name):
+        """
+        Function pipe_matches_filter
+
+        Parameters:
+            ?:pipe_name
+
+        Return:
+            bool:outcome
+        """
+        outcome = True
+        #
+        if self.filter_pipe_name is not None:
+            if self.filter_pipe_name in pipe_name:
+                outcome = outcome and True
+            else:
+                outcome = outcome and False
+        return outcome

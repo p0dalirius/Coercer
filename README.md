@@ -19,7 +19,7 @@
     + [x] Random UNC paths generation to avoid caching failed attempts (all modes)
     + [x] Configurable delay between attempts with `--delay`
  - Options:
-    + [x] Filter by method name with `--filter-method-name`, by protocol name with `--filter-protocol-name` or by pipe name with `--filter-pipe-name`(all modes)
+    + [x] Filter by method name with `--filter-method-name`, by protocol name with `--filter-protocol-name` or by pipe name with `--filter-pipe-name` (all modes)
     + [x] Target a single machine `--target` or a list of targets from a file with `--targets-file`
     + [x] Specify IP address OR interface to listen on for incoming authentications. (modes [scan](./documentation/Scan-mode.md) and [fuzz](./documentation/Fuzz-mode.md))
  - Exporting results

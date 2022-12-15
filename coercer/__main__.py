@@ -206,7 +206,7 @@ def main():
         for target in targets:
             reporter.print_info("Fuzzing target %s" % target)
             # Checking credentials if any
-            if try_login(credentials, target, options):
+            if try_login(credentials, target, verbose=options.verbose):
                 # Starting action
                 action_fuzz(target, available_methods, options, credentials, reporter)
                 # Reporting results

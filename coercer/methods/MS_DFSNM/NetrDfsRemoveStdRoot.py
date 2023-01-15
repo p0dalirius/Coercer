@@ -66,7 +66,7 @@ class NetrDfsRemoveStdRoot(MSPROTOCOLRPCCALL):
         "vulnerable_arguments": ["ServerName"]
     }
 
-    def trigger(self, dcerpc_session):
+    def trigger(self, dcerpc_session, target):
         if dcerpc_session is not None:
             try:
                 request = _NetrDfsRemoveStdRoot()

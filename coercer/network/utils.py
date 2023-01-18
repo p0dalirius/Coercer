@@ -5,7 +5,7 @@
 # Date created       : 17 Sep 2022
 
 import socket
-import fcntl
+import sys
 import struct
 
 
@@ -13,15 +13,23 @@ def get_ip_address_of_interface(ifname):
     """
     Function get_ip_address_of_interface(ifname)
     """
-    if type(ifname) == str:
-        ifname = bytes(ifname, "utf-8")
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    SIOCGIFADDR = 0x8915
-    try:
-        ifname = struct.pack('256s', ifname[:15])
-        a = fcntl.ioctl(s.fileno(), SIOCGIFADDR, ifname)[20:24]
-        return socket.inet_ntoa(a)
-    except OSError as e:
+    if sys.platform == "win32":
+        return None
+
+    elif sys.platform == "linux":
+        import fcntl
+        if type(ifname) == str:
+            ifname = bytes(ifname, "utf-8")
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        SIOCGIFADDR = 0x8915
+        try:
+            ifname = struct.pack('256s', ifname[:15])
+            a = fcntl.ioctl(s.fileno(), SIOCGIFADDR, ifname)[20:24]
+            return socket.inet_ntoa(a)
+        except OSError as e:
+            return None
+
+    else:
         return None
 
 

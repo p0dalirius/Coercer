@@ -91,6 +91,16 @@ class EfsRpcRemoveUsersFromFile(MSPROTOCOLRPCCALL):
                 "uuid": "c681d488-d850-11d0-8c52-00c04fd90f7e",
                 "version": "1.0"
             },
+        ],
+        "ncacn_ip_tcp": [
+            {
+                "uuid": "df1941c5-fe89-4e79-bf10-463657acf44d",
+                "version": "1.0"
+            },
+            {
+                "uuid": "c681d488-d850-11d0-8c52-00c04fd90f7e",
+                "version": "1.0"
+            }
         ]
     }
 

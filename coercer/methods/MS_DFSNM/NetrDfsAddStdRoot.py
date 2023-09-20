@@ -53,6 +53,12 @@ class NetrDfsAddStdRoot(MSPROTOCOLRPCCALL):
                 "uuid": "4fc742e0-4a10-11cf-8273-00aa004ae673",
                 "version": "3.0"
             }
+        ],
+        "ncacn_ip_tcp": [
+            {
+                "uuid": "4fc742e0-4a10-11cf-8273-00aa004ae673",
+                "version": "3.0"
+            }
         ]
     }
 

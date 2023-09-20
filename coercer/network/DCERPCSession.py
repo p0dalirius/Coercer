@@ -24,6 +24,29 @@ class DCERPCSession(object):
         self.__verbose = True
         self.credentials = credentials
 
+    def connect_ncacn_ip_tcp(self, target, port, targetIp=None, debug=False):
+        self.target = target
+        ncacn_ip_tcp = r'ncacn_ip_tcp:%s[%d]' % (target, port)
+        self.__rpctransport = transport.DCERPCTransportFactory(ncacn_ip_tcp)
+        self.session = self.__rpctransport.get_dce_rpc()
+        self.session.set_credentials(self.credentials.username, self.credentials.password, self.credentials.domain, self.credentials.lmhash, self.credentials.nthash, None)
+        self.session.set_auth_level(RPC_C_AUTHN_LEVEL_PKT_PRIVACY)
+        
+        if debug:
+            print("   [>] Connecting to %s ... " % ncan_target, end="")
+            sys.stdout.flush()
+        try:
+            self.session.connect()
+        except Exception as e:
+            if debug:
+                print("\x1b[1;91mfail\x1b[0m")
+                print("      [!] Something went wrong, check error status => %s" % str(e))
+            return None
+        else:
+            if debug:
+                print("\x1b[1;92msuccess\x1b[0m")
+        return self.session
+
     def connect_ncacn_np(self, target, pipe, targetIp=None, debug=False):
         """
 

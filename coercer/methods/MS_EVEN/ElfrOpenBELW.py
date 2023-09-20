@@ -31,6 +31,12 @@ class ElfrOpenBELW(MSPROTOCOLRPCCALL):
                 "uuid": "82273fdc-e32a-18c3-3f78-827929dc23ea",
                 "version": "0.0"
             }
+        ],
+        "ncacn_ip_tcp": [
+            {
+                "uuid": "82273fdc-e32a-18c3-3f78-827929dc23ea",
+                "version": "0.0"
+            }
         ]
     }
 

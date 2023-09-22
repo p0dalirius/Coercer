@@ -33,7 +33,7 @@ class DCERPCSession(object):
         self.session.set_auth_level(RPC_C_AUTHN_LEVEL_PKT_PRIVACY)
         
         if debug:
-            print("   [>] Connecting to %s ... " % ncan_target, end="")
+            print("   [>] Connecting to %s ... " % ncacn_ip_tcp, end="")
             sys.stdout.flush()
         try:
             self.session.connect()

@@ -7,6 +7,7 @@
 import socket
 import sys
 import struct
+from platform import uname
 
 
 def get_ip_address_of_interface(ifname):
@@ -16,7 +17,7 @@ def get_ip_address_of_interface(ifname):
     if sys.platform == "win32":
         return None
 
-    elif sys.platform == "linux":
+    elif sys.platform == "linux" and "microsoft" not in uname().release.lower() and "microsoft" not in uname().version.lower():
         import fcntl
         if type(ifname) == str:
             ifname = bytes(ifname, "utf-8")

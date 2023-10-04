@@ -33,11 +33,11 @@ class Reporter(object):
         sys.stdout.flush()
 
     def print_info(self, message):
-        print("\x1b[1;92minfo\x1b[0m\x1b[1m]\x1b[0m %s" % message)
+        print("\x1b[1m[\x1b[92minfo\x1b[0m\x1b[1m]\x1b[0m %s" % message)
         sys.stdout.flush()
 
     def print_warn(self, message):
-        print("\x1b[1;91mwarn\x1b[0m\x1b[1m]\x1b[0m %s" % message)
+        print("\x1b[1m[\x1b[91mwarn\x1b[0m\x1b[1m]\x1b[0m %s" % message)
         sys.stdout.flush()
 
     def print_verbose(self, message):

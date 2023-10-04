@@ -46,17 +46,19 @@ def action_coerce(target, available_methods, options, credentials, reporter):
                         if access_type == "ncan_np":
                             for access_method in access_methods:
                                 namedpipe, uuid, version = access_method["namedpipe"], access_method["uuid"], access_method["version"]
-                                if namedpipe not in tasks[access_type].keys():
-                                    tasks[access_type][namedpipe] = {}
+                                if filter.pipe_matches_filter(namedpipe):
+                                    if namedpipe not in tasks[access_type].keys():
+                                        tasks[access_type][namedpipe] = {}
 
-                                if uuid not in tasks[access_type][namedpipe].keys():
-                                    tasks[access_type][namedpipe][uuid] = {}
+                                    if uuid not in tasks[access_type][namedpipe].keys():
+                                        tasks[access_type][namedpipe][uuid] = {}
 
-                                if version not in tasks[access_type][namedpipe][uuid].keys():
-                                    tasks[access_type][namedpipe][uuid][version] = []
+                                    if version not in tasks[access_type][namedpipe][uuid].keys():
+                                        tasks[access_type][namedpipe][uuid][version] = []
 
-                                if instance not in tasks[access_type][namedpipe][uuid][version]:
-                                    tasks[access_type][namedpipe][uuid][version].append(instance)
+                                    if instance not in tasks[access_type][namedpipe][uuid][version]:
+                                        tasks[access_type][namedpipe][uuid][version].append(instance)
+
                         elif access_type == "ncacn_ip_tcp":
                             for access_method in access_methods:
                                 uuid, version = access_method["uuid"], access_method["version"]

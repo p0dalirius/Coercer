@@ -93,14 +93,16 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
                         if access_type == "ncan_np":
                             for access_method in access_methods:
                                 namedpipe, uuid, version = access_method["namedpipe"], access_method["uuid"], access_method["version"]
-                                if uuid not in tasks[access_type].keys():
-                                    tasks[access_type][uuid] = {}
+                                if filter.pipe_matches_filter(namedpipe):
+                                    if uuid not in tasks[access_type].keys():
+                                        tasks[access_type][uuid] = {}
 
-                                if version not in tasks[access_type][uuid].keys():
-                                    tasks[access_type][uuid][version] = []
+                                    if version not in tasks[access_type][uuid].keys():
+                                        tasks[access_type][uuid][version] = []
 
-                                if instance not in tasks[access_type][uuid][version]:
-                                    tasks[access_type][uuid][version].append(instance)
+                                    if instance not in tasks[access_type][uuid][version]:
+                                        tasks[access_type][uuid][version].append(instance)
+
                         elif access_type == "ncacn_ip_tcp":
                             for access_method in access_methods:
                                 uuid, version = access_method["uuid"], access_method["version"]

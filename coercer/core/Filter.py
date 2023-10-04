@@ -37,6 +37,13 @@ class Filter(object):
         for protocol in self.filter_protocol_name:
             if (protocol in instance.protocol["shortname"]) or (protocol in instance.protocol["longname"]):
                 outcome = True
+        #
+        """
+        candidate_pipes = [p["namedpipe"] for p in instance.access["ncan_np"]]
+        for filter_pipe in self.filter_pipe_name:
+            if filter_pipe in candidate_pipes:
+                outcome = True
+        """
         return outcome
 
     def pipe_matches_filter(self, pipe_name):

@@ -9,7 +9,7 @@ clean:
 docs:
 	@python3 -m pip install pdoc --break-system-packages
 	@echo "[$(shell date)] Generating docs ..."
-	@python3 -m pdoc -d markdown -o ./documentation/ ./coercer/
+	@PDOC_ALLOW_EXEC=1 python3 -m pdoc -d markdown -o ./documentation/ ./coercer/
 	@echo "[$(shell date)] Done!"
 
 install: build

@@ -190,6 +190,8 @@ def main():
     # Processing actions
     if options.mode == "coerce":
         reporter.print_info("Starting coerce mode")
+        if credentials.is_anonymous():
+            reporter.print_info("No credentials provided, trying to connect with a NULL session.")
         for target in targets:
             reporter.print_info("Scanning target %s" % target)
             # Checking credentials if any
@@ -199,6 +201,8 @@ def main():
 
     elif options.mode == "scan":
         reporter.print_info("Starting scan mode")
+        if credentials.is_anonymous():
+            reporter.print_info("No credentials provided, trying to connect with a NULL session.")
         if not can_listen_on_port("0.0.0.0", 445):
             reporter.print_warn("Cannot listen on port tcp/%d. Are you root or are other servers running?" % 445)
         else:
@@ -218,19 +222,24 @@ def main():
 
     elif options.mode == "fuzz":
         reporter.print_info("Starting fuzz mode")
-        for target in targets:
-            reporter.print_info("Fuzzing target %s" % target)
-            # Checking credentials if any
-            if not "msrpc" in options.filter_transport_name or try_login(credentials, target, verbose=options.verbose):
-                # Starting action
-                action_fuzz(target, available_methods, options, credentials, reporter)
-                # Reporting results
-                if options.export_json is not None:
-                    reporter.exportJSON(options.export_json)
-                if options.export_xlsx is not None:
-                    reporter.exportXLSX(options.export_xlsx)
-                if options.export_sqlite is not None:
-                    reporter.exportSQLITE(target, options.export_sqlite)
+        if credentials.is_anonymous():
+            reporter.print_info("No credentials provided, trying to connect with a NULL session.")
+        if not can_listen_on_port("0.0.0.0", 445):
+            reporter.print_warn("Cannot listen on port tcp/%d. Are you root or are other servers running?" % 445)
+        else:
+            for target in targets:
+                reporter.print_info("Fuzzing target %s" % target)
+                # Checking credentials if any
+                if not "msrpc" in options.filter_transport_name or try_login(credentials, target, verbose=options.verbose):
+                    # Starting action
+                    action_fuzz(target, available_methods, options, credentials, reporter)
+                    # Reporting results
+                    if options.export_json is not None:
+                        reporter.exportJSON(options.export_json)
+                    if options.export_xlsx is not None:
+                        reporter.exportXLSX(options.export_xlsx)
+                    if options.export_sqlite is not None:
+                        reporter.exportSQLITE(target, options.export_sqlite)
 
     print("[+] All done! Bye Bye!")
 

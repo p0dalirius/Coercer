@@ -70,6 +70,7 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
             return None
         else:
             named_pipe_of_remote_machine = kept_pipes_after_filters
+
     if "dcerpc" in options.filter_transport_name:
         portmap = portmap_discover(target, options.dce_port)
         for uuid in portmap.get("ncacn_ip_tcp",[]):

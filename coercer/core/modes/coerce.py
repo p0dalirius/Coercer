@@ -24,13 +24,15 @@ def action_coerce(target, available_methods, options, credentials, reporter):
         filter_pipe_name=options.filter_pipe_name
     )
 
-    # Preparing tasks ==============================================================================================================
-
+    portmap = {}
     if "dcerpc" in options.filter_transport_name:
         if not options.dce_ports:
             portmap = portmap_discover(target, options.dce_port)
         else:
             portmap = {}
+
+    # Preparing tasks ==============================================================================================================
+
     tasks = {}
     for method_type in available_methods.keys():
         for category in sorted(available_methods[method_type].keys()):

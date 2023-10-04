@@ -81,7 +81,7 @@ with open('requirements.txt', 'r', encoding='utf-8') as f:
 
 setuptools.setup(
     name="coercer",
-    version="2.4.1",
+    version="2.4.2",
     description="",
     url="https://github.com/p0dalirius/Coercer",
     author="Podalirius",
@@ -100,6 +100,6 @@ setuptools.setup(
     python_requires='>=3.6',
     install_requires=requirements,
     entry_points={
-        'console_scripts': ['Coercer=coercer.__main__:main']
+        'console_scripts': ['coercer=coercer.__main__:main']
     }
 )

@@ -19,7 +19,7 @@ from coercer.network.smb import try_login
 from coercer.network.utils import can_listen_on_port
 
 
-VERSION = "2.4.1-blackhat-edition"
+VERSION = "2.4.2"
 
 banner = """       ______
       / ____/___  ___  _____________  _____

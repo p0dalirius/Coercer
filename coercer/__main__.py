@@ -16,6 +16,7 @@ from coercer.core.modes.coerce import action_coerce
 from coercer.core.modes.fuzz import action_fuzz
 from coercer.core.loader import find_and_load_coerce_methods
 from coercer.network.smb import try_login
+from coercer.network.utils import can_listen_on_port
 
 
 VERSION = "2.4.1-blackhat-edition"

@@ -7,17 +7,19 @@ clean:
 	@rm -rf ./build/ ./dist/ ./coercer.egg-info/
 
 docs:
-	@python3 -m pip install pdoc
+	@python3 -m pip install pdoc --break-system-packages
 	@echo "[$(shell date)] Generating docs ..."
 	@python3 -m pdoc -d markdown -o ./documentation/ ./coercer/
 	@echo "[$(shell date)] Done!"
 
 install: build
-	python3 -m pip uninstall coercer --break-system-packages --yes
-	python3 setup.py install
+	pip install . --break-system-packages
 
 build:
-	python3 setup.py sdist bdist_wheel
+	python3 -m pip uninstall coercer --yes --break-system-packages
+	pip install .[build] --break-system-packages
+	python3 -m build --wheel
 
 upload: build
+	pip install .[twine] --break-system-packages
 	twine upload dist/*

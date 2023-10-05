@@ -23,7 +23,7 @@ def portmap_discover(target, port=135):
     for entry in entries:
         binding = epm.PrintStringBinding(entry['tower']['Floors'])
         uuid = str(entry['tower']['Floors'][0])
-        _transport,dst = binding.split(":")
+        _transport,dst = binding.split(":", 1)
         try: endpoints[_transport]
         except: endpoints[_transport] = {}
         

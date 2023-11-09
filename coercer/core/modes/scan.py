@@ -145,6 +145,10 @@ def action_scan(target, available_methods, options, credentials, reporter):
                                             if result == TestResult.NCA_S_UNK_IF:
                                                 stop_exploiting_this_function = True
 
+                                            if options.stop_on_ntlm_auth and result in [TestResult.SMB_AUTH_RECEIVED_NTLMv1, TestResult.SMB_AUTH_RECEIVED_NTLMv2]:
+                                                print("[!] NTLM authentication received; moving on to next target")
+                                                return None
+
                                     if options.delay is not None:
                                         # Sleep between attempts
                                         time.sleep(options.delay)
@@ -212,6 +216,10 @@ def action_scan(target, available_methods, options, credentials, reporter):
 
                                             if result == TestResult.NCA_S_UNK_IF:
                                                 stop_exploiting_this_function = True
+
+                                            if options.stop_on_ntlm_auth and result in [TestResult.SMB_AUTH_RECEIVED_NTLMv1, TestResult.SMB_AUTH_RECEIVED_NTLMv2]:
+                                                print("[!] NTLM authentication received; moving on to next target")
+                                                return None
 
                                     if options.delay is not None:
                                         # Sleep between attempts

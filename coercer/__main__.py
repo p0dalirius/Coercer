@@ -51,6 +51,7 @@ def parseArgs():
     mode_scan_advanced_config.add_argument("--dce-port", default=135, type=int, help="DCERPC port (default: 135)")
     mode_scan_advanced_config.add_argument("--dce-ports", default=[], nargs='+', type=int, help="DCERPC ports")
     mode_scan_advanced_config.add_argument("--auth-type", default=None, type=str, help="Desired authentication type ('smb' or 'http').")
+    mode_scan_advanced_config.add_argument("--stop-on-ntlm-auth", default=False, action="store_true", help="Move on to next target on successful NTLM authentication.")
     # Filters
     mode_scan_filters = mode_scan.add_argument_group("Filtering")
     mode_scan_filters.add_argument("--filter-method-name", default=[], action='append', type=str, help="")

@@ -14,6 +14,8 @@ class TestResult(Enum):
     NO_AUTH_RECEIVED   = 0x0
     SMB_AUTH_RECEIVED  = 0x1
     HTTP_AUTH_RECEIVED = 0x2
+    SMB_AUTH_RECEIVED_NTLMv1  = 0x3
+    SMB_AUTH_RECEIVED_NTLMv2  = 0x4
 
     NCA_S_UNK_IF = 0x10001
 

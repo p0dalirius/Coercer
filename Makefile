@@ -17,9 +17,9 @@ install: build
 
 build:
 	python3 -m pip uninstall coercer --yes --break-system-packages
-	pip install .[build] --break-system-packages
+	python3 -m pip install .[build] --break-system-packages
 	python3 -m build --wheel
 
 upload: build
-	pip install .[twine] --break-system-packages
-	twine upload dist/*
+	python3 -m pip install .[twine] --break-system-packages
+	python3 -m twine upload dist/*

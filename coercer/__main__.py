@@ -213,13 +213,14 @@ def main():
                 if not "msrpc" in options.filter_transport_name or try_login(credentials, target, verbose=options.verbose):
                     # Starting action
                     action_scan(target, available_methods, options, credentials, reporter)
-                    # Reporting results
-                    if options.export_json is not None:
-                        reporter.exportJSON(options.export_json)
-                    if options.export_xlsx is not None:
-                        reporter.exportXLSX(options.export_xlsx)
-                    if options.export_sqlite is not None:
-                        reporter.exportSQLITE(target, options.export_sqlite)
+
+            # Reporting results
+            if options.export_json is not None:
+                reporter.exportJSON(options.export_json)
+            if options.export_xlsx is not None:
+                reporter.exportXLSX(options.export_xlsx)
+            if options.export_sqlite is not None:
+                reporter.exportSQLITE(options.export_sqlite)
 
     elif options.mode == "fuzz":
         reporter.print_info("Starting fuzz mode")
@@ -234,13 +235,14 @@ def main():
                 if not "msrpc" in options.filter_transport_name or try_login(credentials, target, verbose=options.verbose):
                     # Starting action
                     action_fuzz(target, available_methods, options, credentials, reporter)
-                    # Reporting results
-                    if options.export_json is not None:
-                        reporter.exportJSON(options.export_json)
-                    if options.export_xlsx is not None:
-                        reporter.exportXLSX(options.export_xlsx)
-                    if options.export_sqlite is not None:
-                        reporter.exportSQLITE(target, options.export_sqlite)
+
+            # Reporting results
+            if options.export_json is not None:
+                reporter.exportJSON(options.export_json)
+            if options.export_xlsx is not None:
+                reporter.exportXLSX(options.export_xlsx)
+            if options.export_sqlite is not None:
+                reporter.exportSQLITE(options.export_sqlite)
 
     print("[+] All done! Bye Bye!")
 

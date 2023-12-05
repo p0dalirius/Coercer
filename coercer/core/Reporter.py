@@ -43,19 +43,21 @@ class Reporter(object):
     def print_verbose(self, message):
         print("[debug]",message)
 
-    def report_test_result(self, uuid, version, namedpipe, msprotocol_rpc_instance, result, exploitpath):
+    def report_test_result(self, target, uuid, version, namedpipe, msprotocol_rpc_instance, result, exploitpath):
         function_name = msprotocol_rpc_instance.function["name"]
-        if uuid not in self.test_results.keys():
-            self.test_results[uuid] = {}
-        if version not in self.test_results[uuid].keys():
-            self.test_results[uuid][version] = {}
-        if function_name not in self.test_results[uuid][version].keys():
-            self.test_results[uuid][version][function_name] = {}
-        if namedpipe not in self.test_results[uuid][version][function_name].keys():
-            self.test_results[uuid][version][function_name][namedpipe] = []
+        if target not in self.test_results.keys():
+            self.test_results[target] = {}
+        if uuid not in self.test_results[target].keys():
+            self.test_results[target][uuid] = {}
+        if version not in self.test_results[target][uuid].keys():
+            self.test_results[target][uuid][version] = {}
+        if function_name not in self.test_results[target][uuid][version].keys():
+            self.test_results[target][uuid][version][function_name] = {}
+        if namedpipe not in self.test_results[target][uuid][version][function_name].keys():
+            self.test_results[target][uuid][version][function_name][namedpipe] = []
 
         # Save result to database
-        self.test_results[uuid][version][function_name][namedpipe].append({
+        self.test_results[target][uuid][version][function_name][namedpipe].append({
             "function": msprotocol_rpc_instance.function,
             "protocol": msprotocol_rpc_instance.protocol,
             "testresult": result.name,
@@ -102,21 +104,22 @@ class Reporter(object):
         worksheet = workbook.add_worksheet()
 
         header_format = workbook.add_format({'bold': 1})
-        header_fields = ["Interface UUID", "Interface version", "SMB named pipe", "Protocol long name", "Protocol short name", "RPC function name", "Operation number", "Result", "Working path"]
+        header_fields = ["Target", "Interface UUID", "Interface version", "SMB named pipe", "Protocol long name", "Protocol short name", "RPC function name", "Operation number", "Result", "Working path"]
         for k in range(len(header_fields)):
             worksheet.set_column(k, k + 1, len(header_fields[k]) + 3)
         worksheet.set_row(0, 60, header_format)
         worksheet.write_row(0, 0, header_fields)
 
         row_id = 1
-        for uuid in self.test_results.keys():
-            for version in self.test_results[uuid].keys():
-                for function_name in self.test_results[uuid][version].keys():
-                    for namedpipe in self.test_results[uuid][version][function_name].keys():
-                        for test_result in self.test_results[uuid][version][function_name][namedpipe]:
-                            data = [uuid, version, namedpipe, test_result["protocol"]["longname"], test_result["protocol"]["shortname"], test_result["function"]["name"], test_result["function"]["opnum"], test_result["testresult"], test_result["exploitpath"]]
-                            worksheet.write_row(row_id, 0, data)
-                            row_id += 1
+        for target in self.test_results.keys():
+            for uuid in self.test_results[target].keys():
+                for version in self.test_results[target][uuid].keys():
+                    for function_name in self.test_results[target][uuid][version].keys():
+                        for namedpipe in self.test_results[target][uuid][version][function_name].keys():
+                            for test_result in self.test_results[target][uuid][version][function_name][namedpipe]:
+                                data = [target, uuid, version, namedpipe, test_result["protocol"]["longname"], test_result["protocol"]["shortname"], test_result["function"]["name"], test_result["function"]["opnum"], test_result["testresult"], test_result["exploitpath"]]
+                                worksheet.write_row(row_id, 0, data)
+                                row_id += 1
         worksheet.autofilter(0, 0, row_id, len(header_fields) - 1)
         workbook.close()
         self.print_info("Results exported to XLSX in '%s'" % path_to_file)
@@ -136,7 +139,7 @@ class Reporter(object):
         f.close()
         self.print_info("Results exported to JSON in '%s'" % path_to_file)
 
-    def exportSQLITE(self, target, filename):
+    def exportSQLITE(self, filename):
         basepath = os.path.dirname(filename)
         filename = os.path.basename(filename)
         if basepath not in [".", ""]:
@@ -151,23 +154,25 @@ class Reporter(object):
         # Creating a cursor object using the cursor() method
         cursor = conn.cursor()
         cursor.execute("CREATE TABLE IF NOT EXISTS results(target VARCHAR(255), uuid VARCHAR(255), version VARCHAR(255), named_pipe VARCHAR(255), protocol_shortname VARCHAR(255), protocol_longname VARCHAR(512), function_name VARCHAR(255), result VARCHAR(255), path VARCHAR(512));")
-        for uuid in self.test_results.keys():
-            for version in self.test_results[uuid].keys():
-                for function_name in self.test_results[uuid][version].keys():
-                    for named_pipe in self.test_results[uuid][version][function_name].keys():
-                        for test_result in self.test_results[uuid][version][function_name][named_pipe]:
-                            cursor.execute("INSERT INTO results VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (
-                                    target,
-                                    uuid,
-                                    version,
-                                    named_pipe,
-                                    test_result["protocol"]["shortname"],
-                                    test_result["protocol"]["longname"],
-                                    function_name,
-                                    test_result["testresult"],
-                                    str(bytes(test_result["exploitpath"], 'utf-8'))[2:-1].replace('\\\\', '\\')
+        cursor.execute("DELETE FROM results;")
+        for target in self.test_results.keys():
+            for uuid in self.test_results[target].keys():
+                for version in self.test_results[target][uuid].keys():
+                    for function_name in self.test_results[target][uuid][version].keys():
+                        for named_pipe in self.test_results[target][uuid][version][function_name].keys():
+                            for test_result in self.test_results[target][uuid][version][function_name][named_pipe]:
+                                cursor.execute("INSERT INTO results VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (
+                                        target,
+                                        uuid,
+                                        version,
+                                        named_pipe,
+                                        test_result["protocol"]["shortname"],
+                                        test_result["protocol"]["longname"],
+                                        function_name,
+                                        test_result["testresult"],
+                                        str(bytes(test_result["exploitpath"], 'utf-8'))[2:-1].replace('\\\\', '\\')
+                                    )
                                 )
-                            )
         # Commit your changes in the database
         conn.commit()
         # Closing the connection

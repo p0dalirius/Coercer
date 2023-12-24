@@ -177,6 +177,7 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
                                             )
 
                                             reporter.report_test_result(
+                                                target=target,
                                                 uuid=uuid, version=version, namedpipe=namedpipe,
                                                 msprotocol_rpc_instance=msprotocol_rpc_instance,
                                                 result=result,
@@ -247,6 +248,7 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
                                             )
 
                                             reporter.report_test_result(
+                                                target=target,
                                                 uuid=uuid, version=version, namedpipe=namedpipe,
                                                 msprotocol_rpc_instance=msprotocol_rpc_instance,
                                                 result=result,

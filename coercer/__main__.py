@@ -8,7 +8,8 @@
 import argparse
 import os
 import sys
-
+from sectools.network.domains import is_fqdn
+from sectools.network.ip import is_ipv4_cidr, is_ipv4_addr, is_ipv6_addr, expand_cidr, expand_port_range
 from coercer.core.Reporter import Reporter
 from coercer.structures.Credentials import Credentials
 from coercer.core.modes.scan import action_scan
@@ -186,7 +187,38 @@ def main():
             print("[!] Could not open targets file '%s'." % options.targets_file)
             sys.exit(0)
 
-    credentials = Credentials(username=options.username, password=options.password, domain=options.domain, lmhash=lmhash, nthash=nthash)
+    # Sort uniq on targets list
+    targets = sorted(list(set(targets)))
+
+    final_targets = []
+    # Parsing target to filter IP/DNS/CIDR
+    for target in targets:
+        if is_ipv4_cidr(target):
+            final_targets += [ip for ip in expand_cidr(target)]
+        elif is_ipv4_addr(target):
+            final_targets.append(target)
+        elif is_ipv6_addr(target):
+            final_targets.append(target)
+        elif is_fqdn(target):
+            final_targets.append(target)
+        elif target.startswith("http://") or target.startswith("https://"):
+            import urllib.parse
+            target = urllib.parse.urlparse(target).netloc
+            final_targets.append(target)
+        else:
+            if options.debug:
+                print("[debug] Target '%s' was not added." % target)
+    
+    # Sort 
+    targets = sorted(list(set(final_targets)))
+
+    credentials = Credentials(
+        username=options.username, 
+        password=options.password, 
+        domain=options.domain, 
+        lmhash=lmhash, 
+        nthash=nthash
+    )
 
     # Processing actions
     if options.mode == "coerce":

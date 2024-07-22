@@ -34,6 +34,7 @@ def parseArgs():
     print(banner)
     parser = argparse.ArgumentParser(add_help=True, description="Automatic windows authentication coercer using various methods.")
     parser.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose mode (default: False)")
+    parser.add_argument("--debug", default=False, action="store_true", help="Debug mode (default: False)")
 
     # Creating the "scan" subparser ==============================================================================================================
     mode_scan = argparse.ArgumentParser(add_help=False)

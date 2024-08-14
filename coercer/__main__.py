@@ -213,11 +213,13 @@ def main():
     targets = sorted(list(set(final_targets)))
 
     credentials = Credentials(
-        username=options.username, 
-        password=options.password, 
-        domain=options.domain, 
-        lmhash=lmhash, 
-        nthash=nthash
+        domain=options.auth_domain,
+        username=options.auth_username,
+        password=options.auth_password,
+        hashes=options.auth_hashes,
+        use_kerberos=options.use_kerberos,
+        aesKey=options.aesKey,
+        kdcHost=options.kdcHost
     )
 
     # Processing actions

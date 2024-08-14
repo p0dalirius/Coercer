@@ -11,7 +11,19 @@ from coercer.structures.TestResult import TestResult
 
 class Listener(object):
     """
-    class Listener
+    Listener Class
+
+    This class is responsible for setting up a listener on a specified IP and port to capture incoming SMB authentication attempts. It is designed to work in conjunction with the coercer tool for testing and exploitation of SMB vulnerabilities.
+
+    Attributes:
+    - options (Options): The options object containing configuration for the listener.
+    - smb_port (int): The port number to listen on for SMB connections.
+    - timeout (int): The timeout in seconds for the listener to wait for incoming connections.
+    - listen_ip (str): The IP address to listen on.
+
+    Methods:
+    - start_smb(control_structure): Starts the SMB listener and captures incoming authentication attempts.
+    
     """
 
     def __init__(self, options, listen_ip=None, timeout=None):
@@ -35,8 +47,16 @@ class Listener(object):
 
     def start_smb(self, control_structure):
         """
-        Function start_smb(self, control_structure)
+        start_smb(self, control_structure)
+        
+        This method starts a listener on the SMB port to capture incoming SMB authentication attempts.
+        
+        Parameters:
+        - control_structure (dict): A dictionary that holds the state of the test, including the result.
+        
+        This method binds to the SMB port specified in the options and listens for incoming connections. When a connection is accepted, it receives data and checks if it's an SMB authentication attempt. If it is, it updates the control_structure with the result.
         """
+
         start_time = int(time.time())
         stop_time = start_time + self.timeout
         while (int(time.time()) < stop_time) and control_structure["result"] == TestResult.NO_AUTH_RECEIVED:
@@ -60,8 +80,17 @@ class Listener(object):
 
     def start_http(self, control_structure, http_port=80):
         """
-        Function start_http(self, control_structure, http_port=80)
+        start_http(self, control_structure, http_port=80)
+        
+        This method starts a listener on the HTTP port to capture incoming HTTP authentication attempts.
+        
+        Parameters:
+        - control_structure (dict): A dictionary that holds the state of the test, including the result.
+        - http_port (int, optional): The port to listen on for HTTP connections. Defaults to 80.
+        
+        This method binds to the specified HTTP port and listens for incoming connections. When a connection is accepted, it receives data and checks if it's an HTTP authentication attempt. If it is, it updates the control_structure with the result.
         """
+
         start_time = int(time.time())
         stop_time = start_time + self.timeout
         while (int(time.time()) < stop_time) and control_structure["result"] == TestResult.NO_AUTH_RECEIVED:

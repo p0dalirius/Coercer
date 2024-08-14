@@ -11,7 +11,25 @@ import binascii
 
 class Credentials(object):
     """
-    Documentation for class Credentials
+    Credentials Class
+
+    This class represents a set of credentials for authentication purposes. It includes attributes for identity, hashes, and Kerberos settings.
+
+    Attributes:
+    - domain (str): The domain name associated with the credentials.
+    - username (str): The username associated with the credentials.
+    - password (str): The password associated with the credentials.
+    - nt_hex (str): The hexadecimal representation of the NT hash.
+    - nt_raw (str): The raw NT hash.
+    - lm_hex (str): The hexadecimal representation of the LM hash.
+    - lm_raw (str): The raw LM hash.
+    - use_kerberos (bool): A flag indicating whether to use Kerberos for authentication.
+    - aesKey (str): The AES key for Kerberos encryption.
+    - kdcHost (str): The hostname of the Kerberos Key Distribution Center (KDC).
+
+    Methods:
+    - __init__(domain, username, password, hashes=None, use_kerberos=False, aesKey=None, kdcHost=None): Initializes the Credentials object with the provided parameters.
+    - set_hashes(hashes): Sets the LM and NT hashes for the credentials based on the provided hash string.
     """
 
     # Identity

@@ -13,7 +13,16 @@ from platform import uname
 def get_ip_address_of_interface(ifname):
     """
     Function get_ip_address_of_interface(ifname)
+
+    This function retrieves the IP address of a specified network interface.
+
+    Parameters:
+    - ifname (str): The name of the network interface.
+
+    Returns:
+    - str: The IP address of the specified network interface.
     """
+
     if sys.platform == "win32":
         return None
 
@@ -37,7 +46,17 @@ def get_ip_address_of_interface(ifname):
 def get_ip_address_to_target_remote_host(host, port):
     """
     Function get_ip_address_to_target_remote_host(host, port)
+
+    This function attempts to connect to a remote host on a specified port and returns the IP address of the local interface used for the connection.
+
+    Parameters:
+    - host (str): The hostname or IP address of the remote host.
+    - port (int): The port number to connect to on the remote host.
+
+    Returns:
+    - str: The IP address of the local interface used for the connection, or None if the connection fails.
     """
+
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         s.connect((host, port))
@@ -49,7 +68,17 @@ def get_ip_address_to_target_remote_host(host, port):
 def can_listen_on_port(listen_ip, port):
     """
     Function can_listen_on_port(listen_ip, port)
+
+    This function checks if a specified IP address and port can be used for listening.
+
+    Parameters:
+    - listen_ip (str): The IP address to check for listening.
+    - port (int): The port number to check for listening.
+
+    Returns:
+    - bool: True if the IP address and port can be used for listening, False otherwise.
     """
+
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(0.05)
@@ -64,7 +93,21 @@ def can_listen_on_port(listen_ip, port):
 def get_ip_addr_to_listen_on(target, options):
     """
     Function get_ip_addr_to_listen_on(target, options)
+
+    This function determines the IP address to use for listening based on the provided options.
+
+    Parameters:
+    - target (str): The target machine or IP address to consider for IP address selection.
+    - options (object): An object containing options for IP address selection, including:
+        - ip_address (str): A specific IP address to use for listening.
+        - interface (str): The network interface to use for listening.
+        - min_http_port (int): The minimum HTTP port number to consider for listening.
+        - max_http_port (int): The maximum HTTP port number to consider for listening.
+
+    Returns:
+    - str: The IP address to use for listening, or None if no suitable IP address is found.
     """
+
     # Getting IP address to listen on
     listening_ip = None
     if options.ip_address is not None:
@@ -87,7 +130,20 @@ def get_ip_addr_to_listen_on(target, options):
 def get_next_http_listener_port(current_value, listen_ip, options):
     """
     Function get_next_http_listener_port(current_value, listen_ip, options)
+
+    This function determines the next available HTTP port to use for listening based on the current value and options provided.
+
+    Parameters:
+    - current_value (int): The current port number to consider for listening.
+    - listen_ip (str): The IP address to use for listening.
+    - options (object): An object containing options for port selection, including:
+        - min_http_port (int): The minimum HTTP port number to consider for listening.
+        - max_http_port (int): The maximum HTTP port number to consider for listening.
+
+    Returns:
+    - int: The next available HTTP port to use for listening within the specified range.
     """
+    
     port_window = (options.max_http_port - options.min_http_port)
 
     if current_value > options.max_http_port:

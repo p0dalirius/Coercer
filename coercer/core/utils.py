@@ -127,10 +127,17 @@ def generate_exploit_templates(desired_auth_type=None):
                 paths.append((auth_type, exploit_path))
         else:
             paths.append((auth_type, exploit_path))
+
     return paths
 
 
 def generate_exploit_path_from_template(template, listener, http_listen_port=80, smb_listen_port=445):
+    """
+    This function generates an exploit path from a given template, listener, and ports.
+    It uses Jinja2 templating to render the template with the provided parameters.
+    If the ports are not provided, it defaults to 80 for HTTP and 445 for SMB.
+    """
+
     # Declaring template functions
     rnd = gen_random_name
 

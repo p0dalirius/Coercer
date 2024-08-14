@@ -9,7 +9,9 @@ from enum import Enum
 
 class MethodType(Enum):
     """
-    Enum class MethodType
+    Enum for defining different types of methods used in the protocol.
+
+    This enumeration provides a way to categorize methods based on their type, allowing for easier identification and handling within the protocol. It includes a range of predefined types, including MICROSOFT_PROTOCOL and OTHER, which can be used to classify methods accordingly.
     """
 
     MICROSOFT_PROTOCOL = 0x01

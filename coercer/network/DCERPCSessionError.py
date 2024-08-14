@@ -10,7 +10,8 @@ from impacket.dcerpc.v5.rpcrt import DCERPCException
 
 class DCERPCSessionError(DCERPCException):
     """
-
+    DCERPCSessionError is a custom exception class that inherits from the DCERPCException class.
+    It is used to handle errors that occur during a DCERPC session.
     """
 
     def __init__(self, error_string=None, error_code=None, packet=None):

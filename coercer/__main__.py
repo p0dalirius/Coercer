@@ -244,7 +244,7 @@ def main():
         for target in targets:
             reporter.print_info("Scanning target %s" % target)
             # Checking credentials if any
-            if not "msrpc" in options.filter_transport_name or try_login(credentials, target, verbose=options.verbose):
+            if not "msrpc" in options.filter_transport_name or try_login(credentials, target, debug=options.debug):
                 # Starting action
                 action_coerce(target, available_methods, options, credentials, reporter)
 
@@ -260,7 +260,7 @@ def main():
             for target in targets:
                 reporter.print_info("Scanning target %s" % target)
                 # Checking credentials if any
-                if not "msrpc" in options.filter_transport_name or try_login(credentials, target, verbose=options.verbose):
+                if not "msrpc" in options.filter_transport_name or try_login(credentials, target, debug=options.debug):
                     # Starting action
                     action_scan(target, available_methods, options, credentials, reporter)
 
@@ -284,7 +284,7 @@ def main():
             for target in targets:
                 reporter.print_info("Fuzzing target %s" % target)
                 # Checking credentials if any
-                if not "msrpc" in options.filter_transport_name or try_login(credentials, target, verbose=options.verbose):
+                if not "msrpc" in options.filter_transport_name or try_login(credentials, target, debug=options.debug):
                     # Starting action
                     action_fuzz(target, available_methods, options, credentials, reporter)
 

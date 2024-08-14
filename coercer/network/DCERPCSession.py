@@ -25,13 +25,41 @@ class DCERPCSession(object):
         self.credentials = credentials
 
     def connect_ncacn_ip_tcp(self, target, port, targetIp=None, debug=False):
+        """
+        Connects to a target system over the NCACN IP TCP transport protocol.
+
+        This method establishes a connection to a target system using the NCACN IP TCP transport protocol. It sets up the necessary credentials, authentication, and encryption for the connection.
+
+        Parameters:
+        - target (str): The hostname or IP address of the target system.
+        - port (int): The port number to connect to on the target system.
+        - targetIp (str, optional): The IP address of the target system. Defaults to None.
+        - debug (bool, optional): Enables or disables debug output. Defaults to False.
+        """
+
         self.target = target
         ncacn_ip_tcp = r'ncacn_ip_tcp:%s[%d]' % (target, port)
+
         self.__rpctransport = transport.DCERPCTransportFactory(ncacn_ip_tcp)
         self.session = self.__rpctransport.get_dce_rpc()
-        self.session.set_credentials(self.credentials.username, self.credentials.password, self.credentials.domain, self.credentials.lm_hex, self.credentials.nt_hex, None)
-        self.session.set_auth_level(RPC_C_AUTHN_LEVEL_PKT_PRIVACY)
+
+        if hasattr(self.__rpctransport, 'set_credentials'):
+            self.session.set_credentials(
+                username=self.credentials.username, 
+                password=self.credentials.password, 
+                domain=self.credentials.domain, 
+                lmhash=self.credentials.lm_hex, 
+                nthash=self.credentials.nt_hex, 
+                aesKey=self.credentials.aesKey,
+                TGT=None,
+                TGS=None
+            )
+
+        if self.credentials.use_kerberos == True:
+            self.__rpctransport.set_kerberos(self.credentials.use_kerberos, kdcHost=self.credentials.kdcHost)
         
+        self.session.set_auth_level(RPC_C_AUTHN_LEVEL_PKT_PRIVACY)
+
         if debug:
             print("   [>] Connecting to %s ... " % ncacn_ip_tcp, end="")
             sys.stdout.flush()
@@ -49,21 +77,34 @@ class DCERPCSession(object):
 
     def connect_ncacn_np(self, target, pipe, targetIp=None, debug=False):
         """
+        Connects to a named pipe over the NCACN NP transport protocol.
 
+        This method establishes a connection to a named pipe on a remote system using the NCACN NP transport protocol. It sets up the necessary credentials, authentication, and encryption for the connection.
+
+        Parameters:
+        - target (str): The hostname or IP address of the target system.
+        - pipe (str): The name of the named pipe to connect to.
+        - targetIp (str, optional): The IP address of the target system. Defaults to None.
+        - debug (bool, optional): Enables or disables debug output. Defaults to False.
+
+        Returns:
+        - session (DCERPCSession): The established session object if the connection is successful, otherwise None.
         """
+
         self.target = target
         ncan_target = r'ncacn_np:%s[%s]' % (target, pipe)
         self.__rpctransport = transport.DCERPCTransportFactory(ncan_target)
 
-        debug = False
-
-        if hasattr(self.__rpctransport, 'set_credentials'):
+        if hasattr(self.__rpctransport, "set_credentials"):
             self.__rpctransport.set_credentials(
                 username=self.credentials.username,
                 password=self.credentials.password,
                 domain=self.credentials.domain,
                 lmhash=self.credentials.lm_hex,
-                nthash=self.credentials.nt_hex
+                nthash=self.credentials.nt_hex,
+                aesKey=self.credentials.aesKey,
+                TGT=None,
+                TGS=None
             )
 
         if self.credentials.use_kerberos == True:
@@ -72,6 +113,7 @@ class DCERPCSession(object):
             self.__rpctransport.setRemoteHost(targetIp)
 
         self.session = self.__rpctransport.get_dce_rpc()
+        
         self.session.set_auth_type(RPC_C_AUTHN_WINNT)
         self.session.set_auth_level(RPC_C_AUTHN_LEVEL_PKT_PRIVACY)
 
@@ -93,8 +135,19 @@ class DCERPCSession(object):
 
     def bind(self, interface_uuid, interface_version, debug=False):
         """
+        bind(interface_uuid, interface_version, debug=False)
 
+        Binds to a specific interface on the remote server.
+
+        Parameters:
+        - interface_uuid (str): The UUID of the interface to bind to.
+        - interface_version (str): The version of the interface to bind to.
+        - debug (bool, optional): Enables or disables debug output. Defaults to False.
+
+        Returns:
+        - bool: True if the binding was successful, otherwise False.
         """
+
         # Binding to interface
         if debug:
             print("   [>] Binding to interface <uuid='%s', version='%s'> ... " % (interface_uuid, interface_version), end="")

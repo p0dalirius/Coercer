@@ -8,39 +8,27 @@
 import sys
 from impacket.dcerpc.v5 import transport
 from impacket.uuid import uuidtup_to_bin
-from impacket.smbconnection import SMBConnection, SMB2_DIALECT_002, SMB2_DIALECT_21, SMB_DIALECT, SessionError
+from impacket.smbconnection import SMBConnection, SessionError
+from impacket.dcerpc.v5.rpcrt import RPC_C_AUTHN_WINNT, RPC_C_AUTHN_GSS_KERBEROS
+import traceback
 
 
-def init_smb_session(args, domain, username, password, address, lmhash, nthash, verbose=False):
-    smbClient = SMBConnection(address, args.target_ip, sess_port=int(args.port))
-    dialect = smbClient.getDialect()
-    if dialect == SMB_DIALECT:
-        if verbose:
-            print("[debug] SMBv1 dialect used")
-    elif dialect == SMB2_DIALECT_002:
-        if verbose:
-            print("[debug] SMBv2.0 dialect used")
-    elif dialect == SMB2_DIALECT_21:
-        if verbose:
-            print("[debug] SMBv2.1 dialect used")
-    else:
-        if verbose:
-            print("[debug] SMBv3.0 dialect used")
-    if args.k is True:
-        smbClient.kerberosLogin(username, password, domain, lmhash, nthash, args.aesKey, args.dc_ip)
-    else:
-        smbClient.login(username, password, domain, lmhash, nthash)
-    if smbClient.isGuestSession() > 0:
-        if verbose:
-            print("[debug] GUEST Session Granted")
-    else:
-        if verbose:
-            print("[debug] USER Session Granted")
-    return smbClient
+def try_login(credentials, target, port=445, debug=False):
+    """
+    try_login(credentials, target, port=445, debug=False)
 
+    Attempts to establish an SMB connection to a target using provided credentials.
 
-def try_login(credentials, target, port=445, verbose=False):
-    """Documentation for try_login"""
+    Parameters:
+    - credentials (Credentials): The credentials to use for the connection attempt.
+    - target (str): The target IP or hostname to connect to.
+    - port (int, optional): The port to use for the SMB connection. Defaults to 445.
+    - debug (bool, optional): Enables or disables debug output. Defaults to False.
+
+    Returns:
+    - bool: True if the login attempt was successful, otherwise False.
+    """
+
     # Checking credentials if any
     if not credentials.is_anonymous():
         try:
@@ -49,16 +37,31 @@ def try_login(credentials, target, port=445, verbose=False):
                 remoteHost=target,
                 sess_port=int(port)
             )
-            smbClient.login(
-                user=credentials.username,
-                password=credentials.password,
-                domain=credentials.domain,
-                lmhash=credentials.lm_hex,
-                nthash=credentials.nt_hex
-            )
+
+            if credentials.use_kerberos is True:
+                smbClient.kerberosLogin(
+                    user=credentials.username, 
+                    password=credentials.password, 
+                    domain=credentials.domain, 
+                    lmhash=credentials.lm_hex, 
+                    nthash=credentials.nt_hex, 
+                    aesKey=credentials.aesKey,
+                    kdcHost=credentials.kdcHost
+                )
+            else:
+                smbClient.login(
+                    user=credentials.username, 
+                    password=credentials.password, 
+                    domain=credentials.domain, 
+                    lmhash=credentials.lm_hex, 
+                    nthash=credentials.nt_hex
+                )
+
         except Exception as e:
             print("[!] Could not login as '%s' with these credentials on '%s'." % (credentials.username, target))
             print("  | Error: %s" % str(e))
+            if debug:
+                traceback.print_exc()
             return False
         else:
             return True
@@ -68,16 +71,44 @@ def try_login(credentials, target, port=445, verbose=False):
 
 def list_remote_pipes(target, credentials, share='IPC$', maxdepth=-1, debug=False):
     """
-    Function list_remote_pipes(target, credentials, share='IPC$', maxdepth=-1, debug=False)
+    Lists remote pipes on a target SMB server.
+
+    This function attempts to connect to the specified SMB server using the provided credentials and lists the available pipes within a specified share. It can also recursively search for pipes within subdirectories up to a specified maximum depth.
+
+    Parameters:
+    - target (str): The target IP or hostname of the SMB server.
+    - credentials (Credentials): The credentials to use for the connection attempt.
+    - share (str, optional): The share to list pipes from. Defaults to 'IPC$'.
+    - maxdepth (int, optional): The maximum depth to search for pipes. Defaults to -1, which means no limit.
+    - debug (bool, optional): Enables or disables debug output. Defaults to False.
+
+    Returns:
+    - list: A list of pipes found on the remote SMB server.
     """
+
     pipes = []
     try:
         smbClient = SMBConnection(target, target, sess_port=int(445))
-        dialect = smbClient.getDialect()
+
         if credentials.use_kerberos is True:
-            smbClient.kerberosLogin(credentials.username, credentials.password, credentials.domain, credentials.lm_hex, credentials.nt_hex, credentials.aesKey, credentials.dc_ip)
+            smbClient.kerberosLogin(
+                user=credentials.username, 
+                password=credentials.password, 
+                domain=credentials.domain, 
+                lmhash=credentials.lm_hex, 
+                nthash=credentials.nt_hex, 
+                aesKey=credentials.aesKey,
+                kdcHost=credentials.kdcHost
+            )
         else:
-            smbClient.login(credentials.username, credentials.password, credentials.domain, credentials.lm_hex, credentials.nt_hex)
+            smbClient.login(
+                user=credentials.username, 
+                password=credentials.password, 
+                domain=credentials.domain, 
+                lmhash=credentials.lm_hex, 
+                nthash=credentials.nt_hex
+            )
+
         if smbClient.isGuestSession() > 0:
             if debug:
                 print("[>] GUEST Session Granted")
@@ -86,7 +117,7 @@ def list_remote_pipes(target, credentials, share='IPC$', maxdepth=-1, debug=Fals
                 print("[>] USER Session Granted")
     except Exception as e:
         if debug:
-            print(e)
+            traceback.print_exc()
         return pipes
 
     # Breadth-first search algorithm to recursively find .extension files
@@ -116,15 +147,30 @@ def list_remote_pipes(target, credentials, share='IPC$', maxdepth=-1, debug=Fals
         searchdirs = next_dirs
         if debug:
             print("[>] Next iteration with %d folders." % len(next_dirs))
+
     pipes = sorted(list(set(["\\PIPE\\" + f for f in pipes])), key=lambda x:x.lower())
+
     return pipes
 
 
 
-def can_connect_to_pipe(target, pipe, credentials, targetIp=None, verbose=False):
+def can_connect_to_pipe(target, pipe, credentials, targetIp=None, verbose=True):
     """
-    Function can_connect_to_pipe(target, pipe, credentials, targetIp=None, verbose=False)
+    Function can_connect_to_pipe(target, pipe, credentials, targetIp=None, verbose=True)
+
+    This function checks if it can connect to a specific pipe on the target machine.
+
+    Parameters:
+    - target (str): The target machine's IP address.
+    - pipe (str): The name of the pipe to connect to.
+    - credentials (Credentials): The credentials to use for the connection.
+    - targetIp (str, optional): The target machine's IP address. Defaults to None.
+    - verbose (bool, optional): Enables or disables debug output. Defaults to True.
+
+    Returns:
+    - DCERPCSession: The DCERPC session if the connection was successful, otherwise None.
     """
+    
     ncan_target = r'ncacn_np:%s[%s]' % (target, pipe)
     __rpctransport = transport.DCERPCTransportFactory(ncan_target)
 
@@ -134,17 +180,21 @@ def can_connect_to_pipe(target, pipe, credentials, targetIp=None, verbose=False)
             password=credentials.password,
             domain=credentials.domain,
             lmhash=credentials.lm_hex,
-            nthash=credentials.nt_hex
+            nthash=credentials.nt_hex,
+            aesKey=credentials.aesKey
         )
 
     if credentials.use_kerberos:
-        __rpctransport.set_kerberos(credentials.use_kerberos, kdcHost=credentials.kdcHost)
+        __rpctransport.set_kerberos(flag=credentials.use_kerberos, kdcHost=credentials.kdcHost)
+        #dce = __rpctransport.get_dce_rpc()
+        #dce.set_auth_type(RPC_C_AUTHN_GSS_KERBEROS)
+
     if targetIp is not None:
         __rpctransport.setRemoteHost(targetIp)
+        #dce = __rpctransport.get_dce_rpc()
+        #dce.set_auth_type(RPC_C_AUTHN_WINNT)
 
     dce = __rpctransport.get_dce_rpc()
-    # dce.set_auth_type(RPC_C_AUTHN_WINNT)
-    # dce.set_auth_level(RPC_C_AUTHN_LEVEL_PKT_PRIVACY)
 
     if verbose:
         print("         [>] Connecting to %s ... " % ncan_target, end="")
@@ -154,7 +204,7 @@ def can_connect_to_pipe(target, pipe, credentials, targetIp=None, verbose=False)
     except Exception as e:
         if verbose:
             print("\x1b[1;91mfail\x1b[0m")
-            print("      [!] Something went wrong, check error status => %s" % str(e))
+            print("            [!] Something went wrong, check error status => %s" % str(e))
         return None
     else:
         if verbose:
@@ -175,11 +225,13 @@ def can_bind_to_interface(target, pipe, credentials, uuid, version, targetIp=Non
             password=credentials.password,
             domain=credentials.domain,
             lmhash=credentials.lm_hex,
-            nthash=credentials.nt_hex
+            nthash=credentials.nt_hex,
+            aesKey=credentials.aesKey
         )
 
     if credentials.use_kerberos:
-        __rpctransport.set_kerberos(credentials.use_kerberos, kdcHost=credentials.kdcHost)
+        __rpctransport.set_kerberos(flag=credentials.use_kerberos, kdcHost=credentials.kdcHost)
+
     if targetIp is not None:
         __rpctransport.setRemoteHost(targetIp)
 
@@ -195,7 +247,7 @@ def can_bind_to_interface(target, pipe, credentials, uuid, version, targetIp=Non
     except Exception as e:
         if verbose:
             print("\x1b[1;91mfail\x1b[0m")
-            print("      [!] Something went wrong, check error status => %s" % str(e))
+            print("            [!] Something went wrong, check error status => %s" % str(e))
         return False
 
     if verbose:

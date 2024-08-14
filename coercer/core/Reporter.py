@@ -19,7 +19,22 @@ ERASE_LINE = '\x1b[2K'
 
 class Reporter(object):
     """
-    Documentation for class Reporter
+    This class is responsible for reporting the results of tests and exploits performed on targets.
+    It handles the storage and display of test results, including saving them to a database.
+    The Reporter class is designed to be flexible and can be used in different modes, such as scan or fuzz mode.
+
+    Attributes:
+        options (dict): A dictionary containing options for the reporter, such as the mode of operation.
+        verbose (bool): A boolean indicating whether verbose output is enabled.
+        test_results (dict): A nested dictionary storing the results of tests and exploits, organized by target, uuid, version, function name, and named pipe.
+
+    Methods:
+        __init__(self, options, verbose=False): Initializes the Reporter object with the given options and verbosity level.
+        print_testing(self, msprotocol_rpc_instance): Prints a message indicating that a test is being performed on a given msprotocol_rpc_instance.
+        print_info(self, message): Prints an informational message to the console.
+        print_warn(self, message): Prints a warning message to the console.
+        print_verbose(self, message): Prints a verbose message to the console if verbose mode is enabled.
+        report_test_result(self, target, uuid, version, namedpipe, msprotocol_rpc_instance, result, exploitpath): Reports the result of a test or exploit, storing it in the database and optionally printing it to the console.
     """
 
     def __init__(self, options, verbose=False):
@@ -44,6 +59,21 @@ class Reporter(object):
         print("[debug]",message)
 
     def report_test_result(self, target, uuid, version, namedpipe, msprotocol_rpc_instance, result, exploitpath):
+        """
+        Reports the result of a test or exploit, storing it in the database and optionally printing it to the console.
+
+        Parameters:
+            target (str): The target of the test or exploit.
+            uuid (str): The unique identifier of the test or exploit.
+            version (str): The version of the target.
+            namedpipe (str): The named pipe used for the test or exploit.
+            msprotocol_rpc_instance (object): The instance of the MSProtocol RPC.
+            result (TestResult): The result of the test or exploit.
+            exploitpath (str): The path to the exploit used.
+
+        This method stores the test or exploit result in the reporter's internal database, organized by target, uuid, version, function name, and named pipe. It also prints the result to the console based on the reporter's mode and verbosity level.
+        """
+
         function_name = msprotocol_rpc_instance.function["name"]
         if target not in self.test_results.keys():
             self.test_results[target] = {}
@@ -90,6 +120,18 @@ class Reporter(object):
                     sys.stdout.flush()
 
     def exportXLSX(self, filename):
+        """
+        Exports the test results to an XLSX file.
+
+        This method exports the test results stored in the `self.test_results` dictionary to an XLSX file specified by the `filename` parameter. The file is created in the specified directory, and if the directory does not exist, it is created. The method also prints a message indicating the path where the results were exported.
+
+        Parameters:
+        - filename (str): The name of the file to which the results will be exported. This can include a directory path.
+
+        Returns:
+        - None
+        """
+
         basepath = os.path.dirname(filename)
         filename = os.path.basename(filename)
         if basepath not in [".", ""]:
@@ -125,6 +167,18 @@ class Reporter(object):
         self.print_info("Results exported to XLSX in '%s'" % path_to_file)
 
     def exportJSON(self, filename):
+        """
+        Exports the test results to a JSON file.
+
+        This method exports the test results stored in the `self.test_results` dictionary to a JSON file specified by the `filename` parameter. The file is created in the specified directory, and if the directory does not exist, it is created. The method also prints a message indicating the path where the results were exported.
+
+        Parameters:
+        - filename (str): The name of the file to which the results will be exported. This can include a directory path.
+
+        Returns:
+        - None
+        """
+
         basepath = os.path.dirname(filename)
         filename = os.path.basename(filename)
         if basepath not in [".", ""]:
@@ -140,6 +194,18 @@ class Reporter(object):
         self.print_info("Results exported to JSON in '%s'" % path_to_file)
 
     def exportSQLITE(self, filename):
+        """
+        Exports the test results to a SQLite database file.
+
+        This method exports the test results stored in the `self.test_results` dictionary to a SQLite database file specified by the `filename` parameter. The file is created in the specified directory, and if the directory does not exist, it is created. The method also prints a message indicating the path where the results were exported.
+
+        Parameters:
+        - filename (str): The name of the file to which the results will be exported. This can include a directory path.
+
+        Returns:
+        - None
+        """
+
         basepath = os.path.dirname(filename)
         filename = os.path.basename(filename)
         if basepath not in [".", ""]:

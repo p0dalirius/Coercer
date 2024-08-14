@@ -237,7 +237,9 @@ def main():
     # Processing actions
     if options.mode == "coerce":
         reporter.print_info("Starting coerce mode")
-        if credentials.is_anonymous():
+        if credentials.use_kerberos:
+            reporter.print_info("Connecting with Kerberos, using ccache file: '%s'" % os.getenv("KRB5CCNAME"))
+        elif credentials.is_anonymous():
             reporter.print_info("No credentials provided, trying to connect with a NULL session.")
         for target in targets:
             reporter.print_info("Scanning target %s" % target)
@@ -248,7 +250,9 @@ def main():
 
     elif options.mode == "scan":
         reporter.print_info("Starting scan mode")
-        if credentials.is_anonymous():
+        if credentials.use_kerberos:
+            reporter.print_info("Connecting with Kerberos, using ccache file: '%s'" % os.getenv("KRB5CCNAME"))
+        elif credentials.is_anonymous():
             reporter.print_info("No credentials provided, trying to connect with a NULL session.")
         if not can_listen_on_port("0.0.0.0", 445):
             reporter.print_warn("Cannot listen on port tcp/%d. Are you root or are other servers running?" % 445)
@@ -270,7 +274,9 @@ def main():
 
     elif options.mode == "fuzz":
         reporter.print_info("Starting fuzz mode")
-        if credentials.is_anonymous():
+        if credentials.use_kerberos:
+            reporter.print_info("Connecting with Kerberos, using ccache file: '%s'" % os.getenv("KRB5CCNAME"))
+        elif credentials.is_anonymous():
             reporter.print_info("No credentials provided, trying to connect with a NULL session.")
         if not can_listen_on_port("0.0.0.0", 445):
             reporter.print_warn("Cannot listen on port tcp/%d. Are you root or are other servers running?" % 445)

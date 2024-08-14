@@ -34,10 +34,12 @@ def parseArgs():
     print(banner)
     parser = argparse.ArgumentParser(add_help=True, description="Automatic windows authentication coercer using various methods.")
     parser.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose mode (default: False)")
+    parser.add_argument("--debug", default=False, action="store_true", help="Debug mode (default: False)")
 
     # Creating the "scan" subparser ==============================================================================================================
     mode_scan = argparse.ArgumentParser(add_help=False)
     mode_scan.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose mode (default: False)")
+    mode_scan.add_argument("--debug", default=False, action="store_true", help="Debug mode (default: False)")
     # Advanced configuration
     mode_scan_advanced_config = mode_scan.add_argument_group("Advanced options")
     mode_scan_advanced_config.add_argument("--export-json", default=None, type=str, help="Export results to specified JSON file.")
@@ -58,13 +60,17 @@ def parseArgs():
     mode_scan_filters.add_argument("--filter-pipe-name", default=[], action='append', type=str, help="")
     mode_scan_filters.add_argument("--filter-transport-name", default=["msrpc", "dcerpc"], choices=["msrpc", "dcerpc"], nargs='*', type=str, help="")
     # Credentials
-    mode_scan_credentials = mode_scan.add_argument_group("Credentials")
-    mode_scan_credentials.add_argument("-u", "--username", default="", help="Username to authenticate to the remote machine.")
-    mode_scan_credentials.add_argument("-p", "--password", default="", help="Password to authenticate to the remote machine. (if omitted, it will be asked unless -no-pass is specified)")
-    mode_scan_credentials.add_argument("-d", "--domain", default="", help="Windows domain name to authenticate to the machine.")
-    mode_scan_credentials.add_argument("--hashes", action="store", metavar="[LMHASH]:NTHASH", help="NT/LM hashes (LM hash can be empty)")
+    mode_scan_credentials = mode_scan.add_argument_group("Authentication & connection")
+    mode_scan_credentials.add_argument("-u", "--username", dest="auth_username", default="", help="Username to authenticate to the remote machine.")
+    mode_scan_credentials.add_argument("-p", "--password", dest="auth_password", default="", help="Password to authenticate to the remote machine. (if omitted, it will be asked unless -no-pass is specified)")
+    mode_scan_credentials.add_argument("-d", "--domain", dest="auth_domain", default="", help="Windows domain name to authenticate to the machine.")
+    mode_scan_credentials.add_argument("--hashes", dest="auth_hashes", action="store", metavar="[LMHASH]:NTHASH", help="NT/LM hashes (LM hash can be empty)")
     mode_scan_credentials.add_argument("--no-pass", action="store_true", help="Don't ask for password (useful for -k)")
     mode_scan_credentials.add_argument("--dc-ip", action="store", metavar="ip address", help="IP Address of the domain controller. If omitted it will use the domain part (FQDN) specified in the target parameter")
+    # Kerberos
+    mode_scan_credentials.add_argument("-k", "--kerberos", dest="use_kerberos", action="store_true", help="Use Kerberos authentication. Grabs credentials from .ccache file (KRB5CCNAME) based on target parameters. If valid credentials cannot be found, it will use the ones specified in the command line")
+    mode_scan_credentials.add_argument("--aes-key", dest="auth_aeskey", action="store", metavar="hex key", help="AES key to use for Kerberos Authentication (128 or 256 bits)")
+    mode_scan_credentials.add_argument("--kdcHost", dest="kdcHost", action="store", metavar="FQDN KDC", help="FQDN of KDC for Kerberos.") 
     # Targets source
     mode_scan_targets_source = mode_scan.add_mutually_exclusive_group(required=True)
     mode_scan_targets_source.add_argument("-t", "--target-ip", default=None, help="IP address or hostname of the target machine")
@@ -77,6 +83,7 @@ def parseArgs():
     # Creating the "fuzz" subparser ==============================================================================================================
     mode_fuzz = argparse.ArgumentParser(add_help=False)
     mode_fuzz.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose mode (default: False)")
+    mode_fuzz.add_argument("--debug", default=False, action="store_true", help="Debug mode (default: False)")
     # Advanced configuration
     mode_fuzz_advanced_config = mode_fuzz.add_argument_group("Advanced configuration")
     mode_fuzz_advanced_config.add_argument("--export-json", default=None, type=str, help="Export results to specified JSON file.")
@@ -96,14 +103,18 @@ def parseArgs():
     mode_fuzz_filters.add_argument("--filter-pipe-name", default=[], action='append', type=str, help="")
     mode_fuzz_filters.add_argument("--filter-transport-name", default=["msrpc", "dcerpc"], choices=["msrpc", "dcerpc"], nargs='*', type=str, help="")
     # Credentials
-    mode_fuzz_credentials = mode_fuzz.add_argument_group("Credentials")
+    mode_fuzz_credentials = mode_fuzz.add_argument_group("Authentication & connection")
     mode_fuzz_credentials.add_argument("--only-known-exploit-paths", action="store_true", default=False, help="Only test known exploit paths for each functions")
-    mode_fuzz_credentials.add_argument("-u", "--username", default="", help="Username to authenticate to the remote machine.")
-    mode_fuzz_credentials.add_argument("-p", "--password", default="", help="Password to authenticate to the remote machine. (if omitted, it will be asked unless -no-pass is specified)")
-    mode_fuzz_credentials.add_argument("-d", "--domain", default="", help="Windows domain name to authenticate to the machine.")
-    mode_fuzz_credentials.add_argument("--hashes", action="store", metavar="[LMHASH]:NTHASH", help="NT/LM hashes (LM hash can be empty)")
+    mode_fuzz_credentials.add_argument("-u", "--username", dest="auth_username", default="", help="Username to authenticate to the remote machine.")
+    mode_fuzz_credentials.add_argument("-p", "--password", dest="auth_password", default="", help="Password to authenticate to the remote machine. (if omitted, it will be asked unless -no-pass is specified)")
+    mode_fuzz_credentials.add_argument("-d", "--domain", dest="auth_domain", default="", help="Windows domain name to authenticate to the machine.")
+    mode_fuzz_credentials.add_argument("--hashes", dest="auth_hashes", action="store", metavar="[LMHASH]:NTHASH", help="NT/LM hashes (LM hash can be empty)")
     mode_fuzz_credentials.add_argument("--no-pass", action="store_true", help="Don't ask for password (useful for -k)")
     mode_fuzz_credentials.add_argument("--dc-ip", action="store", metavar="ip address", help="IP Address of the domain controller. If omitted it will use the domain part (FQDN) specified in the target parameter")
+    # Kerberos
+    mode_fuzz_credentials.add_argument("-k", "--kerberos", dest="use_kerberos", action="store_true", help="Use Kerberos authentication. Grabs credentials from .ccache file (KRB5CCNAME) based on target parameters. If valid credentials cannot be found, it will use the ones specified in the command line")
+    mode_fuzz_credentials.add_argument("--aes-key", dest="auth_aeskey", action="store", metavar="hex key", help="AES key to use for Kerberos Authentication (128 or 256 bits)")
+    mode_fuzz_credentials.add_argument("--kdcHost", dest="kdcHost", action="store", metavar="FQDN KDC", help="FQDN of KDC for Kerberos.") 
     # Targets source
     mode_fuzz_targets_source = mode_fuzz.add_mutually_exclusive_group(required=True)
     mode_fuzz_targets_source.add_argument("-t", "--target-ip", default=None, help="IP address or hostname of the target machine")
@@ -116,6 +127,7 @@ def parseArgs():
     # Creating the "coerce" subparser ==============================================================================================================
     mode_coerce = argparse.ArgumentParser(add_help=False)
     mode_coerce.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose mode (default: False)")
+    mode_coerce.add_argument("--debug", default=False, action="store_true", help="Debug mode (default: False)")
     # Advanced configuration
     mode_coerce_advanced_config = mode_coerce.add_argument_group("Advanced configuration")
     mode_coerce_advanced_config.add_argument("--delay", default=None, type=int, help="Delay between attempts (in seconds)")
@@ -132,13 +144,17 @@ def parseArgs():
     mode_coerce_filters.add_argument("--filter-pipe-name", default=[], action='append', type=str, help="")
     mode_coerce_filters.add_argument("--filter-transport-name", default=["msrpc", "dcerpc"], choices=["msrpc", "dcerpc"], nargs='*', type=str, help="")
     # Credentials
-    mode_coerce_credentials = mode_coerce.add_argument_group("Credentials")
-    mode_coerce_credentials.add_argument("-u", "--username", default="", help="Username to authenticate to the machine.")
-    mode_coerce_credentials.add_argument("-p", "--password", default="", help="Password to authenticate to the machine. (if omitted, it will be asked unless -no-pass is specified)")
-    mode_coerce_credentials.add_argument("-d", "--domain", default="", help="Windows domain name to authenticate to the machine.")
-    mode_coerce_credentials.add_argument("--hashes", action="store", metavar="[LMHASH]:NTHASH", help="NT/LM hashes (LM hash can be empty)")
+    mode_coerce_credentials = mode_coerce.add_argument_group("Authentication & connection")
+    mode_coerce_credentials.add_argument("-u", "--username", dest="auth_username", default="", help="Username to authenticate to the machine.")
+    mode_coerce_credentials.add_argument("-p", "--password", dest="auth_password", default="", help="Password to authenticate to the machine. (if omitted, it will be asked unless -no-pass is specified)")
+    mode_coerce_credentials.add_argument("-d", "--domain", dest="auth_domain", default="", help="Windows domain name to authenticate to the machine.")
+    mode_coerce_credentials.add_argument("--hashes", dest="auth_hashes", action="store", metavar="[LMHASH]:NTHASH", help="NT/LM hashes (LM hash can be empty)")
     mode_coerce_credentials.add_argument("--no-pass", action="store_true", help="Don't ask for password (useful for -k)")
     mode_coerce_credentials.add_argument("--dc-ip", action="store", metavar="ip address", help="IP Address of the domain controller. If omitted it will use the domain part (FQDN) specified in the target parameter")
+    # Kerberos
+    mode_coerce_credentials.add_argument("-k", "--kerberos", dest="use_kerberos", action="store_true", help="Use Kerberos authentication. Grabs credentials from .ccache file (KRB5CCNAME) based on target parameters. If valid credentials cannot be found, it will use the ones specified in the command line")
+    mode_coerce_credentials.add_argument("--aes-key", dest="auth_aeskey", action="store", metavar="hex key", help="AES key to use for Kerberos Authentication (128 or 256 bits)")
+    mode_coerce_credentials.add_argument("--kdcHost", dest="kdcHost", action="store", metavar="FQDN KDC", help="FQDN of KDC for Kerberos.") 
     # Targets source
     mode_coerce_targets_source = mode_coerce.add_mutually_exclusive_group(required=True)
     mode_coerce_targets_source.add_argument("-t", "--target-ip", default=None, help="IP address or hostname of the target machine")
@@ -155,21 +171,17 @@ def parseArgs():
 
     options = parser.parse_args()
 
-    # Parsing hashes
-    lmhash, nthash = '', ''
-    if options.hashes is not None:
-        lmhash, nthash = options.hashes.split(':')
-    if options.password == '' and options.username != '' and options.hashes is None and options.no_pass is not True:
+    if options.auth_password == '' and options.auth_username != '' and options.auth_hashes is None and options.no_pass is not True:
         from getpass import getpass
-        options.password = getpass("Password:")
+        options.auth_password = getpass("Password:")
 
-    return lmhash, nthash, options
+    return options
 
 
 def main():
     available_methods = find_and_load_coerce_methods()
 
-    lmhash, nthash, options = parseArgs()
+    options = parseArgs()
 
     reporter = Reporter(verbose=options.verbose, options=options)
 
@@ -218,7 +230,7 @@ def main():
         password=options.auth_password,
         hashes=options.auth_hashes,
         use_kerberos=options.use_kerberos,
-        aesKey=options.aesKey,
+        aesKey=options.auth_aeskey,
         kdcHost=options.kdcHost
     )
 

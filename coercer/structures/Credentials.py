@@ -5,7 +5,6 @@
 # Date created       : 16 Sep 2022
 
 
-from smbclientng.core.utils import parse_lm_nt_hashes
 import re
 import binascii
  
@@ -64,20 +63,29 @@ class Credentials(object):
         self.lm_hex = ""
         self.lm_raw = ""
 
-        lmhash, nthash = None, None
+        lm_hash_value, nt_hash_value = "", ""
+
         if hashes is not None:
-            matched = re.search("([0-9a-f]{32})(:)?([0-9a-f]{32})?", hashes.lower(), re.IGNORECASE)
-            if matched is not None:
-                lmhash = matched.groups()[0]
-                nthash = matched.groups()[2]
-                if lmhash is None:
-                    lmhash = "aad3b435b51404eeaad3b435b51404ee"
-                if nthash is None:
-                    nthash = "31d6cfe0d16ae931b73c59d7e0c089c0"
-                self.lm_hex = lmhash
-                self.lm_raw = binascii.unhexlify(lmhash)
-                self.nt_hex = nthash
-                self.nt_raw = binascii.unhexlify(nthash)
+            matched = re.match("([0-9a-f]{32})?(:)?([0-9a-f]{32})?", hashes.strip().lower(),  re.IGNORECASE)
+            match_lm_hash, _, match_nt_hash = matched.groups()
+            if match_lm_hash is None and match_nt_hash is not None:
+                self.lm_hex = "aad3b435b51404eeaad3b435b51404ee"
+                self.lm_raw = binascii.unhexlify(self.lm_hex)
+                self.nt_hex = match_nt_hash
+                self.nt_raw = binascii.unhexlify(match_nt_hash)
+            elif match_lm_hash is not None and match_nt_hash is None:
+                self.lm_hex = match_lm_hash
+                self.lm_raw = binascii.unhexlify(match_lm_hash)
+                self.nt_hex = "31d6cfe0d16ae931b73c59d7e0c089c0"
+                self.nt_raw = binascii.unhexlify(self.nt_hex)
+            else:
+                self.lm_hex = match_lm_hash
+                self.lm_raw = binascii.unhexlify(match_lm_hash)
+                self.nt_hex = match_nt_hash
+                self.nt_raw = binascii.unhexlify(match_nt_hash)
+
+        return lm_hash_value, nt_hash_value
+
 
     def is_anonymous(self):
         """
@@ -88,13 +96,16 @@ class Credentials(object):
         Returns:
             bool: True if the credentials are anonymous, False otherwise.
         """
+        
         anonymous = False
+
         if self.username is None:
             anonymous = True
         elif len(self.username) == 0:
             anonymous = True
         else:
             anonymous = False
+
         return anonymous
 
     def canPassTheHash(self):
@@ -121,8 +132,8 @@ class Credentials(object):
             "username": self.username,
             "password": self.password,
             "hashes": {
-                "lm_hash": self.lm_hex,
-                "nt_hash": self.nt_hex
+                "lm_hex": self.lm_hex,
+                "nt_hex": self.nt_hex
             },
             "use_kerberos": self.use_kerberos,
             "aesKey": self.aesKey,

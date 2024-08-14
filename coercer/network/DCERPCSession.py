@@ -29,7 +29,7 @@ class DCERPCSession(object):
         ncacn_ip_tcp = r'ncacn_ip_tcp:%s[%d]' % (target, port)
         self.__rpctransport = transport.DCERPCTransportFactory(ncacn_ip_tcp)
         self.session = self.__rpctransport.get_dce_rpc()
-        self.session.set_credentials(self.credentials.username, self.credentials.password, self.credentials.domain, self.credentials.lmhash, self.credentials.nthash, None)
+        self.session.set_credentials(self.credentials.username, self.credentials.password, self.credentials.domain, self.credentials.lm_hex, self.credentials.nt_hex, None)
         self.session.set_auth_level(RPC_C_AUTHN_LEVEL_PKT_PRIVACY)
         
         if debug:
@@ -62,12 +62,12 @@ class DCERPCSession(object):
                 username=self.credentials.username,
                 password=self.credentials.password,
                 domain=self.credentials.domain,
-                lmhash=self.credentials.lmhash,
-                nthash=self.credentials.nthash
+                lmhash=self.credentials.lm_hex,
+                nthash=self.credentials.nt_hex
             )
 
-        if self.credentials.doKerberos == True:
-            self.__rpctransport.set_kerberos(self.credentials.doKerberos, kdcHost=self.credentials.kdcHost)
+        if self.credentials.use_kerberos == True:
+            self.__rpctransport.set_kerberos(self.credentials.use_kerberos, kdcHost=self.credentials.kdcHost)
         if targetIp is not None:
             self.__rpctransport.setRemoteHost(targetIp)
 

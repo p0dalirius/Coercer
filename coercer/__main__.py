@@ -190,6 +190,7 @@ def main():
             sys.exit(0)
 
     # Sort uniq on targets list
+    targets = [t.strip() for t in targets if len(t.strip()) != 0]
     targets = sorted(list(set(targets)))
 
     final_targets = []

@@ -38,29 +38,7 @@ def trigger_and_catch_authentication(options, dcerpc_session, target, method_tri
             result_trigger = tp.submit(method_trigger_function, dcerpc_session, target)
 
         if control_structure["result"] == TestResult.NO_AUTH_RECEIVED:
-            if "rpc_x_bad_stub_data" in str(result_trigger._result):
-                control_structure["result"] = TestResult.RPC_X_BAD_STUB_DATA
-
-            elif "nca_s_unk_if" in str(result_trigger._result):
-                control_structure["result"] = TestResult.NCA_S_UNK_IF
-
-            elif "rpc_s_access_denied" in str(result_trigger._result):
-                control_structure["result"] = TestResult.RPC_S_ACCESS_DENIED
-
-            elif "ERROR_BAD_NETPATH" in str(result_trigger._result):
-                control_structure["result"] = TestResult.ERROR_BAD_NETPATH
-
-            elif "ERROR_INVALID_NAME" in str(result_trigger._result):
-                control_structure["result"] = TestResult.ERROR_INVALID_NAME
-
-            elif "STATUS_PIPE_DISCONNECTED" in str(result_trigger._result):
-                control_structure["result"] = TestResult.SMB_STATUS_PIPE_DISCONNECTED
-
-            elif "RPC_S_INVALID_BINDING" in str(result_trigger._result):
-                control_structure["result"] = TestResult.RPC_S_INVALID_BINDING
-
-            elif "RPC_S_INVALID_NET_ADDR" in str(result_trigger._result):
-                control_structure["result"] = TestResult.RPC_S_INVALID_NET_ADDR
+            control_structure["result"] = TestResult.from_string(str(result_trigger._result))
 
         return control_structure["result"]
 
@@ -74,28 +52,6 @@ def trigger_authentication(dcerpc_session, target, method_trigger_function):
     result_trigger = method_trigger_function(dcerpc_session, target)
 
     if control_structure["result"] == TestResult.NO_AUTH_RECEIVED:
-        if "rpc_x_bad_stub_data" in str(result_trigger):
-            control_structure["result"] = TestResult.RPC_X_BAD_STUB_DATA
-
-        elif "nca_s_unk_if" in str(result_trigger):
-            control_structure["result"] = TestResult.NCA_S_UNK_IF
-
-        elif "rpc_s_access_denied" in str(result_trigger):
-            control_structure["result"] = TestResult.RPC_S_ACCESS_DENIED
-
-        elif "ERROR_BAD_NETPATH" in str(result_trigger):
-            control_structure["result"] = TestResult.ERROR_BAD_NETPATH
-
-        elif "ERROR_INVALID_NAME" in str(result_trigger):
-            control_structure["result"] = TestResult.ERROR_INVALID_NAME
-
-        elif "STATUS_PIPE_DISCONNECTED" in str(result_trigger):
-            control_structure["result"] = TestResult.SMB_STATUS_PIPE_DISCONNECTED
-
-        elif "RPC_S_INVALID_BINDING" in str(result_trigger):
-            control_structure["result"] = TestResult.RPC_S_INVALID_BINDING
-
-        elif "RPC_S_INVALID_NET_ADDR" in str(result_trigger):
-            control_structure["result"] = TestResult.RPC_S_INVALID_NET_ADDR
-
+        control_structure["result"] = TestResult.from_string(str(result_trigger))
+        
     return control_structure["result"]

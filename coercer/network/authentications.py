@@ -5,6 +5,7 @@
 # Date created       : 21 Sep 2022
 
 
+from coercer.core.Reporter import Reporter
 from coercer.structures.TestResult import TestResult
 from concurrent.futures import ThreadPoolExecutor
 from coercer.network.Listener import Listener
@@ -27,11 +28,13 @@ def trigger_and_catch_authentication(options, dcerpc_session, target, method_tri
             listener_instance = Listener(options=options, listen_ip=listen_ip)
 
             if listenertype == "smb":
-                # print("[debug] Created smb listener")
+                if options.debug:
+                    Reporter.print_debug("Created smb listener")
                 tp.submit(listener_instance.start_smb, control_structure)
 
             elif listenertype == "http":
-                # print("[debug] Created http listener")
+                if options.debug:
+                    Reporter.print_debug("Created http listener")
                 tp.submit(listener_instance.start_http, control_structure, http_port=http_port)
 
             time.sleep(0.25)

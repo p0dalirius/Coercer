@@ -28,19 +28,23 @@ class Reporter(object):
         self.verbose = verbose
         self.test_results = {}
 
-    def print_testing(self, msprotocol_rpc_instance):
+    @staticmethod
+    def print_testing(msprotocol_rpc_instance):
         print("      [>] (\x1b[93m%s\x1b[0m) %s " % ("-testing-", str(msprotocol_rpc_instance)))
         sys.stdout.flush()
 
-    def print_info(self, message):
+    @staticmethod
+    def print_info(message):
         print("\x1b[1m[\x1b[92minfo\x1b[0m\x1b[1m]\x1b[0m %s" % message)
         sys.stdout.flush()
 
-    def print_warn(self, message):
+    @staticmethod
+    def print_warn(message):
         print("\x1b[1m[\x1b[91mwarn\x1b[0m\x1b[1m]\x1b[0m %s" % message)
         sys.stdout.flush()
 
-    def print_verbose(self, message):
+    @staticmethod
+    def print_debug(message):
         print("[debug]",message)
 
     def report_test_result(self, target, uuid, version, namedpipe, msprotocol_rpc_instance, result, exploitpath):

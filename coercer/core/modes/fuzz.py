@@ -6,6 +6,7 @@
 
 
 from coercer.core.Filter import Filter
+from coercer.core.Reporter import Reporter
 from coercer.structures.Modes import Modes
 from coercer.core.tasks.execute import execute_tasks
 from coercer.core.tasks.prepare import prepare_tasks
@@ -27,7 +28,7 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
     ports = set()
     if "msrpc" in options.filter_transport_name:
         if credentials.is_anonymous():
-            reporter.print_verbose("Cannot list SMB pipes with anonymous login, using list of known pipes")
+            Reporter.print_info("Cannot list SMB pipes with anonymous login, using list of known pipes")
             named_pipe_of_remote_machine = [
                 r'\PIPE\atsvc',
                 r'\PIPE\efsrpc',
@@ -49,11 +50,11 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
                 r'\PIPE\wkssvc'
             ]
             if options.verbose:
-                print("[debug] Using integrated list of %d SMB named pipes." % len(named_pipe_of_remote_machine))
+                reporter.print_info("Using integrated list of %d SMB named pipes." % len(named_pipe_of_remote_machine))
         else:
             named_pipe_of_remote_machine = list_remote_pipes(target, credentials)
             if options.verbose:
-                print("[debug] Found %d SMB named pipes on the remote machine." % len(named_pipe_of_remote_machine))
+                reporter.print_info("Found %d SMB named pipes on the remote machine." % len(named_pipe_of_remote_machine))
         kept_pipes_after_filters = []
         for pipe in named_pipe_of_remote_machine:
             if filter.pipe_matches_filter(pipe):

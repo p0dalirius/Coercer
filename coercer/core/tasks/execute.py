@@ -34,7 +34,7 @@ def execute_tasks(tasks, options, target, credentials, reporter, mode, listening
 
             iterable = ports or sorted(transport.keys())
             def can_connect_function(target, taskEntry, credentials):
-                return is_port_open(target, taskEntry)
+                return is_port_open(target, taskEntry, verbose=options.verbose)
             can_bind_function = can_bind_to_interface_on_port
             def connect_function(dcerpc, target, taskEntry):
                 return dcerpc.connect_ncacn_ip_tcp(target=target, port=taskEntry)
@@ -45,7 +45,7 @@ def execute_tasks(tasks, options, target, credentials, reporter, mode, listening
 
             iterable = sorted(named_pipe_of_remote_machine) if named_pipe_of_remote_machine else sorted(transport.keys())
             def can_connect_function(target, taskEntry, credentials):
-                return can_connect_to_pipe(target, taskEntry, credentials)
+                return can_connect_to_pipe(target, taskEntry, credentials, verbose=options.verbose)
             can_bind_function = can_bind_to_interface
             def connect_function(dcerpc, target, taskEntry):
                 return dcerpc.connect_ncacn_np(target=target, pipe=taskEntry)
@@ -64,7 +64,7 @@ def execute_tasks(tasks, options, target, credentials, reporter, mode, listening
 
                 for uuid in sorted(tasks_inner.keys()):
                     for version in sorted(tasks_inner[uuid].keys()):
-                        if can_bind_function(target, taskEntry, credentials, uuid, version):
+                        if can_bind_function(target, taskEntry, credentials, uuid, version, verbose=options.verbose):
                             print("   [+] Successful bind to interface (%s, %s)!" % (uuid, version))
                             for msprotocol_class in sorted(tasks_inner[uuid][version], key=lambda x:x.function["name"]):
                                 
@@ -91,7 +91,7 @@ def execute_tasks(tasks, options, target, credentials, reporter, mode, listening
                                     )
 
                                     msprotocol_rpc_instance = msprotocol_class(path=exploitpath)
-                                    dcerpc = DCERPCSession(credentials=credentials, verbose=True)
+                                    dcerpc = DCERPCSession(credentials=credentials, verbose=options.verbose)
                                     connect_function(dcerpc, target, taskEntry)
 
                                     if dcerpc.session is not None:

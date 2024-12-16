@@ -37,7 +37,7 @@ def execute_tasks(tasks, options, target, credentials, mode, listening_ip=None, 
 
             iterable = ports or sorted(transport.keys())
             def can_connect_function(target, taskEntry, credentials):
-                return is_port_open(target, taskEntry)
+                return is_port_open(target, taskEntry, verbose=options.verbose)
             can_bind_function = can_bind_to_interface_on_port
             def connect_function(dcerpc, target, taskEntry):
                 return dcerpc.connect_ncacn_ip_tcp(target=target, port=taskEntry)
@@ -48,7 +48,7 @@ def execute_tasks(tasks, options, target, credentials, mode, listening_ip=None, 
 
             iterable = sorted(named_pipe_of_remote_machine) if named_pipe_of_remote_machine else sorted(transport.keys())
             def can_connect_function(target, taskEntry, credentials):
-                return can_connect_to_pipe(target, taskEntry, credentials)
+                return can_connect_to_pipe(target, taskEntry, credentials, verbose=options.verbose)
             can_bind_function = can_bind_to_interface
             def connect_function(dcerpc, target, taskEntry):
                 return dcerpc.connect_ncacn_np(target=target, pipe=taskEntry)

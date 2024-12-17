@@ -77,5 +77,6 @@ class IsPathShadowCopied(MSPROTOCOLRPCCALL):
             except Exception as err:
                 return err
         else:
-            print("[!] Error: dce is None, you must call connect() first.")
+            from coercer.core.Reporter import reporter
+            reporter.print_error("Error: dce is None, you must call connect() first.")
             return None

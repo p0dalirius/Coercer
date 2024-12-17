@@ -11,5 +11,5 @@ class TransportType(Enum):
     """
     Enum class TransportType
     """
-    NCACN_IP_TCP = 0x01
-    NCAN_NP = 0x02
+    NCACN_IP_TCP = "DCERPC port"
+    NCAN_NP = "SMB named pipe"

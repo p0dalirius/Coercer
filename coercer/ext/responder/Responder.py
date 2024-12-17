@@ -24,6 +24,7 @@ from threading import Thread
 from .utils import *
 import struct
 
+from coercer.core.Reporter import reporter
 
 class ThreadingUDPServer(ThreadingMixIn, UDPServer):
 	def server_bind(self):
@@ -154,7 +155,7 @@ def serve_thread_udp_broadcast(host, port, handler):
 		server = ThreadingUDPServer(('', port), handler)
 		server.serve_forever()
 	except:
-		print(color("[!] ", 1, 1) + "Error starting UDP server on port " + str(port) + ", check permissions or other servers running.")
+		reporter.print_error("Error starting UDP server on port %s, check permissions or other servers running." % str(port))
 
 def serve_NBTNS_poisoner(host, port, handler):
 	serve_thread_udp_broadcast('', port, handler)
@@ -164,14 +165,14 @@ def serve_MDNS_poisoner(host, port, handler):
 		server = ThreadingUDPMDNSServer(('', port), handler)
 		server.serve_forever()
 	except:
-		print(color("[!] ", 1, 1) + "Error starting UDP server on port " + str(port) + ", check permissions or other servers running.")
+		reporter.print_error("Error starting UDP server on port %s, check permissions or other servers running." % str(port))
 
 def serve_LLMNR_poisoner(host, port, handler):
 	try:
 		server = ThreadingUDPLLMNRServer(('', port), handler)
 		server.serve_forever()
 	except:
-		print(color("[!] ", 1, 1) + "Error starting UDP server on port " + str(port) + ", check permissions or other servers running.")
+		reporter.print_error("Error starting UDP server on port %s, check permissions or other servers running." % str(port))
 		
 def serve_thread_udp(host, port, handler):
 	try:
@@ -182,7 +183,7 @@ def serve_thread_udp(host, port, handler):
 			server = ThreadingUDPServer(('', port), handler)
 			server.serve_forever()
 	except:
-		print(color("[!] ", 1, 1) + "Error starting UDP server on port " + str(port) + ", check permissions or other servers running.")
+		reporter.print_error("Error starting UDP server on port %s, check permissions or other servers running." % str(port))
 
 def serve_thread_tcp(host, port, handler):
 	try:
@@ -193,7 +194,7 @@ def serve_thread_tcp(host, port, handler):
 			server = ThreadingTCPServer(('', port), handler)
 			server.serve_forever()
 	except:
-		print(color("[!] ", 1, 1) + "Error starting TCP server on port " + str(port) + ", check permissions or other servers running.")
+		reporter.print_error("Error starting TCP server on port %s, check permissions or other servers running." % str(port))
 
 def serve_thread_tcp_auth(host, port, handler):
 	try:
@@ -204,7 +205,7 @@ def serve_thread_tcp_auth(host, port, handler):
 			server = ThreadingTCPServerAuth(('', port), handler)
 			server.serve_forever()
 	except:
-		print(color("[!] ", 1, 1) + "Error starting TCP server on port " + str(port) + ", check permissions or other servers running.")
+		reporter.print_error("Error starting TCP server on port %s, check permissions or other servers running." % str(port))
 
 def serve_thread_SSL(host, port, handler):
 	try:
@@ -222,14 +223,14 @@ def serve_thread_SSL(host, port, handler):
 			server.socket = context.wrap_socket(server.socket, server_side=True)
 			server.serve_forever()
 	except:
-		print(color("[!] ", 1, 1) + "Error starting SSL server on port " + str(port) + ", check permissions or other servers running.")
+		reporter.print_error("Error starting SSL server on port %s, check permissions or other servers running." % str(port))
 
 
 def main():
 	try:
 		if (sys.version_info < (3, 0)):
-			print(color('\n\n[-]', 3, 1) + " Still using python 2? :(")
-		print(color('\n[+]', 2, 1) + " Listening for events...\n")
+			reporter.print_warn("Still using python 2? :(")
+		reporter.print_in_progress("Listening for events...")
 			
 		threads = []
 
@@ -330,7 +331,7 @@ def main():
 			thread.start()
 
 		if settings.Config.AnalyzeMode:
-			print(color('[+] Responder is in analyze mode. No NBT-NS, LLMNR, MDNS requests will be poisoned.', 3, 1))
+			reporter.print_info("Responder is in analyze mode. No NBT-NS, LLMNR, MDNS requests will be poisoned.")
 
 		if settings.Config.DHCP_On_Off:
 			from poisoners.DHCP import DHCP

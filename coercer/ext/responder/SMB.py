@@ -21,6 +21,7 @@ from socketserver import BaseRequestHandler
 from random import randrange
 from .packets import SMBHeader, SMBNegoAnsLM, SMBNegoKerbAns, SMBSession1Data, SMBSession2Accept, SMBSessEmpty, SMBTreeData, SMB2Header, SMB2NegoAns, SMB2Session1Data, SMB2Session2Data
 
+from coercer.core.Reporter import reporter
 
 def Is_Anonymous(data):  # Detect if SMB auth was Anonymous
 	SecBlobLen = struct.unpack('<H',data[51:53])[0]
@@ -61,7 +62,9 @@ def ParseShare(data):
 	packet = data[:]
 	a = re.search(b'(\\x5c\\x00\\x5c.*.\\x00\\x00\\x00)', packet)
 	if a:
-		print(text("[SMB] Requested Share     : %s" % a.group(0).decode('UTF-16LE')))
+		log_entry = "Requested Share     : %s" % a.group(0).decode('UTF-16LE')
+		logging.info("[SMB] " + log_entry)
+		reporter.print(log_entry, symbol="SMB")
 
 def GrabMessageID(data):
     Messageid = data[28:36]
@@ -181,7 +184,9 @@ def IsNT4ClearTxt(data, client):
 			if PassLen > 2:
 				Password = data[HeadLen+30:HeadLen+30+PassLen].replace("\x00","")
 				User = ''.join(tuple(data[HeadLen+30+PassLen:].split('\x00\x00\x00'))[:1]).replace("\x00","")
-				print(text("[SMB] Clear Text Credentials: %s:%s" % (User,Password)))
+				log_entry = "Clear Text Credentials: %s:%s" % (User,Password)
+				logging.info("[SMB] " + log_entry)
+				reporter.print(log_entry, symbol="SMB")
 				WriteData(settings.Config.SMBClearLog % client, User+":"+Password, User+":"+Password)
 
 

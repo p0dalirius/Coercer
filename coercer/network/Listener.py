@@ -47,8 +47,8 @@ def create_smb_server(control_structure, listen_ip, interface, lock):
             # Already handled; do nothing
             return
 
-        print("[+] Authentication received: "
-              "[%(module)s] %(type)s - %(user)s@%(client)s\n" % result)
+        from coercer.core.Reporter import reporter
+        reporter.print_ok("Authentication received: %s" % ("[%(module)s] %(type)s - %(user)s@%(client)s\n" % result))
 
         if result['type'] in ['NTLMv1', 'NTLMv1-SSP']:
             control_structure["result"] = TestResult.SMB_AUTH_RECEIVED_NTLMv1

@@ -6,7 +6,6 @@
 
 
 from coercer.core.Filter import Filter
-from coercer.core.Reporter import Reporter
 from coercer.structures.Modes import Modes
 from coercer.core.tasks.execute import execute_tasks
 from coercer.core.tasks.prepare import prepare_tasks
@@ -14,8 +13,9 @@ from coercer.network.smb import list_remote_pipes
 from coercer.network.utils import get_ip_addr_to_listen_on
 from coercer.network.rpc import portmap_discover
 
+from coercer.core.Reporter import reporter
 
-def action_fuzz(target, available_methods, options, credentials, reporter):
+def action_fuzz(target, available_methods, options, credentials):
     filter = Filter(
         filter_method_name=options.filter_method_name,
         filter_protocol_name=options.filter_protocol_name,
@@ -28,7 +28,7 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
     ports = set()
     if "msrpc" in options.filter_transport_name:
         if credentials.is_anonymous():
-            Reporter.print_info("Cannot list SMB pipes with anonymous login, using list of known pipes")
+            reporter.print_info("Cannot list SMB pipes with anonymous login, using list of known pipes")
             named_pipe_of_remote_machine = [
                 r'\PIPE\atsvc',
                 r'\PIPE\efsrpc',
@@ -53,17 +53,16 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
                 reporter.print_info("Using integrated list of %d SMB named pipes." % len(named_pipe_of_remote_machine))
         else:
             named_pipe_of_remote_machine = list_remote_pipes(target, credentials)
-            if options.verbose:
-                reporter.print_info("Found %d SMB named pipes on the remote machine." % len(named_pipe_of_remote_machine))
+            reporter.print_info("Found %d SMB named pipes on the remote machine." % len(named_pipe_of_remote_machine), verbose=True)
         kept_pipes_after_filters = []
         for pipe in named_pipe_of_remote_machine:
             if filter.pipe_matches_filter(pipe):
                 kept_pipes_after_filters.append(pipe)
         if len(kept_pipes_after_filters) == 0 and not credentials.is_anonymous():
-            print("[!] No SMB named pipes matching filter --filter-pipe-name %s were found on the remote machine." % options.filter_pipe_name)
+            reporter.print_error("No SMB named pipes matching filter --filter-pipe-name %s were found on the remote machine." % options.filter_pipe_name)
             return None
         elif len(kept_pipes_after_filters) == 0 and credentials.is_anonymous():
-            print("[!] No SMB named pipes matching filter --filter-pipe-name %s were found in the list of known named pipes." % options.filter_pipe_name)
+            reporter.print_error("No SMB named pipes matching filter --filter-pipe-name %s were found in the list of known named pipes." % options.filter_pipe_name)
             return None
         else:
             named_pipe_of_remote_machine = kept_pipes_after_filters
@@ -81,7 +80,6 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
     # Executing tasks =======================================================================================================================
 
     listening_ip = get_ip_addr_to_listen_on(target, options)
-    if options.verbose:
-        print("[+] Listening for authentications on '%s', SMB port %d" % (listening_ip, options.smb_port))
+    reporter.print_info("Listening for authentications on '%s', SMB port %d" % (listening_ip, options.smb_port), debug=True)
 
-    execute_tasks(tasks, options, target, credentials, reporter, Modes.FUZZ, listening_ip, ports, named_pipe_of_remote_machine)
+    execute_tasks(tasks, options, target, credentials, Modes.FUZZ, listening_ip, ports, named_pipe_of_remote_machine)

@@ -11,8 +11,9 @@ from coercer.core.tasks.execute import execute_tasks
 from coercer.core.tasks.prepare import prepare_tasks
 from coercer.network.rpc import portmap_discover
 
+from coercer.core.Reporter import reporter
 
-def action_coerce(target, available_methods, options, credentials, reporter):
+def action_coerce(target, available_methods, options, credentials):
     reporter.verbose = True
 
     filter = Filter(
@@ -34,7 +35,6 @@ def action_coerce(target, available_methods, options, credentials, reporter):
 
     # Executing tasks =======================================================================================================================
 
-    if options.verbose:
-        print("[+] Coercing '%s' to authenticate to '%s'" % (target, options.listener_ip))
+    reporter.print_info("Coercing '%s' to authenticate to '%s'" % (target, options.listener_ip), verbose=True)
 
-    execute_tasks(tasks, options, target, credentials, reporter, Modes.COERCE)
+    execute_tasks(tasks, options, target, credentials, Modes.COERCE)

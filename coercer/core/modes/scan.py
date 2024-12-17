@@ -12,8 +12,9 @@ from coercer.core.tasks.prepare import prepare_tasks
 from coercer.network.utils import get_ip_addr_to_listen_on
 from coercer.network.rpc import portmap_discover
 
+from coercer.core.Reporter import reporter
 
-def action_scan(target, available_methods, options, credentials, reporter):
+def action_scan(target, available_methods, options, credentials):
     filter = Filter(
         filter_method_name=options.filter_method_name,
         filter_protocol_name=options.filter_protocol_name,
@@ -34,7 +35,6 @@ def action_scan(target, available_methods, options, credentials, reporter):
     # Executing tasks =======================================================================================================================
 
     listening_ip = get_ip_addr_to_listen_on(target, options)
-    if options.verbose:
-        print("[+] Listening for authentications on '%s', SMB port %d" % (listening_ip, options.smb_port))
+    reporter.print_info("Listening for authentications on '%s', SMB port %d" % (listening_ip, options.smb_port), verbose=True)
 
-    execute_tasks(tasks, options, target, credentials, reporter, Modes.SCAN, listening_ip)
+    execute_tasks(tasks, options, target, credentials, Modes.SCAN, listening_ip)

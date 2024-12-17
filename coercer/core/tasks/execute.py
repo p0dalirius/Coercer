@@ -4,7 +4,9 @@
 # Author             : Podalirius (@podalirius_) / p0rtL (@p0rtL6)
 # Date created       : 3 Dec 2024
 
+import sys
 import time
+from coercer.structures import EscapeCodes
 from coercer.structures.TransportType import TransportType
 from coercer.structures.Modes import Modes
 from coercer.core.utils import generate_exploit_path_from_template, generate_exploit_templates
@@ -14,8 +16,9 @@ from coercer.network.rpc import can_bind_to_interface_on_port, is_port_open
 from coercer.network.smb import can_bind_to_interface, can_connect_to_pipe
 from coercer.network.utils import get_next_http_listener_port
 from coercer.structures.TestResult import TestResult
+from coercer.core.Reporter import reporter
 
-def execute_tasks(tasks, options, target, credentials, reporter, mode, listening_ip=None, ports=None , named_pipe_of_remote_machine=None):
+def execute_tasks(tasks, options, target, credentials, mode, listening_ip=None, ports=None , named_pipe_of_remote_machine=None):
     for transport_name, transport in tasks.items():
         if mode == Modes.FUZZ:
             exploit_paths = generate_exploit_templates()
@@ -34,7 +37,7 @@ def execute_tasks(tasks, options, target, credentials, reporter, mode, listening
 
             iterable = ports or sorted(transport.keys())
             def can_connect_function(target, taskEntry, credentials):
-                return is_port_open(target, taskEntry, verbose=options.verbose)
+                return is_port_open(target, taskEntry)
             can_bind_function = can_bind_to_interface_on_port
             def connect_function(dcerpc, target, taskEntry):
                 return dcerpc.connect_ncacn_ip_tcp(target=target, port=taskEntry)
@@ -45,18 +48,15 @@ def execute_tasks(tasks, options, target, credentials, reporter, mode, listening
 
             iterable = sorted(named_pipe_of_remote_machine) if named_pipe_of_remote_machine else sorted(transport.keys())
             def can_connect_function(target, taskEntry, credentials):
-                return can_connect_to_pipe(target, taskEntry, credentials, verbose=options.verbose)
+                return can_connect_to_pipe(target, taskEntry, credentials)
             can_bind_function = can_bind_to_interface
             def connect_function(dcerpc, target, taskEntry):
                 return dcerpc.connect_ncacn_np(target=target, pipe=taskEntry)
 
         for taskEntry in iterable:
             if can_connect_function(target, taskEntry, credentials):
-                if transportType == TransportType.NCACN_IP_TCP:
-                    print("[+] DCERPC port '\x1b[1;94m%d\x1b[0m' is \x1b[1;92maccessible\x1b[0m!" % taskEntry)
-                elif transportType == TransportType.NCAN_NP:
-                    print("[+] SMB named pipe '\x1b[1;94m%s\x1b[0m' is \x1b[1;92maccessible\x1b[0m!" % taskEntry)
-                    
+                reporter.print(transportType.value, " '", (taskEntry, EscapeCodes.BOLD_BRIGHT_BLUE), "' is ", ("accessible", EscapeCodes.BOLD_BRIGHT_GREEN), "!", symbol=("+", EscapeCodes.BRIGHT_GREEN))
+
                 if mode == Modes.COERCE or mode == Modes.SCAN:
                     tasks_inner = transport[taskEntry]
                 elif mode == Modes.FUZZ:
@@ -64,8 +64,8 @@ def execute_tasks(tasks, options, target, credentials, reporter, mode, listening
 
                 for uuid in sorted(tasks_inner.keys()):
                     for version in sorted(tasks_inner[uuid].keys()):
-                        if can_bind_function(target, taskEntry, credentials, uuid, version, verbose=options.verbose):
-                            print("   [+] Successful bind to interface (%s, %s)!" % (uuid, version))
+                        if can_bind_function(target, taskEntry, credentials, uuid, version):
+                            reporter.print_ok("   ", "Successful bind to interface (%s, %s)!" % (uuid, version))
                             for msprotocol_class in sorted(tasks_inner[uuid][version], key=lambda x:x.function["name"]):
                                 
                                 if mode == Modes.COERCE or mode == Modes.SCAN:
@@ -91,7 +91,7 @@ def execute_tasks(tasks, options, target, credentials, reporter, mode, listening
                                     )
 
                                     msprotocol_rpc_instance = msprotocol_class(path=exploitpath)
-                                    dcerpc = DCERPCSession(credentials=credentials, verbose=options.verbose)
+                                    dcerpc = DCERPCSession(credentials=credentials)
                                     connect_function(dcerpc, target, taskEntry)
 
                                     if dcerpc.session is not None:
@@ -129,7 +129,7 @@ def execute_tasks(tasks, options, target, credentials, reporter, mode, listening
                                                 stop_exploiting_this_function = True
 
                                             if mode == Modes.SCAN and options.stop_on_ntlm_auth and result in [TestResult.SMB_AUTH_RECEIVED_NTLMv1, TestResult.SMB_AUTH_RECEIVED_NTLMv2]:
-                                                print("[!] NTLM authentication received; moving on to next target")
+                                                reporter.print_info("NTLM authentication received; moving on to next target")
                                                 return None
 
                                     if options.delay is not None:
@@ -150,10 +150,6 @@ def execute_tasks(tasks, options, target, credentials, reporter, mode, listening
                                             return None
                         else:
                             if options.verbose:
-                                print("   [!] Cannot bind to interface (%s, %s)!" % (uuid, version))
+                                reporter.print_error("   ", "Cannot bind to interface (%s, %s)!" % (uuid, version))
             else:
-                if options.verbose:
-                    if transportType == TransportType.NCACN_IP_TCP:
-                        print("[!] DCERPC port '\x1b[1;94m%d\x1b[0m' is \x1b[1;91mclosed\x1b[0m!" % taskEntry)
-                    elif transportType == TransportType.NCAN_NP:
-                        print("[!] SMB named pipe '\x1b[1;94m%s\x1b[0m' is \x1b[1;91mnot accessible\x1b[0m!" % taskEntry)
+                reporter.print(transportType.value, " '", (taskEntry, EscapeCodes.BOLD_BRIGHT_BLUE), "' ", ("closed", EscapeCodes.BOLD_BRIGHT_RED), "!", symbol=("!", EscapeCodes.BRIGHT_RED), verbose=True)

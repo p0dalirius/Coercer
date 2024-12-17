@@ -4,18 +4,52 @@
 # Author             : Podalirius (@podalirius_)
 # Date created       : 17 Jul 2022
 
+from functools import wraps
 import sqlite3
 import os
 import json
 import xlsxwriter
 import sys
-from coercer.structures.ReportingLevel import ReportingLevel
+import logging
+from coercer.models.MSPROTOCOLRPCCALL import MSPROTOCOLRPCCALL
+from coercer.structures import EscapeCodes
 from coercer.structures.TestResult import TestResult
 
+def create_reporter(options, verbose):
+    global reporter
+    reporter = Reporter(options, verbose)
 
-CURSOR_UP_ONE = '\x1b[1A'
-ERASE_LINE = '\x1b[2K'
+def should_print(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        verbose = kwargs.get("verbose", False)
+        debug = kwargs.get("debug", False)
 
+        if verbose and not self.options.verbose:
+            return
+        
+        if debug and not self.options.debug:
+            return
+        
+        return func(self, *args, **kwargs)
+    return wrapper
+
+def parse_print_args(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        prefix = kwargs.pop("prefix", None)
+
+        if len(args) == 1:
+            message = args[0]
+        elif len(args) == 2:
+            if prefix is None:
+                prefix = args[0]
+            message = args[1]
+        else:
+            raise Exception("Print function takes a maximum of two arguments.")
+
+        return func(self, prefix, message, **kwargs)
+    return wrapper
 
 class Reporter(object):
     """
@@ -24,28 +58,134 @@ class Reporter(object):
 
     def __init__(self, options, verbose=False):
         super(Reporter, self).__init__()
+
+        if options.log_file is not None:
+            logging.basicConfig(filename=options.log_file, level=options.minimum_log_level, format='%(asctime)s %(levelname)s %(message)s')
+            self.logger = logging.getLogger("coercer")
+        else:
+            self.logger = None
+
         self.options = options
         self.verbose = verbose
         self.test_results = {}
 
-    @staticmethod
-    def print_testing(msprotocol_rpc_instance):
-        print("      [>] (\x1b[93m%s\x1b[0m) %s " % ("-testing-", str(msprotocol_rpc_instance)))
+    # Args can be strings, or tuples (string, escape code)
+    @should_print
+    def print(self, *args, **kwargs):
+        prefix = kwargs.get("prefix", None)
+        symbol_arg = kwargs.get("symbol", None)
+        symbol_bold = kwargs.get("symbol_bold", True)
+        end = kwargs.get("end", "\n")
+
+        if self.logger is not None:
+            debug = kwargs.get("debug", False)
+            log_level = kwargs.get("log_level", logging.DEBUG if debug else logging.INFO)
+            log_string = ""
+
+        output_string = ""
+
+        if prefix:
+            output_string += prefix
+
+        if symbol_arg:
+            if isinstance(symbol_arg, tuple):
+                symbol = symbol_arg[0]
+                if len(symbol_arg) == 2:
+                    symbol_color = symbol_arg[1]
+                else:
+                    symbol_color = None
+            else:
+                symbol = symbol_arg
+                symbol_color = None
+
+            if self.logger is not None:
+                log_string += "[%s] " % symbol
+
+            if self.options.disable_escape_codes:
+                output_string += "[%s] " % symbol
+            else:
+                if symbol_bold:
+                    output_string += EscapeCodes.BOLD
+                
+                output_string += "["
+
+                if symbol_color:
+                    output_string += symbol_color + symbol + EscapeCodes.RESET
+                else:
+                    output_string += symbol
+                
+                if symbol_bold:
+                    output_string += EscapeCodes.BOLD
+
+                output_string += "]"
+
+                if symbol_bold:
+                    output_string += EscapeCodes.RESET
+            
+            output_string += " "
+
+        for arg in args:
+            if isinstance(arg, tuple):
+                if not self.options.disable_escape_codes:
+                    output_string += arg[1]
+
+                if issubclass(type(arg[0]), MSPROTOCOLRPCCALL):
+                    output_arg = arg[0].to_string(self.options.disable_escape_codes)
+                    log_arg = arg[0].to_string(True)
+                else:
+                    output_arg = str(arg[0])
+                    log_arg = output_arg
+
+                output_string += output_arg
+
+                if self.logger is not None:
+                    log_string += log_arg
+
+                if not self.options.disable_escape_codes:
+                    output_string += EscapeCodes.RESET
+            else:
+                if issubclass(type(arg), MSPROTOCOLRPCCALL):
+                    output_arg = arg.to_string(self.options.disable_escape_codes)
+                    log_arg = arg.to_string(True)
+                else:
+                    output_arg = str(arg)
+                    log_arg = output_arg
+
+                output_string += output_arg
+                if self.logger is not None:
+                    log_string += log_arg
+        
+        if self.logger is not None:
+            self.logger.log(level=log_level, msg=log_string)
+        
+        print(output_string, end=end)
         sys.stdout.flush()
 
-    @staticmethod
-    def print_info(message):
-        print("\x1b[1m[\x1b[92minfo\x1b[0m\x1b[1m]\x1b[0m %s" % message)
-        sys.stdout.flush()
+    def print_testing(self, msprotocol_rpc_instance, **kwargs):
+        self.print("(", ("-testing-", EscapeCodes.BRIGHT_YELLOW), ") ", msprotocol_rpc_instance, prefix="      ", symbol=(">", EscapeCodes.BRIGHT_YELLOW), **kwargs)
 
-    @staticmethod
-    def print_warn(message):
-        print("\x1b[1m[\x1b[91mwarn\x1b[0m\x1b[1m]\x1b[0m %s" % message)
-        sys.stdout.flush()
+    @parse_print_args
+    def print_in_progress(self, prefix, message, **kwargs):
+        self.print(message, prefix=prefix, symbol=(">", EscapeCodes.BRIGHT_YELLOW), **kwargs)
+        
+    @parse_print_args
+    def print_info(self, prefix, message, **kwargs):
+        self.print(message, prefix=prefix, symbol=("info", EscapeCodes.BRIGHT_GREEN), **kwargs)
 
-    @staticmethod
-    def print_debug(message):
-        print("[debug]",message)
+    @parse_print_args
+    def print_ok(self, prefix, message, **kwargs):
+        self.print(message, prefix=prefix, symbol=("+", EscapeCodes.BRIGHT_GREEN), **kwargs)
+
+    @parse_print_args
+    def print_warn(self, prefix, message, **kwargs):
+        self.print(message, prefix=prefix, symbol=("warn", EscapeCodes.BRIGHT_RED), log_level=logging.WARN **kwargs)
+    
+    @parse_print_args
+    def print_error(self, prefix, message, **kwargs):
+        self.print(message, prefix=prefix, symbol=("!", EscapeCodes.BRIGHT_RED), log_level=logging.ERROR, **kwargs)
+
+    def print_result(self, symbol, result, msprotocol_rpc_instance, escape_code=None, **kwargs):
+        self.print("(", (result, escape_code), ") ", msprotocol_rpc_instance, prefix="      ", symbol=(symbol, escape_code), **kwargs)
 
     def report_test_result(self, target, uuid, version, namedpipe, msprotocol_rpc_instance, result, exploitpath):
         function_name = msprotocol_rpc_instance.function["name"]
@@ -68,30 +208,26 @@ class Reporter(object):
             "exploitpath": exploitpath
         })
 
-        sys.stdout.write(CURSOR_UP_ONE)
-        sys.stdout.write(ERASE_LINE)
+        if not self.options.disable_escape_codes:
+            sys.stdout.write(EscapeCodes.CURSOR_UP_ONE)
+            sys.stdout.write(EscapeCodes.ERASE_LINE)
+
         if self.options.mode in ["scan", "fuzz"]:
             if result == TestResult.SMB_AUTH_RECEIVED:
-                print("      [\x1b[1;92m+\x1b[0m] (\x1b[1;92m%s\x1b[0m) %s " % ("SMB  Auth", str(msprotocol_rpc_instance)))
-                sys.stdout.flush()
+                self.print_result("+", "SMB Auth", msprotocol_rpc_instance, EscapeCodes.BOLD_BRIGHT_GREEN)
             elif result == TestResult.HTTP_AUTH_RECEIVED:
-                print("      [\x1b[1;92m+\x1b[0m] (\x1b[1;92m%s\x1b[0m) %s " % ("HTTP Auth", str(msprotocol_rpc_instance)))
-                sys.stdout.flush()
+                self.print_result("+", "HTTP Auth", msprotocol_rpc_instance, EscapeCodes.BOLD_BRIGHT_GREEN)
             elif result == TestResult.NCA_S_UNK_IF:
-                print("      [\x1b[1;95m-\x1b[0m] (\x1b[1;95m%s\x1b[0m) %s " % ("-No Func-", str(msprotocol_rpc_instance)))
-                sys.stdout.flush()
+                self.print_result("-", "-No Func-", msprotocol_rpc_instance, EscapeCodes.BOLD_BRIGHT_MAGENTA)
             else:
                 if self.verbose:
-                    print("      [\x1b[1;91m!\x1b[0m] (\x1b[1;91m%s\x1b[0m) %s " % (result.name, str(msprotocol_rpc_instance)))
-                    sys.stdout.flush()
+                    self.print_result("!", result.name, msprotocol_rpc_instance, EscapeCodes.BOLD_BRIGHT_RED)
         elif self.options.mode in ["coerce"]:
             if result == TestResult.ERROR_BAD_NETPATH:
-                print("      [\x1b[1;92m+\x1b[0m] (\x1b[1;92m%s\x1b[0m) %s " % ("ERROR_BAD_NETPATH", str(msprotocol_rpc_instance)))
-                sys.stdout.flush()
+                self.print_result("+", "ERROR_BAD_NETPATH", msprotocol_rpc_instance, EscapeCodes.BOLD_BRIGHT_GREEN)
             else:
                 if self.verbose:
-                    print("      [\x1b[1;91m!\x1b[0m] (\x1b[1;91m%s\x1b[0m) %s " % (result.name, str(msprotocol_rpc_instance)))
-                    sys.stdout.flush()
+                    self.print_result("!", result.name, msprotocol_rpc_instance, EscapeCodes.BOLD_BRIGHT_RED)
 
     def exportXLSX(self, filename):
         basepath = os.path.dirname(filename)

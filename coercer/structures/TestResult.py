@@ -56,4 +56,4 @@ class TestResult(Enum):
             return TestResult.RPC_S_INVALID_NET_ADDR
 
         else:
-            raise ValueError("Cannot convert string to enum.")
+            raise ValueError("Cannot convert string to enum => %s" % string)

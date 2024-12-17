@@ -5,7 +5,6 @@
 # Date created       : 21 Sep 2022
 
 
-from coercer.core.Reporter import Reporter
 from coercer.structures.TestResult import TestResult
 from concurrent.futures import ThreadPoolExecutor
 from coercer.network.Listener import Listener

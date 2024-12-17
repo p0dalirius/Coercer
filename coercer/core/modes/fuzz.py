@@ -6,7 +6,6 @@
 
 
 from coercer.core.Filter import Filter
-from coercer.core.Reporter import Reporter
 from coercer.structures.Modes import Modes
 from coercer.core.tasks.execute import execute_tasks
 from coercer.core.tasks.prepare import prepare_tasks

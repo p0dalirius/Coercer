@@ -39,7 +39,10 @@ def trigger_and_catch_authentication(options, dcerpc_session, target, method_tri
             result_trigger = tp.submit(method_trigger_function, dcerpc_session, target)
 
         if control_structure["result"] == TestResult.NO_AUTH_RECEIVED:
-            control_structure["result"] = TestResult.from_string(str(result_trigger._result))
+            try:
+                control_structure["result"] = TestResult.from_string(str(result_trigger._result))
+            except:
+                pass
 
         return control_structure["result"]
 
@@ -53,6 +56,9 @@ def trigger_authentication(dcerpc_session, target, method_trigger_function):
     result_trigger = method_trigger_function(dcerpc_session, target)
 
     if control_structure["result"] == TestResult.NO_AUTH_RECEIVED:
-        control_structure["result"] = TestResult.from_string(str(result_trigger))
-        
+        try:
+            control_structure["result"] = TestResult.from_string(str(result_trigger))
+        except:
+            pass
+
     return control_structure["result"]

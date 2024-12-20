@@ -1260,9 +1260,9 @@ class SMBTransRAPData(Packet):
 	def calculate(self):
 		#Padding
 		if len(str(self.fields["Data"]))%2==0:
-		   self.fields["PipeTerminator"] = "\x00\x00\x00\x00"
+			self.fields["PipeTerminator"] = "\x00\x00\x00\x00"
 		else:
-		   self.fields["PipeTerminator"] = "\x00\x00\x00"
+			self.fields["PipeTerminator"] = "\x00\x00\x00"
 		##Convert Path to Unicode first before any Len calc.
 		self.fields["PipeName"] = self.fields["PipeName"].encode('utf-16le').decode('latin-1')
 		##Data Len

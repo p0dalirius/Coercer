@@ -9,30 +9,14 @@ import sys
 import struct
 from platform import uname
 
+import psutil
 from coercer.core.Reporter import reporter
 
 def get_ip_address_of_interface(ifname):
     """
     Function get_ip_address_of_interface(ifname)
     """
-    if sys.platform == "win32":
-        return None
-
-    elif sys.platform == "linux" and "microsoft" not in uname().release.lower() and "microsoft" not in uname().version.lower():
-        import fcntl
-        if type(ifname) == str:
-            ifname = bytes(ifname, "utf-8")
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        SIOCGIFADDR = 0x8915
-        try:
-            ifname = struct.pack('256s', ifname[:15])
-            a = fcntl.ioctl(s.fileno(), SIOCGIFADDR, ifname)[20:24]
-            return socket.inet_ntoa(a)
-        except OSError as e:
-            return None
-
-    else:
-        return None
+    return next(iter([addr.address for addr in psutil.net_if_addrs().get(ifname, []) if addr.family == socket.AF_INET]), None)
 
 
 def get_ip_address_to_target_remote_host(host, port):
@@ -76,7 +60,7 @@ def get_ip_addr_to_listen_on(target, options):
             reporter.print_error("Could not get IP address of interface '%s'" % options.interface)
     else:
         # Getting ip address of interface that can access remote target
-        possible_ports, k = [445, 139, 88], 0
+        possible_ports, k = [4445 if options.redirecting_smb_packets else options.smb_port, 139, 88], 0
         while listening_ip is None and k < len(possible_ports):
             listening_ip = get_ip_address_to_target_remote_host(target, possible_ports[k])
             k += 1
@@ -102,3 +86,13 @@ def get_next_http_listener_port(current_value, listen_ip, options):
         current_value = options.min_http_port + ((current_value + 1) % port_window)
 
     return current_value
+
+def redirect_smb_packets():
+    import pydivert
+    with pydivert.WinDivert("tcp.DstPort == 445 or tcp.SrcPort == 4445") as w:
+        for packet in w:
+            if packet.dst_port == 445 and packet.is_inbound:
+                packet.dst_port = 4445
+            if packet.src_port == 4445 and packet.is_outbound:
+                packet.src_port = 445
+            w.send(packet)

@@ -213,7 +213,7 @@ class Reporter(object):
             sys.stdout.write(EscapeCodes.ERASE_LINE)
 
         if self.options.mode in ["scan", "fuzz"]:
-            if result == TestResult.SMB_AUTH_RECEIVED:
+            if result == TestResult.SMB_AUTH_RECEIVED or result == TestResult.SMB_AUTH_RECEIVED_NTLMv1 or result == TestResult.SMB_AUTH_RECEIVED_NTLMv2:
                 self.print_result("+", "SMB Auth", msprotocol_rpc_instance, EscapeCodes.BOLD_BRIGHT_GREEN)
             elif result == TestResult.HTTP_AUTH_RECEIVED:
                 self.print_result("+", "HTTP Auth", msprotocol_rpc_instance, EscapeCodes.BOLD_BRIGHT_GREEN)

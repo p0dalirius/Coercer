@@ -133,7 +133,7 @@ class Settings:
 		self.ProxyAuth_On_Off   = options.ProxyAuth_On_Off
 		self.CommandLine        = str(sys.argv)
 		self.Bind_To            = utils.FindLocalIP(self.Interface, self.OURIP)
-		self.Bind_To6           = utils.FindLocalIP6(self.Interface, self.OURIP)
+		self.Bind_To6           = utils.FindLocalIP(self.Interface, self.OURIP, socket.AF_INET6)
 		self.DHCP_DNS           = options.DHCP_DNS
 		self.ExternalIP6        = options.ExternalIP6
 
@@ -277,34 +277,62 @@ class Settings:
 		self.AnalyzeLogger = logging.getLogger('Analyze Log')
 		self.AnalyzeLogger.addHandler(ALog_Handler)
 		
+		# the certs folder is not even included in this copy of Responder so it should be skipped
+
 		# First time Responder run?
-		if os.path.isfile(self.ResponderPATH+'/Responder.db'):
-			pass
-		else:
+		# if os.path.isfile(self.ResponderPATH+'/Responder.db'):
+			# pass
+		# else:
 			#If it's the first time, generate SSL certs for this Responder session and send openssl output to /dev/null
-			Certs = os.system("./certs/gen-self-signed-cert.sh >/dev/null 2>&1")
+			# Certs = os.system("./certs/gen-self-signed-cert.sh >/dev/null 2>&1")
 		
-		try:
-			NetworkCard = subprocess.check_output(["ifconfig", "-a"])
-		except:
+		if sys.platform == "win32":
 			try:
-				NetworkCard = subprocess.check_output(["ip", "address", "show"])
-			except subprocess.CalledProcessError as ex:
-				NetworkCard = "Error fetching Network Interfaces:", ex
+				NetworkCard = subprocess.check_output(["ipconfig"])
+			except Exception as e:
+				NetworkCard = "Error fetching Network Interfaces:", str(e)
 				pass
-		try:
-			DNS = subprocess.check_output(["cat", "/etc/resolv.conf"])
-		except subprocess.CalledProcessError as ex:
-			DNS = "Error fetching DNS configuration:", ex
-			pass
-		try:
-			RoutingInfo = subprocess.check_output(["netstat", "-rn"])
-		except:
 			try:
-				RoutingInfo = subprocess.check_output(["ip", "route", "show"])
+				DNS = subprocess.check_output(["ipconfig", "/all"])
+			except subprocess.CalledProcessError as ex:
+				DNS = "Error fetching DNS configuration:", ex
+				pass
+			except Exception as e:
+				DNS = "Error fetching Network Interfaces:", str(e)
+				pass
+			try:
+				RoutingInfo = subprocess.check_output(["route", "print"])
 			except subprocess.CalledProcessError as ex:
 				RoutingInfo = "Error fetching Routing information:", ex
 				pass
+			except Exception as e:
+				RoutingInfo = "Error fetching Network Interfaces:", str(e)
+				pass
+		else:
+			try:
+				NetworkCard = subprocess.check_output(["ifconfig", "-a"])
+			except:
+				try:
+					NetworkCard = subprocess.check_output(["ip", "address", "show"])
+				except subprocess.CalledProcessError as ex:
+					NetworkCard = "Error fetching Network Interfaces:", ex
+					pass
+				except Exception as e:
+					NetworkCard = "Error fetching Network Interfaces:", str(e)
+					pass
+			try:
+				DNS = subprocess.check_output(["cat", "/etc/resolv.conf"])
+			except subprocess.CalledProcessError as ex:
+				DNS = "Error fetching DNS configuration:", ex
+				pass
+			try:
+				RoutingInfo = subprocess.check_output(["netstat", "-rn"])
+			except:
+				try:
+					RoutingInfo = subprocess.check_output(["ip", "route", "show"])
+				except subprocess.CalledProcessError as ex:
+					RoutingInfo = "Error fetching Routing information:", ex
+					pass
 
 		Message = "%s\nCurrent environment is:\nNetwork Config:\n%s\nDNS Settings:\n%s\nRouting info:\n%s\n\n"%(utils.HTTPCurrentDate(), NetworkCard.decode('latin-1'),DNS.decode('latin-1'),RoutingInfo.decode('latin-1'))
 		try:

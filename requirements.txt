@@ -5,3 +5,4 @@ sectools
 netifaces
 psutil
 pydivert; sys_platform == "win32"
+pyinstaller; sys_platform == "win32"

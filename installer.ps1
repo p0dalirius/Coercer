@@ -15,6 +15,9 @@ $FoundPython = $False
 $PythonVersionParts = $PythonVersion.Split(".")
 $TruncatedPythonVersion = "$($PythonVersionParts[0]).$($PythonVersionParts[1])"
 
+$BuildToolsKey = 'HKLM:\Software\Microsoft\VisualStudio'
+$BuildToolsMinVersion = '14.0'
+
 $Options = New-object System.Collections.Hashtable
 $Options['OutputDir'] = @{
     Name     = 'Output Directory'
@@ -154,6 +157,42 @@ if (-not $FoundPython -or $Flags['OverridePython']['Value']) {
     $Env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User") 
 }
 
+# Check for vaild build tools installed
+Write-Host 'Checking build tools install...'
+$VersionPattern = "^\d+\.\d+"
+$VersionKeys = Get-ChildItem -Path $BuildToolsKey | Where-Object { $_.PSChildName -match $versionPattern }
+$FoundValidBuildTools = $False
+
+foreach ($version in $versionKeys) {
+    if ($FoundValidBuildTools) { break }
+
+    try {
+        $versionNumber = [version]$version.PSChildName
+        if ($versionNumber -lt [version]$BuildToolsMinVersion) {
+            continue
+        }
+        $runtimePath = "$($version.PSPath)\VC\Runtimes\debug\X64"
+        if (Test-Path $runtimePath) {
+            $FoundValidBuildTools = $True
+        }
+    }
+    catch {}
+}
+
+if (-not $FoundValidBuildTools) {
+    Write-Host 'Microsoft C++ Build Tools not found, version 14.0+ is required, installing...'
+    try {
+        
+        $BuildToolsPath = Join-Path $env:TEMP 'buildtools.exe'
+        Invoke-WebRequest -Uri 'https://aka.ms/vs/17/release/vs_BuildTools.exe' -OutFile $BuildToolsPath
+        $BuildArgs = '--quiet --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended'
+        Start-Process $BuildToolsPath -ArgumentList $BuildArgs -Wait
+    }
+    catch {
+        throw 'Error installing build tools, download it manually (https://aka.ms/vs/17/release/vs_BuildTools.exe)'
+    }
+}
+
 # Download and unzip repository
 Write-Host 'Downloading repository...'
 Invoke-WebRequest -Uri "https://github.com/p0rtL6/coercer/archive/refs/heads/windows-support.zip" -OutFile $RepositoryArchivePath
@@ -163,52 +202,60 @@ Remove-Item $RepositoryArchivePath
 # Begin build process
 Write-Host 'Beginning build process...'
 Set-Location -Path $RepositoryFolderPath
+try {
 
-# Create and activate virtual environment
-python -m venv .venv
-.venv\Scripts\Activate.ps1
+    # Create and activate virtual environment
+    python -m venv .venv
+    .venv\Scripts\Activate.ps1
 
-# Setup
-pip install -r requirements.txt
-python setup.py install
+    pip install pyinstaller
 
-Write-Host "Building..."
+    # Setup
+    pip install -r requirements.txt
+    python setup.py install
 
-$Arguments = @('--onefile', '--collect-all', 'impacket', '--add-data', 'coercer;coercer')
-pyinstaller $Arguments "Coercer.py"
+    Write-Host "Building..."
 
-$BuiltScriptPath = Join-Path -Path $RepositoryFolderPath -ChildPath "dist\Coercer.exe"
+    $Arguments = @('--onefile', '--collect-all', 'impacket', '--add-data', 'coercer;coercer')
+    pyinstaller $Arguments "Coercer.py"
 
-if ($Flags['InstallSystemWide']['Value']) {
-    # Prepare destination folder
-    Write-Host 'Copying executable to Program Files...'
-    New-Item -ItemType Directory -Path 'C:\Program Files\Coercer' -Force
+    $BuiltScriptPath = Join-Path -Path $RepositoryFolderPath -ChildPath "dist\Coercer.exe"
 
-    # Copy built executable into program files
-    Copy-Item -Path $BuiltScriptPath -Destination 'C:\Program Files\Coercer' -Force
-}
-else {
-    Copy-Item -Path $BuiltScriptPath -Destination $Options['OutputDir']['Value'] -Force
-}
+    if ($Flags['InstallSystemWide']['Value']) {
+        # Prepare destination folder
+        Write-Host 'Copying executable to Program Files...'
+        New-Item -ItemType Directory -Path 'C:\Program Files\Coercer' -Force
 
-if ($Flags['InstallSystemWide']['Value']) {
-    # Get the current PATH environment variable
-    Write-Host "Updating PATH..."
-    $CurrentPath = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
-
-    # Check if the path already exists in PATH
-    if ($CurrentPath -notlike "*C:\Program Files\Coercer*") {
-        # Append the new path to the existing PATH variable
-        $NewPath = $CurrentPath + ';' + 'C:\Program Files\Coercer'
-    
-        # Set the new PATH variable
-        [System.Environment]::SetEnvironmentVariable('Path', $NewPath, [System.EnvironmentVariableTarget]::Machine)
-    
-        Write-Host 'Successfully added C:\Program Files\Coercer to PATH.'
+        # Copy built executable into program files
+        Copy-Item -Path $BuiltScriptPath -Destination 'C:\Program Files\Coercer' -Force
     }
     else {
-        Write-Host 'C:\Program Files\Coercer is already in PATH.'
+        Copy-Item -Path $BuiltScriptPath -Destination $Options['OutputDir']['Value'] -Force
     }
+
+    if ($Flags['InstallSystemWide']['Value']) {
+        # Get the current PATH environment variable
+        Write-Host "Updating PATH..."
+        $CurrentPath = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
+
+        # Check if the path already exists in PATH
+        if ($CurrentPath -notlike "*C:\Program Files\Coercer*") {
+            # Append the new path to the existing PATH variable
+            $NewPath = $CurrentPath + ';' + 'C:\Program Files\Coercer'
+    
+            # Set the new PATH variable
+            [System.Environment]::SetEnvironmentVariable('Path', $NewPath, [System.EnvironmentVariableTarget]::Machine)
+    
+            Write-Host 'Successfully added C:\Program Files\Coercer to PATH.'
+        }
+        else {
+            Write-Host 'C:\Program Files\Coercer is already in PATH.'
+        }
+    }
+}
+catch {
+    Write-Error 'Build Failed. Make sure you have Microsoft Visual Studio C++ Build Tools installed (Check MSVC, Windows 11 SDK)'
+    Write-Error "$($_.Exception.Message)"
 }
 
 Write-Host 'Cleaning up...'

@@ -202,7 +202,7 @@ def main():
 
     available_methods = find_and_load_coerce_methods()
 
-    if options.smb_port == 445 and sys.platform == "win32":
+    if options.smb_port == 445 and sys.platform == "win32" and (options.mode == "scan" or options.mode == "fuzz"):
         reporter.print_info("Redirecting packets between port 445 <-> 4445")
         options.redirecting_smb_packets = True
         redirector = threading.Thread(target=redirect_smb_packets)

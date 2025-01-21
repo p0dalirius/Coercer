@@ -70,6 +70,7 @@ def parseArgs():
     mode_scan_targets_listener = mode_scan.add_mutually_exclusive_group(required=False)
     mode_scan_targets_listener.add_argument("-i", "--interface", default=None, help="Interface to listen on incoming authentications.")
     mode_scan_targets_listener.add_argument("-I", "--ip-address", default=None, help="IP address to listen on incoming authentications.")
+    mode_scan_targets_listener.add_argument("--path-ip", default=None, help="IP address to use when generating exploit paths.")
     # Logging
     mode_scan_logging = mode_scan.add_argument_group("Logging")
     mode_scan_logging.add_argument("--minimum-log-level", default=0, help="Minimum logging level (integer).")
@@ -115,6 +116,7 @@ def parseArgs():
     mode_fuzz_targets_listener = mode_fuzz.add_mutually_exclusive_group(required=False)
     mode_fuzz_targets_listener.add_argument("-i", "--interface", default=None, help="Interface to listen on incoming authentications.")
     mode_fuzz_targets_listener.add_argument("-I", "--ip-address", default=None, help="IP address to listen on incoming authentications.")
+    mode_fuzz_targets_listener.add_argument("--path-ip", default=None, help="IP address to use when generating exploit paths.")
     # Logging
     mode_fuzz_logging = mode_fuzz.add_argument_group("Logging")
     mode_fuzz_logging.add_argument("--minimum-log-level", default=0, help="Minimum logging level (integer).")

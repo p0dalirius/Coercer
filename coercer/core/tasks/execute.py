@@ -85,10 +85,13 @@ def execute_tasks(tasks, options, target, credentials, mode, listening_ip=None, 
 
                                     exploitpath = generate_exploit_path_from_template(
                                         template=exploitpath,
-                                        listener=listening_ip or options.listener_ip,
+                                        listener=options.path_ip or listening_ip or options.listener_ip,
                                         http_listen_port=http_listen_port if mode == Modes.FUZZ else options.http_port,
                                         smb_listen_port=options.smb_port
                                     )
+
+                                    if options.path_ip:
+                                        reporter.print_info("      ", "Using user provided path: %s" % exploitpath, debug=True)
 
                                     msprotocol_rpc_instance = msprotocol_class(path=exploitpath)
                                     dcerpc = DCERPCSession(credentials=credentials)

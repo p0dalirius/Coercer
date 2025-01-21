@@ -75,6 +75,7 @@ def parseArgs():
     mode_scan_targets_listener = mode_scan.add_mutually_exclusive_group(required=False)
     mode_scan_targets_listener.add_argument("-i", "--interface", default=None, help="Interface to listen on incoming authentications.")
     mode_scan_targets_listener.add_argument("-I", "--ip-address", default=None, help="IP address to listen on incoming authentications.")
+    mode_scan_targets_listener.add_argument("--path-ip", default=None, help="IP address to use when generating exploit paths.")
 
     # Creating the "fuzz" subparser ==============================================================================================================
     mode_fuzz = argparse.ArgumentParser(add_help=False)
@@ -114,7 +115,8 @@ def parseArgs():
     mode_fuzz_targets_listener = mode_fuzz.add_mutually_exclusive_group(required=False)
     mode_fuzz_targets_listener.add_argument("-i", "--interface", default=None, help="Interface to listen on incoming authentications.")
     mode_fuzz_targets_listener.add_argument("-I", "--ip-address", default=None, help="IP address to listen on incoming authentications.")
-
+    mode_fuzz_targets_listener.add_argument("--path-ip", default=None, help="IP address to use when generating exploit paths.")
+    
     # Creating the "coerce" subparser ==============================================================================================================
     mode_coerce = argparse.ArgumentParser(add_help=False)
     mode_coerce.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose mode (default: False)")

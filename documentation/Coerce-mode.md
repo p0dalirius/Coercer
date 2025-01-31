@@ -12,7 +12,7 @@ Complete help of this mode:
       / ____/___  ___  _____________  _____
      / /   / __ \/ _ \/ ___/ ___/ _ \/ ___/
     / /___/ /_/ /  __/ /  / /__/  __/ /      v2.1-blackhat-edition
-    \____/\____/\___/_/   \___/\___/_/       by @podalirius_
+    \____/\____/\___/_/   \___/\___/_/       by Remi GASCOU (Podalirius)
 
 usage: Coercer.py coerce [-h] [-v] [--delay DELAY] [--http-port HTTP_PORT] [--smb-port SMB_PORT] [--filter-method-name FILTER_METHOD_NAME] [--filter-protocol-name FILTER_PROTOCOL_NAME] [-u USERNAME] [-p PASSWORD] [-d DOMAIN]
                          [--hashes [LMHASH]:NTHASH] [--no-pass] [--dc-ip ip address] (-t TARGET_IP | -f TARGETS_FILE) [-l LISTENER_IP]

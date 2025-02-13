@@ -24,6 +24,8 @@ import subprocess
 
 from .utils import *
 
+from coercer.core.Reporter import reporter
+
 __version__ = 'Responder 3.1.3.0'
 
 class Settings:
@@ -70,11 +72,11 @@ class Settings:
 	def populate(self, options):
 
 		if options.Interface == None and utils.IsOsX() == False:
-			print(utils.color("Error: -I <if> mandatory option is missing", 1))
+			reporter.print_error("Error: -I <if> mandatory option is missing")
 			sys.exit(-1)
 
 		if options.Interface == "ALL" and options.OURIP == None:
-			print(utils.color("Error: -i is missing.\nWhen using -I ALL you need to provide your current ip address", 1))
+			reporter.print_error("Error: -i is missing. When using -I ALL you need to provide your current ip address")
 			sys.exit(-1)
 		#Python version
 		if (sys.version_info > (3, 0)):
@@ -136,7 +138,7 @@ class Settings:
 		self.ExternalIP6        = options.ExternalIP6
 
 		if self.Interface == "ALL":
-                	self.Bind_To_ALL  = True
+			self.Bind_To_ALL  = True
 		else:
 			self.Bind_To_ALL  = False
 		#IPV4
@@ -208,10 +210,10 @@ class Settings:
 
 		if self.Serve_Exe == True:	
 			if not os.path.exists(self.Html_Filename):
-				print(utils.color("/!\ Warning: %s: file not found" % self.Html_Filename, 3, 1))
+				reporter.print_warn("%s: file not found" % self.Html_Filename)
 
 			if not os.path.exists(self.Exe_Filename):
-				print(utils.color("/!\ Warning: %s: file not found" % self.Exe_Filename, 3, 1))
+				reporter.print_warn("%s: file not found" % self.Exe_Filename)
 
 		# SSL Options
 		self.SSLKey  = config.get('HTTPS Server', 'SSLKey')
@@ -243,7 +245,7 @@ class Settings:
 			self.NumChal = "random"
 
 		if len(self.NumChal) != 16 and self.NumChal != "random":
-			print(utils.color("[!] The challenge must be exactly 16 chars long.\nExample: 1122334455667788", 1))
+			reporter.print_error("The challenge must be exactly 16 chars long.\nExample: 1122334455667788")
 			sys.exit(-1)
 
 		self.Challenge = b''
@@ -309,7 +311,7 @@ class Settings:
 			utils.DumpConfig(self.ResponderConfigDump, Message)
 			utils.DumpConfig(self.ResponderConfigDump,str(self))
 		except AttributeError as ex:
-			print("Missing Module:", ex)
+			reporter.print_error("Missing Module: %s", str(ex))
 			pass
 
 def init():

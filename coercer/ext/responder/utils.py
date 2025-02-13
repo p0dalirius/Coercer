@@ -20,6 +20,8 @@ import re
 import logging
 import socket
 import time
+
+from coercer.structures import EscapeCodes
 from . import settings
 import datetime
 import codecs
@@ -31,6 +33,8 @@ except:
 	sys.exit('You need to install python-netifaces or run Responder with python3...\nTry "apt-get install python-netifaces" or "pip install netifaces"')
 	
 from calendar import timegm
+
+from coercer.core.Reporter import reporter
 
 def if_nametoindex2(name):
 	if settings.Config.PY2OR3 == "PY2":
@@ -79,7 +83,7 @@ def SMBTime():
 try:
 	import sqlite3
 except:
-	print("[!] Please install python-sqlite3 extension.")
+	reporter.print_error("Please install python-sqlite3 extension.")
 	sys.exit(0)
 
 def color(txt, code = 1, modifier = 0):
@@ -112,7 +116,7 @@ def RespondToThisIP(ClientIp):
 	if ClientIp.startswith('127.0.0.'):
 		return False
 	elif settings.Config.AutoIgnore and ClientIp in settings.Config.AutoIgnoreList:
-		print(color('[*]', 3, 1), 'Received request from auto-ignored client %s, not answering.' % ClientIp)
+		reporter.print_info("Received request from auto-ignored client %s, not answering." % ClientIp)
 		return False
 	elif settings.Config.RespondTo and ClientIp not in settings.Config.RespondTo:
 		return False
@@ -216,7 +220,7 @@ def FindLocalIP(Iface, OURIP):
 			return ret
 			
 	except socket.error:
-		print(color("[!] Error: %s: Interface not found" % Iface, 1))
+		reporter.print_error("Error: %s: Interface not found" % Iface)
 		sys.exit(-1)
 
 
@@ -234,7 +238,7 @@ def FindLocalIP6(Iface, OURIP):
 				s = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
 				s.connect((randIP+':80', 1))
 				IP = s.getsockname()[0]
-				print('IP is: %s'%IP)
+				reporter.print_info("IP is: %s" % IP)
 				return IP
 			except:
 				try:
@@ -243,14 +247,14 @@ def FindLocalIP6(Iface, OURIP):
 					return IP
 				except:
 					IP = '::1'
-					print("[+] You don't have an IPv6 address assigned.")
+					reporter.print_warn("You don't have an IPv6 address assigned.")
 					return IP
 
 		else:
 			return OURIP
 		
 	except socket.error:
-		print(color("[!] Error: %s: Interface not found" % Iface, 1))
+		reporter.print_error("Error: %s: Interface not found" % Iface)
 		sys.exit(-1)
 		
 # Function used to write captured hashs to a file.
@@ -319,8 +323,9 @@ def SaveToDb(result):
 			result[k] = ''
 	result['client'] = result['client'].replace("::ffff:","")
 	if len(result['user']) < 2:
-		print(color('[*] Skipping one character username: %s' % result['user'], 3, 1))
-		text("[*] Skipping one character username: %s" % result['user'])
+		log_entry = "Skipping one character username: %s" % result['user']
+		settings.Config.PoisonersLogger.warning(log_entry)
+		reporter.print_info(log_entry)
 		return
 
 	cursor = sqlite3.connect(settings.Config.DatabaseFile)
@@ -355,34 +360,42 @@ def SaveToDb(result):
 
 	if not count or settings.Config.Verbose:  # Print output
 		if len(result['client']):
-			print(text("[%s] %s Client   : %s" % (result['module'], result['type'], color(result['client'], 3))))
+			reporter.print("%s Client   : " % result['type'], (result['client'], EscapeCodes.BRIGHT_YELLOW), symbol=result['module'])
+			text("[%s] %s Client   : %s" % (result['module'], result['type'], color(result['client'], 3)))
 
 		if len(result['hostname']):
-			print(text("[%s] %s Hostname : %s" % (result['module'], result['type'], color(result['hostname'], 3))))
+			reporter.print("%s Hostname : " % result['type'], (result['hostname'], EscapeCodes.BRIGHT_YELLOW), symbol=result['module'])
+			text("[%s] %s Hostname : %s" % (result['module'], result['type'], color(result['hostname'], 3)))
 
 		if len(result['user']):
-			print(text("[%s] %s Username : %s" % (result['module'], result['type'], color(result['user'], 3))))
+			reporter.print("%s Username : " % result['type'], (result['user'], EscapeCodes.BRIGHT_YELLOW), symbol=result['module'])
+			text("[%s] %s Username : %s" % (result['module'], result['type'], color(result['user'], 3)))
 
 		# Bu order of priority, print cleartext, fullhash, or hash
 		if len(result['cleartext']):
-			print(text("[%s] %s Password : %s" % (result['module'], result['type'], color(result['cleartext'], 3))))
+			reporter.print("%s Password : " % result['type'], (result['cleartext'], EscapeCodes.BRIGHT_YELLOW), symbol=result['module'])
+			text("[%s] %s Password : %s" % (result['module'], result['type'], color(result['cleartext'], 3)))
 
 		elif len(result['fullhash']):
-			print(text("[%s] %s Hash     : %s" % (result['module'], result['type'], color(result['fullhash'], 3))))
+			reporter.print("%s Hash     : " % result['type'], (result['fullhash'], EscapeCodes.BRIGHT_YELLOW), symbol=result['module'])
+			text("[%s] %s Hash     : %s" % (result['module'], result['type'], color(result['fullhash'], 3)))
 
 		elif len(result['hash']):
-			print(text("[%s] %s Hash     : %s" % (result['module'], result['type'], color(result['hash'], 3))))
+			reporter.print("%s Hash     : " % result['type'], (result['hash'], EscapeCodes.BRIGHT_YELLOW), symbol=result['module'])
+			text("[%s] %s Hash     : %s" % (result['module'], result['type'], color(result['hash'], 3)))
 
 		# Appending auto-ignore list if required
 		# Except if this is a machine account's hash
 		if settings.Config.AutoIgnore and not result['user'].endswith('$'):
 			settings.Config.AutoIgnoreList.append(result['client'])
-			print(color('[*] Adding client %s to auto-ignore list' % result['client'], 4, 1))
+			log_entry = "Adding client %s to auto-ignore list" % result['client']
+			reporter.print_info(log_entry)
+			settings.Config.PoisonersLogger.warning("[*] " + log_entry)
 	elif len(result['cleartext']):
-		print(color('[*] Skipping previously captured cleartext password for %s' % result['user'], 3, 1))
+		reporter.print_info("Skipping previously captured cleartext password for %s" % result['user'])
 		text('[*] Skipping previously captured cleartext password for %s' % result['user'])
 	else:
-		print(color('[*] Skipping previously captured hash for %s' % result['user'], 3, 1))
+		reporter.print_info("Skipping previously captured hash for %s" % result['user'])
 		text('[*] Skipping previously captured hash for %s' % result['user'])
 		cursor.execute("UPDATE responder SET timestamp=datetime('now') WHERE user=? AND client=?", (result['user'], result['client']))
 		cursor.commit()

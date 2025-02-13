@@ -11,6 +11,8 @@ from impacket.dcerpc.v5 import transport, epm
 from impacket.uuid import uuidtup_to_bin
 from impacket.dcerpc.v5.rpcrt import RPC_C_AUTHN_LEVEL_PKT_PRIVACY
 
+from coercer.core.Reporter import reporter
+from coercer.structures import EscapeCodes
 
 def portmap_discover(target, port=135):
     stringBinding = r'ncacn_ip_tcp:%s[%d]' % (target, port)
@@ -37,57 +39,47 @@ def portmap_discover(target, port=135):
         elif _transport == "ncalrpc":
             dst = dst[1:-1]
         endpoints[_transport][uuid].add(dst)
-    print("[*] DCERPC portmapper discovered ports: %s" % ",".join(list(map(str, ports))))
+    reporter.print_info("DCERPC portmapper discovered ports: %s" % ",".join(list(map(str, ports))))
     return endpoints
 
 
-def is_port_open(target, port, verbose=False):
+def is_port_open(target, port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    if verbose:
-        print("         [>] Connecting to %s:%d ... " % (target, port), end="")
-    sys.stdout.flush()
+    reporter.print_in_progress("Connecting to %s:%d ... " % (target, port), prefix="         ", end="", verbose=True)
     try:
         s.connect((socket.gethostbyname(target), int(port)))
     except Exception as e:
-        if verbose:
-            print("\x1b[1;91mfail\x1b[0m")
-            print("      [!] Something went wrong, check error status => %s" % str(e))
+        reporter.print(("fail", EscapeCodes.BOLD_BRIGHT_RED), verbose=True)
+        reporter.print_error("Something went wrong, check error status => %s" % str(e), prefix="      ", verbose=True)
         s.close()
         return None
     else:
-        if verbose:
-            print("\x1b[1;92msuccess\x1b[0m")
+        reporter.print(("success", EscapeCodes.BOLD_BRIGHT_GREEN), verbose=True)
         s.close()
         return True
 
 
-def can_bind_to_interface_on_port(target, port, credentials, uuid, version, verbose=False):
+def can_bind_to_interface_on_port(target, port, credentials, uuid, version):
     ncacn_target = r'ncacn_ip_tcp:%s[%d]' % (target, port)
     rpctransport = transport.DCERPCTransportFactory(ncacn_target)
     dce = rpctransport.get_dce_rpc()
     dce.set_credentials(credentials.username, credentials.password, credentials.domain, credentials.lmhash, credentials.nthash, None)
     dce.set_auth_level(RPC_C_AUTHN_LEVEL_PKT_PRIVACY)
 
-    if verbose:
-        print("         [>] Connecting to %s ... " % ncacn_target, end="")
-    sys.stdout.flush()
+    reporter.print_in_progress("Connecting to %s ... " % ncacn_target, prefix="         ", end="", verbose=True)
     try:
         dce.connect()
     except Exception as e:
-        if verbose:
-            print("\x1b[1;91mfail\x1b[0m")
-            print("      [!] Something went wrong, check error status => %s" % str(e))
+        reporter.print(("fail", EscapeCodes.BOLD_BRIGHT_RED), verbose=True)
+        reporter.print_error("Something went wrong, check error status => %s" % str(e), prefix="      ", verbose=True)
         return False
 
-    if verbose:
-        print("         [>] Binding to <uuid='%s', version='%s'> ... " % (uuid, version), end="")
-    sys.stdout.flush()
+    reporter.print_in_progress("Binding to <uuid='%s', version='%s'> ... " % (uuid, version), prefix="         ", end="", verbose=True)
     try:
         dce.bind(uuidtup_to_bin((uuid, version)))
     except Exception as e:
-        if verbose:
-            print("\x1b[1;91mfail\x1b[0m")
-            print("         [!] Something went wrong, check error status => %s" % str(e))
+        reporter.print(("fail", EscapeCodes.BOLD_BRIGHT_RED), verbose=True)
+        reporter.print_error("Something went wrong, check error status => %s" % str(e), prefix="      ", verbose=True)
         if "STATUS_PIPE_DISCONNECTED" in str(e):
             # SMB SessionError: STATUS_PIPE_DISCONNECTED()
             return False
@@ -109,6 +101,5 @@ def can_bind_to_interface_on_port(target, port, credentials, uuid, version, verb
         else:
             return True
     else:
-        if verbose:
-            print("\x1b[1;92msuccess\x1b[0m")
+        reporter.print(("success", EscapeCodes.BOLD_BRIGHT_GREEN), verbose=True)
         return True

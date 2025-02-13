@@ -1,0 +1,16 @@
+BOLD_BRIGHT_GREEN = "\x1b[1;92m"
+BOLD_BRIGHT_RED = "\x1b[1;91m"
+BOLD_BRIGHT_MAGENTA = "\x1b[1;95m"
+BOLD_BRIGHT_BLUE = "\x1b[1;94m"
+
+BRIGHT_GREEN = "\x1b[92m"
+BRIGHT_YELLOW = "\x1b[93m"
+BRIGHT_RED = "\x1b[91m"
+BRIGHT_BLUE = "\x1b[94m"
+BRIGHT_CYAN = "\x1b[96m"
+
+BOLD = "\x1b[1m"
+RESET = "\x1b[0m"
+
+CURSOR_UP_ONE = "\x1b[1A"
+ERASE_LINE = "\x1b[2K"

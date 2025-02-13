@@ -9,6 +9,7 @@ import sys
 import struct
 from platform import uname
 
+from coercer.core.Reporter import reporter
 
 def get_ip_address_of_interface(ifname):
     """
@@ -72,7 +73,7 @@ def get_ip_addr_to_listen_on(target, options):
     elif options.interface is not None:
         listening_ip = get_ip_address_of_interface(options.interface)
         if listening_ip is None:
-            print("[!] Could not get IP address of interface '%s'" % options.interface)
+            reporter.print_error("Could not get IP address of interface '%s'" % options.interface)
     else:
         # Getting ip address of interface that can access remote target
         possible_ports, k = [445, 139, 88], 0
@@ -80,7 +81,7 @@ def get_ip_addr_to_listen_on(target, options):
             listening_ip = get_ip_address_to_target_remote_host(target, possible_ports[k])
             k += 1
         if listening_ip is None:
-            print("[!] Could not detect interface with a route to target machine '%s'" % target)
+            reporter.print_error("Could not detect interface with a route to target machine '%s'" % target)
     return listening_ip
 
 

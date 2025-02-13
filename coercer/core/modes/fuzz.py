@@ -152,10 +152,13 @@ def action_fuzz(target, available_methods, options, credentials, reporter):
 
                                     exploitpath = generate_exploit_path_from_template(
                                         template=exploitpath,
-                                        listener=listening_ip,
+                                        listener=options.path_ip or listening_ip,
                                         http_listen_port=http_listen_port,
                                         smb_listen_port=options.smb_port
                                     )
+
+                                    if options.path_ip:
+                                        print("   [+] Using user provided path %s" % exploitpath)
 
                                     msprotocol_rpc_instance = msprotocol_class(path=exploitpath)
                                     dcerpc = DCERPCSession(credentials=credentials, verbose=True)

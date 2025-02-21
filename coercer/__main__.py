@@ -10,15 +10,7 @@ import os
 import sys
 from sectools.network.domains import is_fqdn
 from sectools.network.ip import is_ipv4_cidr, is_ipv4_addr, is_ipv6_addr, expand_cidr, expand_port_range
-from coercer.core.Reporter import Reporter
-from coercer.structures.Credentials import Credentials
-from coercer.core.modes.scan import action_scan
-from coercer.core.modes.coerce import action_coerce
-from coercer.core.modes.fuzz import action_fuzz
-from coercer.core.loader import find_and_load_coerce_methods
-from coercer.network.smb import try_login
-from coercer.network.utils import can_listen_on_port
-
+from coercer.core.Reporter import create_reporter
 
 VERSION = "2.4.3"
 
@@ -35,10 +27,13 @@ def parseArgs():
     parser = argparse.ArgumentParser(add_help=True, description="Automatic windows authentication coercer using various methods.")
     parser.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose mode (default: False)")
     parser.add_argument("--debug", default=False, action="store_true", help="Debug mode (default: False)")
+    parser.add_argument("--disable-escape-codes", default=False, action="store_true", help="Disable ANSI escape codes")
 
     # Creating the "scan" subparser ==============================================================================================================
     mode_scan = argparse.ArgumentParser(add_help=False)
     mode_scan.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose mode (default: False)")
+    mode_scan.add_argument("--debug", default=False, action="store_true", help="Debug mode (default: False)")
+    mode_scan.add_argument("--disable-escape-codes", default=False, action="store_true", help="Disable ANSI escape codes")
     # Advanced configuration
     mode_scan_advanced_config = mode_scan.add_argument_group("Advanced options")
     mode_scan_advanced_config.add_argument("--export-json", default=None, type=str, help="Export results to specified JSON file.")
@@ -76,10 +71,16 @@ def parseArgs():
     mode_scan_targets_listener.add_argument("-i", "--interface", default=None, help="Interface to listen on incoming authentications.")
     mode_scan_targets_listener.add_argument("-I", "--ip-address", default=None, help="IP address to listen on incoming authentications.")
     mode_scan_targets_listener.add_argument("--path-ip", default=None, help="IP address to use when generating exploit paths.")
+    # Logging
+    mode_scan_logging = mode_scan.add_argument_group("Logging")
+    mode_scan_logging.add_argument("--minimum-log-level", default=0, help="Minimum logging level (integer).")
+    mode_scan_logging.add_argument("--log-file", default=None, help="Path for the file to log to (enables logging).")
 
     # Creating the "fuzz" subparser ==============================================================================================================
     mode_fuzz = argparse.ArgumentParser(add_help=False)
     mode_fuzz.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose mode (default: False)")
+    mode_fuzz.add_argument("--debug", default=False, action="store_true", help="Debug mode (default: False)")
+    mode_fuzz.add_argument("--disable-escape-codes", default=False, action="store_true", help="Disable ANSI escape codes")
     # Advanced configuration
     mode_fuzz_advanced_config = mode_fuzz.add_argument_group("Advanced configuration")
     mode_fuzz_advanced_config.add_argument("--export-json", default=None, type=str, help="Export results to specified JSON file.")
@@ -116,10 +117,16 @@ def parseArgs():
     mode_fuzz_targets_listener.add_argument("-i", "--interface", default=None, help="Interface to listen on incoming authentications.")
     mode_fuzz_targets_listener.add_argument("-I", "--ip-address", default=None, help="IP address to listen on incoming authentications.")
     mode_fuzz_targets_listener.add_argument("--path-ip", default=None, help="IP address to use when generating exploit paths.")
+    # Logging
+    mode_fuzz_logging = mode_fuzz.add_argument_group("Logging")
+    mode_fuzz_logging.add_argument("--minimum-log-level", default=0, help="Minimum logging level (integer).")
+    mode_fuzz_logging.add_argument("--log-file", default=None, help="Path for the file to log to (enables logging).")
     
     # Creating the "coerce" subparser ==============================================================================================================
     mode_coerce = argparse.ArgumentParser(add_help=False)
     mode_coerce.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose mode (default: False)")
+    mode_coerce.add_argument("--debug", default=False, action="store_true", help="Debug mode (default: False)")
+    mode_coerce.add_argument("--disable-escape-codes", default=False, action="store_true", help="Disable ANSI escape codes")
     # Advanced configuration
     mode_coerce_advanced_config = mode_coerce.add_argument_group("Advanced configuration")
     mode_coerce_advanced_config.add_argument("--delay", default=None, type=int, help="Delay between attempts (in seconds)")
@@ -150,7 +157,11 @@ def parseArgs():
     # Listener
     listener_group = mode_coerce.add_argument_group("Listener")
     listener_group.add_argument("-l", "--listener-ip", required=True, type=str, help="IP address or hostname of the listener machine")
-
+    # Logging
+    mode_coerce_logging = mode_coerce.add_argument_group("Logging")
+    mode_coerce_logging.add_argument("--minimum-log-level", default=0, help="Minimum logging level (integer).")
+    mode_coerce_logging.add_argument("--log-file", default=None, help="Path for the file to log to (enables logging).")
+    
     # Adding the subparsers to the base parser
     subparsers = parser.add_subparsers(help="Mode", dest="mode", required=True)
     mode_scan_parser = subparsers.add_parser("scan", parents=[mode_scan], help="Tests known methods with known working paths on all methods, and report when an authentication is received.")
@@ -171,12 +182,20 @@ def parseArgs():
 
 
 def main():
-    available_methods = find_and_load_coerce_methods()
-
     lmhash, nthash, options = parseArgs()
+    create_reporter(options, options.verbose)
 
-    reporter = Reporter(verbose=options.verbose, options=options)
+    from coercer.core.Reporter import reporter
+    from coercer.structures.Credentials import Credentials
+    from coercer.core.modes.scan import action_scan
+    from coercer.core.modes.coerce import action_coerce
+    from coercer.core.modes.fuzz import action_fuzz
+    from coercer.network.smb import try_login
+    from coercer.network.utils import can_listen_on_port
+    from coercer.core.loader import find_and_load_coerce_methods
 
+    available_methods = find_and_load_coerce_methods()
+    
     # Parsing targets
     targets = []
     if options.target_ip is not None:
@@ -186,9 +205,9 @@ def main():
             f = open(options.targets_file, 'r')
             targets = sorted(list(set([line.strip() for line in f.readlines()])))
             f.close()
-            reporter.print_verbose("Loaded %d targets." % len(targets))
+            reporter.print_info("Loaded %d targets." % len(targets))
         else:
-            print("[!] Could not open targets file '%s'." % options.targets_file)
+            reporter.print_error("Could not open targets file '%s'." % options.targets_file)
             sys.exit(0)
 
     # Sort uniq on targets list
@@ -211,8 +230,7 @@ def main():
             target = urllib.parse.urlparse(target).netloc
             final_targets.append(target)
         else:
-            if options.debug:
-                print("[debug] Target '%s' was not added." % target)
+            reporter.print_warn("Target '%s' was not added." % target, debug=True)
     
     # Sort 
     targets = sorted(list(set(final_targets)))
@@ -233,10 +251,10 @@ def main():
         for target in targets:
             reporter.print_info("Scanning target %s" % target)
             # Checking credentials if any
-            if not "msrpc" in options.filter_transport_name or try_login(credentials, target, verbose=options.verbose):
+            if not "msrpc" in options.filter_transport_name or try_login(credentials, target):
                 try:
                     # Starting action
-                    action_coerce(target, available_methods, options, credentials, reporter)
+                    action_coerce(target, available_methods, options, credentials)
                 except Exception as e:
                     reporter.print_warn("An unexpected error occurred: %s" % e)
     elif options.mode == "scan":
@@ -244,15 +262,15 @@ def main():
         if credentials.is_anonymous():
             reporter.print_info("No credentials provided, trying to connect with a NULL session.")
         if not can_listen_on_port("0.0.0.0", 445):
-            reporter.print_warn("Cannot listen on port tcp/%d. Are you root or are other servers running?" % 445)
+            reporter.print_error("Cannot listen on port tcp/%d. Are you root or are other servers running?" % 445)
         else:
             for target in targets:
                 reporter.print_info("Scanning target %s" % target)
                 # Checking credentials if any
-                if not "msrpc" in options.filter_transport_name or try_login(credentials, target, verbose=options.verbose):
+                if not "msrpc" in options.filter_transport_name or try_login(credentials, target):
                     try:
                         # Starting action
-                        action_scan(target, available_methods, options, credentials, reporter)
+                        action_scan(target, available_methods, options, credentials)
                     except Exception as e:
                         reporter.print_warn("An unexpected error occurred: %s" % e)
             # Reporting results
@@ -268,15 +286,15 @@ def main():
         if credentials.is_anonymous():
             reporter.print_info("No credentials provided, trying to connect with a NULL session.")
         if not can_listen_on_port("0.0.0.0", 445):
-            reporter.print_warn("Cannot listen on port tcp/%d. Are you root or are other servers running?" % 445)
+            reporter.print_error("Cannot listen on port tcp/%d. Are you root or are other servers running?" % 445)
         else:
             for target in targets:
                 reporter.print_info("Fuzzing target %s" % target)
                 # Checking credentials if any
-                if not "msrpc" in options.filter_transport_name or try_login(credentials, target, verbose=options.verbose):
+                if not "msrpc" in options.filter_transport_name or try_login(credentials, target):
                     try:
                         # Starting action
-                        action_fuzz(target, available_methods, options, credentials, reporter)
+                        action_fuzz(target, available_methods, options, credentials)
                     except Exception as e:
                         reporter.print_warn("An unexpected error occurred: %s" % e)
             # Reporting results
@@ -287,7 +305,7 @@ def main():
             if options.export_sqlite is not None:
                 reporter.exportSQLITE(options.export_sqlite)
 
-    print("[+] All done! Bye Bye!")
+    reporter.print_ok("All done! Bye Bye!")
 
 if __name__ == '__main__':
     main()

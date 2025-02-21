@@ -29,3 +29,31 @@ class TestResult(Enum):
 
     SMB_STATUS_PIPE_DISCONNECTED = 0x30001
 
+    @staticmethod
+    def from_string(string):
+        if "rpc_x_bad_stub_data" in string:
+            return TestResult.RPC_X_BAD_STUB_DATA
+
+        elif "nca_s_unk_if" in string:
+            return TestResult.NCA_S_UNK_IF
+
+        elif "rpc_s_access_denied" in string:
+            return TestResult.RPC_S_ACCESS_DENIED
+
+        elif "ERROR_BAD_NETPATH" in string:
+            return TestResult.ERROR_BAD_NETPATH
+
+        elif "ERROR_INVALID_NAME" in string:
+            return TestResult.ERROR_INVALID_NAME
+
+        elif "STATUS_PIPE_DISCONNECTED" in string:
+            return TestResult.SMB_STATUS_PIPE_DISCONNECTED
+
+        elif "RPC_S_INVALID_BINDING" in string:
+            return TestResult.RPC_S_INVALID_BINDING
+
+        elif "RPC_S_INVALID_NET_ADDR" in string:
+            return TestResult.RPC_S_INVALID_NET_ADDR
+
+        else:
+            raise ValueError("Cannot convert string to enum => %s" % string)

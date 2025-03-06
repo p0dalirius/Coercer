@@ -178,7 +178,7 @@ class Reporter(object):
 
     @parse_print_args
     def print_warn(self, prefix, message, **kwargs):
-        self.print(message, prefix=prefix, symbol=("warn", EscapeCodes.BRIGHT_RED), log_level=logging.WARN **kwargs)
+        self.print(message, prefix=prefix, symbol=("warn", EscapeCodes.BRIGHT_RED), log_level=logging.WARN, **kwargs)
     
     @parse_print_args
     def print_error(self, prefix, message, **kwargs):

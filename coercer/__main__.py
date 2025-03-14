@@ -157,6 +157,7 @@ def parseArgs():
     # Listener
     listener_group = mode_coerce.add_argument_group("Listener")
     listener_group.add_argument("-l", "--listener-ip", required=True, type=str, help="IP address or hostname of the listener machine")
+    listener_group.add_argument("--path-ip", default=None, help="IP address to use when generating exploit paths.")
     # Logging
     mode_coerce_logging = mode_coerce.add_argument_group("Logging")
     mode_coerce_logging.add_argument("--minimum-log-level", default=0, help="Minimum logging level (integer).")

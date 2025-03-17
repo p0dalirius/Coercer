@@ -36,5 +36,6 @@ def action_coerce(target, available_methods, options, credentials):
     # Executing tasks =======================================================================================================================
 
     reporter.print_info("Coercing '%s' to authenticate to '%s'" % (target, options.listener_ip), verbose=True)
+    reporter.print_info("Using SMB port %d for authentication" % options.smb_port, verbose=True)
 
     execute_tasks(tasks, options, target, credentials, Modes.COERCE)

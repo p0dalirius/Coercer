@@ -195,7 +195,7 @@ if (-not $FoundValidBuildTools) {
 
 # Download and unzip repository
 Write-Host 'Downloading repository...'
-Invoke-WebRequest -Uri "https://github.com/p0rtL6/coercer/archive/refs/heads/windows-support.zip" -OutFile $RepositoryArchivePath
+Invoke-WebRequest -Uri "https://github.com/p0dalirius/coercer/archive/refs/heads/master.zip" -OutFile $RepositoryArchivePath
 Expand-Archive -Path $RepositoryArchivePath -DestinationPath $Env:TEMP -Force
 Remove-Item $RepositoryArchivePath
 

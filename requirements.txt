@@ -3,3 +3,5 @@ xlsxwriter
 jinja2
 sectools
 netifaces
+psutil
+pydivert; sys_platform == "win32"

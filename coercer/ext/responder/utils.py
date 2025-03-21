@@ -19,33 +19,18 @@ import sys
 import re
 import logging
 import socket
-import time
 
 from coercer.structures import EscapeCodes
 from . import settings
 import datetime
 import codecs
 import struct
-import random
-try:
-	import netifaces
-except:
-	sys.exit('You need to install python-netifaces or run Responder with python3...\nTry "apt-get install python-netifaces" or "pip install netifaces"')
-	
+
 from calendar import timegm
 
+import psutil
 from coercer.core.Reporter import reporter
-
-def if_nametoindex2(name):
-	if settings.Config.PY2OR3 == "PY2":
-		import ctypes
-		import ctypes.util
-		libc = ctypes.CDLL(ctypes.util.find_library('c'))
-		ret = libc.if_nametoindex(name)
-		return ret
-	else:
-		return socket.if_nametoindex(settings.Config.Interface)
-			
+	
 def RandomChallenge():
 	if settings.Config.PY2OR3 == "PY3":
 		if settings.Config.NumChal == "random":
@@ -103,39 +88,6 @@ def text(txt):
 		return txt
 	return '\r' + re.sub(r'\[([^]]*)\]', "\033[1;34m[\\1]\033[0m", txt)
 
-def IsOnTheSameSubnet(ip, net):
-	net += '/24'
-	ipaddr = int(''.join([ '%02x' % int(x) for x in ip.split('.') ]), 16)
-	netstr, bits = net.split('/')
-	netaddr = int(''.join([ '%02x' % int(x) for x in netstr.split('.') ]), 16)
-	mask = (0xffffffff << (32 - int(bits))) & 0xffffffff
-	return (ipaddr & mask) == (netaddr & mask)
-
-def RespondToThisIP(ClientIp):
-
-	if ClientIp.startswith('127.0.0.'):
-		return False
-	elif settings.Config.AutoIgnore and ClientIp in settings.Config.AutoIgnoreList:
-		reporter.print_info("Received request from auto-ignored client %s, not answering." % ClientIp)
-		return False
-	elif settings.Config.RespondTo and ClientIp not in settings.Config.RespondTo:
-		return False
-	elif ClientIp in settings.Config.RespondTo or settings.Config.RespondTo == []:
-		if ClientIp not in settings.Config.DontRespondTo:
-			return True
-	return False
-
-def RespondToThisName(Name):
-	if settings.Config.RespondToName and Name.upper() not in settings.Config.RespondToName:
-		return False
-	elif Name.upper() in settings.Config.RespondToName or settings.Config.RespondToName == []:
-		if Name.upper() not in settings.Config.DontRespondToName:
-			return True
-	return False
-
-def RespondToThisHost(ClientIp, Name):
-	return RespondToThisIP(ClientIp) and RespondToThisName(Name)
-
 def RespondWithIPAton():
 	if settings.Config.PY2OR3 == "PY2":
 		if settings.Config.ExternalIP:
@@ -191,71 +143,26 @@ def IsIPv6IP(IP):
 	else:
 		return False	
 	
-def FindLocalIP(Iface, OURIP):
+def FindLocalIP(Iface, OURIP, family=socket.AF_INET):
+	if family != socket.AF_INET and family != socket.AF_INET6:
+		raise ValueError("Provided family must either be AF_INET or AF_INET6")
+
 	if Iface == 'ALL':
-		return '0.0.0.0'
-
-	try:
-		if IsOsX():
-			return OURIP
-			
-		elif IsIPv6IP(OURIP):	
-			s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-			s.setsockopt(socket.SOL_SOCKET, 25, str(Iface+'\0').encode('utf-8'))
-			s.connect(("127.0.0.1",9))#RFC 863
-			ret = s.getsockname()[0]
-			s.close()
-			return ret
-
-			
-		elif IsIPv6IP(OURIP) == False and OURIP != None:
-			return OURIP
-		
-		elif OURIP == None:
-			s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-			s.setsockopt(socket.SOL_SOCKET, 25, str(Iface+'\0').encode('utf-8'))
-			s.connect(("127.0.0.1",9))#RFC 863
-			ret = s.getsockname()[0]
-			s.close()
-			return ret
-			
-	except socket.error:
-		reporter.print_error("Error: %s: Interface not found" % Iface)
-		sys.exit(-1)
-
-
-def FindLocalIP6(Iface, OURIP):
-	if Iface == 'ALL':
-		return '::'
-
-	try:
-
-		if IsIPv6IP(OURIP) == False:
-			
-			try:
-				#Let's make it random so we don't get spotted easily.
-				randIP = "2001:" + ":".join(("%x" % random.randint(0, 16**4) for i in range(7)))
-				s = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
-				s.connect((randIP+':80', 1))
-				IP = s.getsockname()[0]
-				reporter.print_info("IP is: %s" % IP)
-				return IP
-			except:
-				try:
-					#Try harder; Let's get the local link addr
-					IP = str(netifaces.ifaddresses(Iface)[netifaces.AF_INET6][0]["addr"].replace("%"+Iface, ""))
-					return IP
-				except:
-					IP = '::1'
-					reporter.print_warn("You don't have an IPv6 address assigned.")
-					return IP
-
+		if family == socket.AF_INET:
+			return '0.0.0.0'
 		else:
+			return '::'
+
+	if (family == socket.AF_INET and (IsOsX() or (IsIPv6IP(OURIP) == False and OURIP != None))) or (family == socket.AF_INET6 and IsIPv6IP(OURIP)):
 			return OURIP
-		
-	except socket.error:
-		reporter.print_error("Error: %s: Interface not found" % Iface)
-		sys.exit(-1)
+	
+	IP = next((addr.address for addr in psutil.net_if_addrs().get(Iface, []) if addr.family == family), None)
+	
+	if IP is not None:
+		return IP
+	else:
+		reporter.print_warn("You don't have an %s address assigned." % "IPv4" if family == socket.AF_INET else "IPv6")
+		return "127.0.0.1" if family == socket.AF_INET else "::1"
 		
 # Function used to write captured hashs to a file.
 def WriteData(outfile, data, user):
@@ -304,17 +211,6 @@ def NetworkRecvBufferPython2or3(data):
 		return str(data)
 	else:
 		return str(data.decode('latin-1'))
-
-def CreateResponderDb():
-	if not os.path.exists(settings.Config.DatabaseFile):
-		cursor = sqlite3.connect(settings.Config.DatabaseFile)
-		cursor.execute('CREATE TABLE Poisoned (timestamp TEXT, Poisoner TEXT, SentToIp TEXT, ForName TEXT, AnalyzeMode TEXT)')
-		cursor.commit()
-		cursor.execute('CREATE TABLE responder (timestamp TEXT, module TEXT, type TEXT, client TEXT, hostname TEXT, user TEXT, cleartext TEXT, hash TEXT, fullhash TEXT)')
-		cursor.commit()
-		cursor.execute('CREATE TABLE DHCP (timestamp TEXT, MAC TEXT, IP TEXT, RequestedIP TEXT)')
-		cursor.commit()
-		cursor.close()
 
 def SaveToDb(result):
 
@@ -400,177 +296,3 @@ def SaveToDb(result):
 		cursor.execute("UPDATE responder SET timestamp=datetime('now') WHERE user=? AND client=?", (result['user'], result['client']))
 		cursor.commit()
 	cursor.close()
-
-def SavePoisonersToDb(result):
-
-	for k in [ 'Poisoner', 'SentToIp', 'ForName', 'AnalyzeMode' ]:
-		if not k in result:
-			result[k] = ''
-	result['SentToIp'] = result['SentToIp'].replace("::ffff:","")
-	cursor = sqlite3.connect(settings.Config.DatabaseFile)
-	cursor.text_factory = sqlite3.Binary  # We add a text factory to support different charsets
-	res = cursor.execute("SELECT COUNT(*) AS count FROM Poisoned WHERE Poisoner=? AND SentToIp=? AND ForName=? AND AnalyzeMode=?", (result['Poisoner'], result['SentToIp'], result['ForName'], result['AnalyzeMode']))
-	(count,) = res.fetchone()
-        
-	if not count:
-		cursor.execute("INSERT INTO Poisoned VALUES(datetime('now'), ?, ?, ?, ?)", (result['Poisoner'], result['SentToIp'], result['ForName'], result['AnalyzeMode']))
-		cursor.commit()
-
-	cursor.close()
-
-def SaveDHCPToDb(result):
-	for k in [ 'MAC', 'IP', 'RequestedIP']:
-		if not k in result:
-			result[k] = ''
-
-	cursor = sqlite3.connect(settings.Config.DatabaseFile)
-	cursor.text_factory = sqlite3.Binary  # We add a text factory to support different charsets
-	res = cursor.execute("SELECT COUNT(*) AS count FROM DHCP WHERE MAC=? AND IP=? AND RequestedIP=?", (result['MAC'], result['IP'], result['RequestedIP']))
-	(count,) = res.fetchone()
-        
-	if not count:
-		cursor.execute("INSERT INTO DHCP VALUES(datetime('now'), ?, ?, ?)", (result['MAC'], result['IP'], result['RequestedIP']))
-		cursor.commit()
-
-	cursor.close()
-	
-def Parse_IPV6_Addr(data):
-	if data[len(data)-4:len(data)] == b'\x00\x1c\x00\x01':
-		return 'IPv6'
-	elif data[len(data)-4:len(data)] == b'\x00\x01\x00\x01':
-		return True
-	elif data[len(data)-4:len(data)] == b'\x00\xff\x00\x01':
-		return True
-	return False
-
-def IsIPv6(data):
-	if "::ffff:" in data:
-		return False
-	else:
-		return True
-    
-def Decode_Name(nbname):  #From http://code.google.com/p/dpkt/ with author's permission.
-	try:
-		from string import printable
-
-		if len(nbname) != 32:
-			return nbname
-		
-		l = []
-		for i in range(0, 32, 2):
-			l.append(chr(((ord(nbname[i]) - 0x41) << 4) | ((ord(nbname[i+1]) - 0x41) & 0xf)))
-		
-		return ''.join(list(filter(lambda x: x in printable, ''.join(l).split('\x00', 1)[0].replace(' ', ''))))
-	except:
-		return "Illegal NetBIOS name"
-
-
-def NBT_NS_Role(data):
-	return {
-		"\x41\x41\x00":"Workstation/Redirector",
-		"\x42\x4c\x00":"Domain Master Browser",
-		"\x42\x4d\x00":"Domain Controller",
-		"\x42\x4e\x00":"Local Master Browser",
-		"\x42\x4f\x00":"Browser Election",
-		"\x43\x41\x00":"File Server",
-		"\x41\x42\x00":"Browser",
-	}.get(data, 'Service not known')
-
-
-def banner():
-	banner = "\n".join([
-		'                                         __',
-		'  .----.-----.-----.-----.-----.-----.--|  |.-----.----.',
-		'  |   _|  -__|__ --|  _  |  _  |     |  _  ||  -__|   _|',
-		'  |__| |_____|_____|   __|_____|__|__|_____||_____|__|',
-		'                   |__|'
-	])
-
-	print(banner)
-	print("\n           \033[1;33mNBT-NS, LLMNR & MDNS %s\033[0m" % settings.__version__)
-	print('')
-	print("  To support this project:")
-	print("  Patreon -> https://www.patreon.com/PythonResponder")
-	print("  Paypal  -> https://paypal.me/PythonResponder")
-	print('')
-	print("  Author: Laurent Gaffie (laurent.gaffie@gmail.com)")
-	print("  To kill this script hit CTRL-C")
-	print('')
-
-
-def StartupMessage():
-	enabled  = color('[ON]', 2, 1) 
-	disabled = color('[OFF]', 1, 1)
-
-	print('')
-	print(color("[+] ", 2, 1) + "Poisoners:")
-	print('    %-27s' % "LLMNR" + (enabled if settings.Config.AnalyzeMode == False else disabled))
-	print('    %-27s' % "NBT-NS" + (enabled if settings.Config.AnalyzeMode == False else disabled))
-	print('    %-27s' % "MDNS" + (enabled if settings.Config.AnalyzeMode == False else disabled))
-	print('    %-27s' % "DNS" + enabled)
-	print('    %-27s' % "DHCP" + (enabled if settings.Config.DHCP_On_Off else disabled))
-	print('')
-
-	print(color("[+] ", 2, 1) + "Servers:")
-	print('    %-27s' % "HTTP server" + (enabled if settings.Config.HTTP_On_Off else disabled))
-	print('    %-27s' % "HTTPS server" + (enabled if settings.Config.SSL_On_Off else disabled))
-	print('    %-27s' % "WPAD proxy" + (enabled if settings.Config.WPAD_On_Off else disabled))
-	print('    %-27s' % "Auth proxy" + (enabled if settings.Config.ProxyAuth_On_Off else disabled))
-	print('    %-27s' % "SMB server" + (enabled if settings.Config.SMB_On_Off else disabled))
-	print('    %-27s' % "Kerberos server" + (enabled if settings.Config.Krb_On_Off else disabled))
-	print('    %-27s' % "SQL server" + (enabled if settings.Config.SQL_On_Off else disabled))
-	print('    %-27s' % "FTP server" + (enabled if settings.Config.FTP_On_Off else disabled))
-	print('    %-27s' % "IMAP server" + (enabled if settings.Config.IMAP_On_Off else disabled))
-	print('    %-27s' % "POP3 server" + (enabled if settings.Config.POP_On_Off else disabled))
-	print('    %-27s' % "SMTP server" + (enabled if settings.Config.SMTP_On_Off else disabled))
-	print('    %-27s' % "DNS server" + (enabled if settings.Config.DNS_On_Off else disabled))
-	print('    %-27s' % "LDAP server" + (enabled if settings.Config.LDAP_On_Off else disabled))
-	print('    %-27s' % "RDP server" + (enabled if settings.Config.RDP_On_Off else disabled))
-	print('    %-27s' % "DCE-RPC server" + (enabled if settings.Config.DCERPC_On_Off else disabled))
-	print('    %-27s' % "WinRM server" + (enabled if settings.Config.WinRM_On_Off else disabled))
-	print('')
-
-	print(color("[+] ", 2, 1) + "HTTP Options:")
-	print('    %-27s' % "Always serving EXE" + (enabled if settings.Config.Serve_Always else disabled))
-	print('    %-27s' % "Serving EXE" + (enabled if settings.Config.Serve_Exe else disabled))
-	print('    %-27s' % "Serving HTML" + (enabled if settings.Config.Serve_Html else disabled))
-	print('    %-27s' % "Upstream Proxy" + (enabled if settings.Config.Upstream_Proxy else disabled))
-	#print('    %-27s' % "WPAD script" + settings.Config.WPAD_Script
-	print('')
-
-	print(color("[+] ", 2, 1) + "Poisoning Options:")
-	print('    %-27s' % "Analyze Mode" + (enabled if settings.Config.AnalyzeMode else disabled))
-	print('    %-27s' % "Force WPAD auth" + (enabled if settings.Config.Force_WPAD_Auth else disabled))
-	print('    %-27s' % "Force Basic Auth" + (enabled if settings.Config.Basic else disabled))
-	print('    %-27s' % "Force LM downgrade" + (enabled if settings.Config.LM_On_Off == True else disabled))
-	print('    %-27s' % "Force ESS downgrade" + (enabled if settings.Config.NOESS_On_Off == True or settings.Config.LM_On_Off == True else disabled))
-	print('')
-
-	print(color("[+] ", 2, 1) + "Generic Options:")
-	print('    %-27s' % "Responder NIC" + color('[%s]' % settings.Config.Interface, 5, 1))
-	print('    %-27s' % "Responder IP" + color('[%s]' % settings.Config.Bind_To, 5, 1))
-	print('    %-27s' % "Responder IPv6" + color('[%s]' % settings.Config.Bind_To6, 5, 1))
-	if settings.Config.ExternalIP:
-		print('    %-27s' % "Responder external IP" + color('[%s]' % settings.Config.ExternalIP, 5, 1))
-	if settings.Config.ExternalIP6:
-		print('    %-27s' % "Responder external IPv6" + color('[%s]' % settings.Config.ExternalIP6, 5, 1))
-		
-	print('    %-27s' % "Challenge set" + color('[%s]' % settings.Config.NumChal, 5, 1))
-	if settings.Config.Upstream_Proxy:
-		print('    %-27s' % "Upstream Proxy" + color('[%s]' % settings.Config.Upstream_Proxy, 5, 1))
-
-	if len(settings.Config.RespondTo):
-		print('    %-27s' % "Respond To" + color(str(settings.Config.RespondTo), 5, 1))
-	if len(settings.Config.RespondToName):
-		print('    %-27s' % "Respond To Names" + color(str(settings.Config.RespondToName), 5, 1))
-	if len(settings.Config.DontRespondTo):
-		print('    %-27s' % "Don't Respond To" + color(str(settings.Config.DontRespondTo), 5, 1))
-	if len(settings.Config.DontRespondToName):
-		print('    %-27s' % "Don't Respond To Names" + color(str(settings.Config.DontRespondToName), 5, 1))
-	print('')
-
-	print(color("[+] ", 2, 1) + "Current Session Variables:")
-	print('    %-27s' % "Responder Machine Name" + color('[%s]' % settings.Config.MachineName, 5, 1))
-	print('    %-27s' % "Responder Domain Name" + color('[%s]' % settings.Config.DomainName, 5, 1))
-	print('    %-27s' % "Responder DCE-RPC Port " + color('[%s]' % settings.Config.RPCPort, 5, 1))
-

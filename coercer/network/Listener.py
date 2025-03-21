@@ -36,7 +36,7 @@ ResponderOptions = namedtuple(
     )
 
 
-def create_smb_server(control_structure, listen_ip, interface, lock):
+def create_smb_server(control_structure, listen_ip, listen_port, interface, lock, verbose=False):
     """Factory function for creating a SMBServer object"""
 
     def record_result(result):
@@ -69,6 +69,7 @@ def create_smb_server(control_structure, listen_ip, interface, lock):
     settings.init()
     responder_options.update(dict(ExternalIP=listen_ip, OURIP=listen_ip))
     responder_options.update(dict(Interface=interface))
+    responder_options.update(dict(Verbose=verbose))
     options = ResponderOptions(*responder_options.values())
     settings.Config.populate(options)
     from coercer.ext.responder import SMB
@@ -82,7 +83,8 @@ def create_smb_server(control_structure, listen_ip, interface, lock):
         def run(self_):
             # FIXME I wanted to bind to listen_ip, but that allows yields:
             #  'Address family for hostname not supported'
-            self_.server = Responder.ThreadingTCPServer(('', 445), SMB.SMB1)
+
+            self_.server = Responder.ThreadingTCPServer(('', listen_port), SMB.SMB1)
             self_.server.allow_reuse_address = True
             self_.server.serve_forever()
 
@@ -104,11 +106,7 @@ class Listener(object):
         super(Listener, self).__init__()
 
         self.options = options
-
-        if self.options.mode in ["fuzz", "scan"]:
-            self.smb_port = self.options.smb_port
-        elif self.options.mode in ["coerce"]:
-            self.smb_port = self.options.smb_port
+        self.smb_port = 4445 if options.redirecting_smb_packets else self.options.smb_port
 
         self.timeout = 1
         self.listen_ip = "0.0.0.0"
@@ -124,8 +122,8 @@ class Listener(object):
         Function start_smb(self, control_structure)
         """
         lock = threading.Lock()
-        smb_server = create_smb_server(control_structure, self.listen_ip,
-                                       self.options.interface or 'ALL', lock)
+        smb_server = create_smb_server(control_structure, self.listen_ip, self.smb_port,
+                                       self.options.interface or 'ALL', lock, self.options.verbose)
         smb_server.start()
         lock.acquire(timeout=self.timeout)
         smb_server.shutdown()

@@ -10,6 +10,9 @@
   <br>
 </p>
 
+## Windows Support
+To build a binary for Windows, download the `installer.ps1` script from this repository. Run it simply with no arguments to create a binary in the working directory. Use `-h` or `--help` for the help menu with options.
+
 ## Features
 
  - Core:

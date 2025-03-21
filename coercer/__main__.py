@@ -8,9 +8,9 @@
 import argparse
 import os
 import sys
+import threading
 from sectools.network.domains import is_fqdn
 from sectools.network.ip import is_ipv4_cidr, is_ipv4_addr, is_ipv6_addr, expand_cidr, expand_port_range
-from coercer.core.Reporter import create_reporter
 
 VERSION = "2.4.3"
 
@@ -187,6 +187,8 @@ def parseArgs():
 
 def main():
     lmhash, nthash, options = parseArgs()
+
+    from coercer.core.Reporter import create_reporter
     create_reporter(options, options.verbose)
 
     from coercer.core.Reporter import reporter
@@ -195,11 +197,19 @@ def main():
     from coercer.core.modes.coerce import action_coerce
     from coercer.core.modes.fuzz import action_fuzz
     from coercer.network.smb import try_login
-    from coercer.network.utils import can_listen_on_port
+    from coercer.network.utils import can_listen_on_port, redirect_smb_packets
     from coercer.core.loader import find_and_load_coerce_methods
 
     available_methods = find_and_load_coerce_methods()
-    
+
+    if options.smb_port == 445 and sys.platform == "win32" and (options.mode == "scan" or options.mode == "fuzz"):
+        reporter.print_info("Redirecting packets between port 445 <-> 4445")
+        options.redirecting_smb_packets = True
+        redirector = threading.Thread(target=redirect_smb_packets)
+        redirector.start()
+    else:
+        options.redirecting_smb_packets = False
+
     # Parsing targets
     targets = []
     if options.target_ip is not None:
@@ -265,8 +275,8 @@ def main():
         reporter.print_info("Starting scan mode")
         if credentials.is_anonymous():
             reporter.print_info("No credentials provided, trying to connect with a NULL session.")
-        if not can_listen_on_port("0.0.0.0", 445):
-            reporter.print_error("Cannot listen on port tcp/%d. Are you root or are other servers running?" % 445)
+        if not can_listen_on_port("0.0.0.0", 4445 if options.redirecting_smb_packets else options.smb_port):
+            reporter.print_error("Cannot listen on port tcp/%d. Are you root or are other servers running?" % 4445 if options.redirecting_smb_packets else options.smb_port)
         else:
             for target in targets:
                 reporter.print_info("Scanning target %s" % target)
@@ -289,8 +299,8 @@ def main():
         reporter.print_info("Starting fuzz mode")
         if credentials.is_anonymous():
             reporter.print_info("No credentials provided, trying to connect with a NULL session.")
-        if not can_listen_on_port("0.0.0.0", 445):
-            reporter.print_error("Cannot listen on port tcp/%d. Are you root or are other servers running?" % 445)
+        if not can_listen_on_port("0.0.0.0", 4445 if options.redirecting_smb_packets else options.smb_port):
+            reporter.print_error("Cannot listen on port tcp/%d. Are you root or are other servers running?" % 4445 if options.redirecting_smb_packets else options.smb_port)
         else:
             for target in targets:
                 reporter.print_info("Fuzzing target %s" % target)

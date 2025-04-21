@@ -38,6 +38,11 @@ You can now install it from pypi (latest version is <img alt="PyPI" src="https:/
 sudo python3 -m pip install coercer
 ```
 
+### Shell Completions
+
+Coercer uses [argcomplete](https://github.com/kislyuk/argcomplete) to autogenerate tab completions for your shell (bash, zsh, fish, ...).
+See the `argcomplete` README for how to enable tab completions.
+
 ## Quick start
 
  - You want to **assess** the Remote Procedure Calls listening on a machine to see if they can be leveraged to coerce an authentication?
@@ -49,7 +54,7 @@ sudo python3 -m pip install coercer
    + Use [**coerce** mode](./documentation/Coerce-mode.md), example:
 
     https://user-images.githubusercontent.com/79218792/204372851-4ba461ed-6812-4057-829d-0af6a06b0ecc.mp4
-   
+
  - You are doing **research** and want to fuzz Remote Procedure Calls listening on a machine with various paths?
    + Use [**fuzz** mode](./documentation/Fuzz-mode.md), example:
 

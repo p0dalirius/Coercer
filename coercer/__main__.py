@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# PYTHON_ARGCOMPLETE_OK
 # File name          : __main__.py
 # Author             : Podalirius (@podalirius_)
 # Date created       : 17 Sep 2022
@@ -9,6 +10,7 @@ import argparse
 import os
 import sys
 import threading
+import argcomplete
 from sectools.network.domains import is_fqdn
 from sectools.network.ip import is_ipv4_cidr, is_ipv4_addr, is_ipv6_addr, expand_cidr, expand_port_range
 
@@ -46,7 +48,7 @@ def parseArgs():
     mode_scan_advanced_config.add_argument("--smb-port", default=445, type=int, help="SMB port (default: 445)")
     mode_scan_advanced_config.add_argument("--dce-port", default=135, type=int, help="DCERPC port (default: 135)")
     mode_scan_advanced_config.add_argument("--dce-ports", default=[], nargs='+', type=int, help="DCERPC ports")
-    mode_scan_advanced_config.add_argument("--auth-type", default=None, type=str, help="Desired authentication type ('smb' or 'http').")
+    mode_scan_advanced_config.add_argument("--auth-type", default=None, type=str, choices=('smb', 'http'), help="Desired authentication type.")
     mode_scan_advanced_config.add_argument("--stop-on-ntlm-auth", default=False, action="store_true", help="Move on to next target on successful NTLM authentication.")
     # Filters
     mode_scan_filters = mode_scan.add_argument_group("Filtering")
@@ -93,7 +95,7 @@ def parseArgs():
     mode_fuzz_advanced_config.add_argument("--smb-port", default=445, type=int, help="SMB port (default: 445)")
     mode_fuzz_advanced_config.add_argument("--dce-port", default=135, type=int, help="DCERPC port (default: 135)")
     mode_fuzz_advanced_config.add_argument("--dce-ports", default=[], nargs='+', type=int, help="DCERPC ports")
-    mode_fuzz_advanced_config.add_argument("--auth-type", default=None, type=str, help="Desired authentication type ('smb' or 'http').")
+    mode_fuzz_advanced_config.add_argument("--auth-type", default=None, type=str, choices=('smb', 'http'), help="Desired authentication type.")
     # Filters
     mode_fuzz_filters = mode_fuzz.add_argument_group("Filtering")
     mode_fuzz_filters.add_argument("--filter-method-name", default=[], action='append', type=str, help="Filter by method name")
@@ -122,7 +124,7 @@ def parseArgs():
     mode_fuzz_logging = mode_fuzz.add_argument_group("Logging")
     mode_fuzz_logging.add_argument("--minimum-log-level", default=0, help="Minimum logging level (integer).")
     mode_fuzz_logging.add_argument("--log-file", default=None, help="Path for the file to log to (enables logging).")
-    
+
     # Creating the "coerce" subparser ==============================================================================================================
     mode_coerce = argparse.ArgumentParser(add_help=False)
     mode_coerce.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose mode (default: False)")
@@ -136,7 +138,7 @@ def parseArgs():
     mode_coerce_advanced_config.add_argument("--dce-port", default=135, type=int, help="DCERPC port (default: 135)")
     mode_coerce_advanced_config.add_argument("--dce-ports", default=[], nargs='+', type=int, help="DCERPC ports")
     mode_coerce_advanced_config.add_argument("--always-continue", default=False, action="store_true", help="Always continue to coerce")
-    mode_coerce_advanced_config.add_argument("--auth-type", default=None, type=str, help="Desired authentication type ('smb' or 'http').")
+    mode_coerce_advanced_config.add_argument("--auth-type", default=None, type=str, choices=('smb', 'http'), help="Desired authentication type.")
     # Filters
     mode_coerce_filters = mode_coerce.add_argument_group("Filtering")
     mode_coerce_filters.add_argument("--filter-method-name", default=[], action='append', type=str, help="Filter by method name")
@@ -165,13 +167,14 @@ def parseArgs():
     mode_coerce_logging = mode_coerce.add_argument_group("Logging")
     mode_coerce_logging.add_argument("--minimum-log-level", default=0, help="Minimum logging level (integer).")
     mode_coerce_logging.add_argument("--log-file", default=None, help="Path for the file to log to (enables logging).")
-    
+
     # Adding the subparsers to the base parser
     subparsers = parser.add_subparsers(help="Mode", dest="mode", required=True)
     mode_scan_parser = subparsers.add_parser("scan", parents=[mode_scan], help="Tests known methods with known working paths on all methods, and report when an authentication is received.")
-    mode_coerce_parser = subparsers.add_parser("coerce", parents=[mode_coerce], help="Trigger authentications through all known methods with known working paths")
+    mode_coerce_parser = subparsers.add_parser("coerce", parents=[mode_coerce], help="Trigger authentications through all known methods with known working paths.")
     mode_fuzz_parser = subparsers.add_parser("fuzz", parents=[mode_fuzz], help="Tests every method with a list of exploit paths, and report when an authentication is received.")
 
+    argcomplete.autocomplete(parser, always_complete_options=False)
     options = parser.parse_args()
 
     # Parsing hashes
@@ -245,15 +248,15 @@ def main():
             final_targets.append(target)
         else:
             reporter.print_warn("Target '%s' was not added." % target, debug=True)
-    
-    # Sort 
+
+    # Sort
     targets = sorted(list(set(final_targets)))
 
     credentials = Credentials(
-        username=options.username, 
-        password=options.password, 
-        domain=options.domain, 
-        lmhash=lmhash, 
+        username=options.username,
+        password=options.password,
+        domain=options.domain,
+        lmhash=lmhash,
         nthash=nthash
     )
 

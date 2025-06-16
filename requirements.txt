@@ -1,3 +1,4 @@
+argcomplete
 impacket
 xlsxwriter
 jinja2

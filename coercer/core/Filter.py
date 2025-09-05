@@ -4,12 +4,15 @@
 # Author             : Podalirius (@podalirius_)
 # Date created       : 15 Sep 2022
 
+
 class Filter(object):
     """
     Documentation for class Filter
     """
 
-    def __init__(self, filter_method_name=None, filter_protocol_name=None, filter_pipe_name=None):
+    def __init__(
+        self, filter_method_name=None, filter_protocol_name=None, filter_pipe_name=None
+    ):
         super(Filter, self).__init__()
         self.filter_method_name = filter_method_name
         self.filter_protocol_name = filter_protocol_name
@@ -35,7 +38,9 @@ class Filter(object):
                 outcome = True
         #
         for protocol in self.filter_protocol_name:
-            if (protocol in instance.protocol["shortname"]) or (protocol in instance.protocol["longname"]):
+            if (protocol in instance.protocol["shortname"]) or (
+                protocol in instance.protocol["longname"]
+            ):
                 outcome = True
         #
         """

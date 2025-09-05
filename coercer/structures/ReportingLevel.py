@@ -16,4 +16,4 @@ class ReportingLevel(Enum):
 
     VERBOSE = 2
 
-    DEBUg = 0xff
+    DEBUg = 0xFF

@@ -11,6 +11,7 @@ class Modes(Enum):
     """
     Enum class Modes
     """
+
     COERCE = 0x01
     SCAN = 0x02
     FUZZ = 0x03

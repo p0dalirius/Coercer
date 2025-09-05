@@ -4,13 +4,14 @@
 # Author             : Podalirius (@podalirius_)
 # Date created       : 15 Sep 2022
 
-import sys
 from impacket.dcerpc.v5 import transport
+from impacket.dcerpc.v5.rpcrt import (RPC_C_AUTHN_LEVEL_PKT_PRIVACY,
+                                      RPC_C_AUTHN_WINNT)
 from impacket.uuid import uuidtup_to_bin
-from impacket.dcerpc.v5.rpcrt import RPC_C_AUTHN_WINNT, RPC_C_AUTHN_LEVEL_PKT_PRIVACY
 
-from coercer.structures import EscapeCodes
 from coercer.core.Reporter import reporter
+from coercer.structures import EscapeCodes
+
 
 class DCERPCSession(object):
     """
@@ -28,44 +29,55 @@ class DCERPCSession(object):
 
     def connect_ncacn_ip_tcp(self, target, port, targetIp=None):
         self.target = target
-        ncacn_ip_tcp = r'ncacn_ip_tcp:%s[%d]' % (target, port)
+        ncacn_ip_tcp = r"ncacn_ip_tcp:%s[%d]" % (target, port)
         self.__rpctransport = transport.DCERPCTransportFactory(ncacn_ip_tcp)
         self.session = self.__rpctransport.get_dce_rpc()
-        self.session.set_credentials(self.credentials.username, self.credentials.password, self.credentials.domain, self.credentials.lmhash, self.credentials.nthash, None)
+        self.session.set_credentials(
+            self.credentials.username,
+            self.credentials.password,
+            self.credentials.domain,
+            self.credentials.lmhash,
+            self.credentials.nthash,
+            None,
+        )
         self.session.set_auth_level(RPC_C_AUTHN_LEVEL_PKT_PRIVACY)
-        
-        reporter.print_in_progress("Connecting to %s ... " % ncacn_ip_tcp, prefix="   ", end="", debug=True)
+
+        reporter.print_in_progress(
+            "Connecting to %s ... " % ncacn_ip_tcp, prefix="   ", end="", debug=True
+        )
         try:
             self.session.connect()
         except Exception as e:
             reporter.print(("fail", EscapeCodes.BOLD_BRIGHT_RED), debug=True)
-            reporter.print_error("Something went wrong, check error status => %s" % str(e), prefix="      ", debug=True)
+            reporter.print_error(
+                "Something went wrong, check error status => %s" % str(e),
+                prefix="      ",
+                debug=True,
+            )
             return None
         else:
             reporter.print(("success", EscapeCodes.BOLD_BRIGHT_GREEN), debug=True)
         return self.session
 
     def connect_ncacn_np(self, target, pipe, targetIp=None):
-        """
-
-        """
+        """ """
         self.target = target
-        ncan_target = r'ncacn_np:%s[%s]' % (target, pipe)
+        ncan_target = r"ncacn_np:%s[%s]" % (target, pipe)
         self.__rpctransport = transport.DCERPCTransportFactory(ncan_target)
 
-        debug = False
-
-        if hasattr(self.__rpctransport, 'set_credentials'):
+        if hasattr(self.__rpctransport, "set_credentials"):
             self.__rpctransport.set_credentials(
                 username=self.credentials.username,
                 password=self.credentials.password,
                 domain=self.credentials.domain,
                 lmhash=self.credentials.lmhash,
-                nthash=self.credentials.nthash
+                nthash=self.credentials.nthash,
             )
 
-        if self.credentials.doKerberos == True:
-            self.__rpctransport.set_kerberos(self.credentials.doKerberos, kdcHost=self.credentials.kdcHost)
+        if self.credentials.doKerberos:
+            self.__rpctransport.set_kerberos(
+                self.credentials.doKerberos, kdcHost=self.credentials.kdcHost
+            )
         if targetIp is not None:
             self.__rpctransport.setRemoteHost(targetIp)
 
@@ -74,28 +86,42 @@ class DCERPCSession(object):
         self.session.set_auth_level(RPC_C_AUTHN_LEVEL_PKT_PRIVACY)
 
         # Connecting to named pipe
-        reporter.print_in_progress("Connecting to %s ... " % ncan_target, prefix="   ", end="", debug=True)
+        reporter.print_in_progress(
+            "Connecting to %s ... " % ncan_target, prefix="   ", end="", debug=True
+        )
         try:
             self.session.connect()
         except Exception as e:
             reporter.print(("fail", EscapeCodes.BOLD_BRIGHT_RED), debug=True)
-            reporter.print_error("Something went wrong, check error status => %s" % str(e), prefix="      ", debug=True)
+            reporter.print_error(
+                "Something went wrong, check error status => %s" % str(e),
+                prefix="      ",
+                debug=True,
+            )
             return None
         else:
             reporter.print(("success", EscapeCodes.BOLD_BRIGHT_GREEN), debug=True)
         return self.session
 
     def bind(self, interface_uuid, interface_version):
-        """
-
-        """
+        """ """
         # Binding to interface
-        reporter.print_in_progress("Binding to interface <uuid='%s', version='%s'> ... " % (interface_uuid, interface_version), prefix="   ", end="", debug=True)
+        reporter.print_in_progress(
+            "Binding to interface <uuid='%s', version='%s'> ... "
+            % (interface_uuid, interface_version),
+            prefix="   ",
+            end="",
+            debug=True,
+        )
         try:
             self.session.bind(uuidtup_to_bin((interface_uuid, interface_version)))
         except Exception as e:
             reporter.print(("fail", EscapeCodes.BOLD_BRIGHT_RED), debug=True)
-            reporter.print_error("Something went wrong, check error status => %s" % str(e), prefix="      ", debug=True)
+            reporter.print_error(
+                "Something went wrong, check error status => %s" % str(e),
+                prefix="      ",
+                debug=True,
+            )
             return False
         else:
             reporter.print(("success", EscapeCodes.BOLD_BRIGHT_GREEN), debug=True)

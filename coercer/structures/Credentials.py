@@ -4,12 +4,15 @@
 # Author             : Podalirius (@podalirius_)
 # Date created       : 16 Sep 2022
 
+
 class Credentials(object):
     """
     Documentation for class Credentials
     """
 
-    def __init__(self, username, password, domain, lmhash, nthash, doKerberos=False, kdcHost=None):
+    def __init__(
+        self, username, password, domain, lmhash, nthash, doKerberos=False, kdcHost=None
+    ):
         super(Credentials, self).__init__()
         self.username = username
         self.password = password

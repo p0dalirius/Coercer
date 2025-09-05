@@ -9,9 +9,7 @@ from impacket.dcerpc.v5.rpcrt import DCERPCException
 
 
 class DCERPCSessionError(DCERPCException):
-    """
-
-    """
+    """ """
 
     def __init__(self, error_string=None, error_code=None, packet=None):
         DCERPCException.__init__(self, error_string, error_code, packet)
@@ -21,6 +19,10 @@ class DCERPCSessionError(DCERPCException):
         if key in system_errors.ERROR_MESSAGES:
             error_msg_short = system_errors.ERROR_MESSAGES[key][0]
             error_msg_verbose = system_errors.ERROR_MESSAGES[key][1]
-            return 'SessionError: code: 0x%x - %s - %s' % (self.error_code, error_msg_short, error_msg_verbose)
+            return "SessionError: code: 0x%x - %s - %s" % (
+                self.error_code,
+                error_msg_short,
+                error_msg_verbose,
+            )
         else:
-            return 'SessionError: unknown error code: 0x%x' % self.error_code
+            return "SessionError: unknown error code: 0x%x" % self.error_code

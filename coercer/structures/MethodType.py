@@ -14,6 +14,4 @@ class MethodType(Enum):
 
     MICROSOFT_PROTOCOL = 0x01
 
-    OTHER = 0xff
-
-
+    OTHER = 0xFF

@@ -28,28 +28,34 @@ class Filter(object):
         Return:
             bool:outcome
         """
-        if len(self.filter_method_name) != 0 or len(self.filter_protocol_name) != 0:
-            outcome = False
-        else:
-            outcome = True
-        #
-        for method in self.filter_method_name:
-            if method in instance.function["name"]:
-                outcome = True
-        #
-        for protocol in self.filter_protocol_name:
-            if (protocol in instance.protocol["shortname"]) or (
-                protocol in instance.protocol["longname"]
-            ):
-                outcome = True
-        #
-        """
-        candidate_pipes = [p["namedpipe"] for p in instance.access["ncan_np"]]
-        for filter_pipe in self.filter_pipe_name:
-            if filter_pipe in candidate_pipes:
-                outcome = True
-        """
-        return outcome
+        has_method_filters = len(self.filter_method_name) != 0
+        has_protocol_filters = len(self.filter_protocol_name) != 0
+
+        # No filters => accept everything
+        if not has_method_filters and not has_protocol_filters:
+            return True
+
+        # Compute individual matches
+        method_match = True if not has_method_filters else False
+        protocol_match = True if not has_protocol_filters else False
+
+        if has_method_filters:
+            for method in self.filter_method_name:
+                if method in instance.function["name"]:
+                    method_match = True
+                    break
+
+        if has_protocol_filters:
+            for protocol in self.filter_protocol_name:
+                if (protocol in instance.protocol["shortname"]) or (
+                    protocol in instance.protocol["longname"]
+                ):
+                    protocol_match = True
+                    break
+
+        # When both filters are provided, require both to match (AND).
+        # When only one is provided, its match result is used.
+        return method_match and protocol_match
 
     def pipe_matches_filter(self, pipe_name):
         """

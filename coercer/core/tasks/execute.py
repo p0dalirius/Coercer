@@ -146,7 +146,7 @@ def execute_tasks(
                                         or options.listener_ip),
                                         http_listen_port=(
                                             http_listen_port
-                                            if mode == Modes.FUZZ
+                                            if mode == Modes.FUZZ or mode == Modes.SCAN
                                             else options.http_port
                                         ),
                                         smb_listen_port=options.smb_port,

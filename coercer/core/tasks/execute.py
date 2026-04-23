@@ -231,17 +231,15 @@ def execute_tasks(
                                         mode == Modes.COERCE
                                         and not options.always_continue
                                     ):
-                                        next_action_answer = None
-                                        while next_action_answer not in ["C", "S", "X"]:
+                                        while True:
                                             next_action_answer = input(
                                                 "Continue (C) | Skip this function (S) | Stop exploitation (X) ? "
                                             )
-                                            if len(next_action_answer) > 0:
-                                                next_action_answer = (
-                                                    next_action_answer.strip()[
-                                                        0
-                                                    ].upper()
-                                                )
+                                            if next_action_answer:
+                                                first = next_action_answer.strip()[0].upper()
+                                                if first in ["C", "S", "X"]:
+                                                    next_action_answer = first
+                                                    break
                                         if next_action_answer == "C":
                                             pass
                                         elif next_action_answer == "S":
